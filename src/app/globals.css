@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-near-black: #080A12;
+  --bg-dark-navy: #101528;
+  --neon-blue: #46C8FF;
+  --neon-purple: #A855F7;
+  --text-white: #F5F7FF;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg-near-black);
+    color: var(--text-white);
+    font-family: var(--font-sans), system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: rgba(168, 85, 247, 0.4);
+    color: #ffffff;
+  }
+}
+
+@layer components {
+  /* Nền kính mờ Sci-fi */
+  .glass-card {
+    background: rgba(16, 21, 40, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(70, 200, 255, 0.15);
+  }
+
+  .glass-card-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .glass-card-hover:hover {
+    border-color: rgba(70, 200, 255, 0.4);
+    box-shadow: 0 0 30px -5px rgba(70, 200, 255, 0.25);
+    transform: translateY(-2px);
+  }
+
+  /* Nút bấm Neon Gaming */
+  .btn-gaming-primary {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #46C8FF 0%, #A855F7 60%, #FF007F 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 6s ease infinite;
+    box-shadow: 0 0 25px rgba(70, 200, 255, 0.45);
+    transition: all 0.25s ease;
+  }
+  .btn-gaming-primary:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0 35px rgba(168, 85, 247, 0.65);
+  }
+  .btn-gaming-primary:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
+  }
+
+  .btn-gaming-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #F5F7FF;
+    transition: all 0.2s ease;
+  }
+  .btn-gaming-secondary:hover:not(:disabled) {
+    background: rgba(70, 200, 255, 0.1);
+    border-color: rgba(70, 200, 255, 0.5);
+    box-shadow: 0 0 20px rgba(70, 200, 255, 0.2);
+  }
+
+  /* Lưới không gian công nghệ */
+  .cyber-grid {
+    background-image:
+      linear-gradient(rgba(70, 200, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(70, 200, 255, 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 75%);
+  }
+
+  /* Gradient chữ chuẩn tương lai */
+  .text-neon-title {
+    background: linear-gradient(135deg, #F5F7FF 0%, #46C8FF 50%, #A855F7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Animations tuỳ biến */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes laserSweep {
+  0% { top: -10%; opacity: 0.2; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { top: 110%; opacity: 0.2; }
+}
+
+@keyframes hologramSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes hologramSpinReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes cameraShake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-3px, -2px); }
+  20% { transform: translate(3px, 1px); }
+  30% { transform: translate(-2px, 3px); }
+  40% { transform: translate(2px, -1px); }
+  50% { transform: translate(-1px, 2px); }
+  60% { transform: translate(3px, -2px); }
+  70% { transform: translate(-2px, -1px); }
+  80% { transform: translate(1px, 2px); }
+  90% { transform: translate(-1px, -2px); }
+}
+
+.animate-laser {
+  animation: laserSweep 2s ease-in-out infinite;
+}
+
+.animate-hologram {
+  animation: hologramSpin 14s linear infinite;
+}
+
+.animate-hologram-reverse {
+  animation: hologramSpinReverse 10s linear infinite;
+}
+
+.animate-camera-shake {
+  animation: cameraShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
