@@ -274,6 +274,130 @@ export default function ResultCard({
         </div>
       </div>
 
+      {/* NHẬN DIỆN AESTHETIC (CATALOG 270 STYLE) & COSPLAY RECOGNITION */}
+      <motion.div variants={fadeUp} className="mt-8 rounded-3xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
+        <h4 className="font-sans text-sm font-extrabold text-white flex items-center gap-2 border-b border-white/10 pb-3">
+          <Tag className="h-4 w-4 text-[#46C8FF]" />
+          Nhận diện Phong cách (Catalog 270 Style) & Cosplay
+        </h4>
+
+        <div className="mt-4 grid gap-6 md:grid-cols-2">
+          {/* Cột Aesthetic Styles */}
+          <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#46C8FF]">
+              AESTHETIC STYLES
+            </span>
+
+            {report.primaryStyle ? (
+              <div className="mt-2 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-white text-sm">{report.primaryStyle.name}</p>
+                    <span className="text-[11px] text-slate-400">Phong cách chủ đạo ({report.primaryStyle.itemCount} dấu hiệu)</span>
+                  </div>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase ${
+                      report.primaryStyle.confidence === "high"
+                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                        : report.primaryStyle.confidence === "medium"
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                        : "bg-slate-500/20 text-slate-300 border border-slate-500/30"
+                    }`}
+                  >
+                    Độ tin cậy: {report.primaryStyle.confidence.toUpperCase()}
+                  </span>
+                </div>
+
+                {report.primaryStyle.evidence.length > 0 && (
+                  <div className="text-xs text-slate-300 bg-white/5 rounded-xl p-2.5">
+                    <p className="text-[11px] font-semibold text-slate-400 mb-1">Bằng chứng hỗ trợ:</p>
+                    <ul className="list-disc list-inside space-y-0.5 text-[11px]">
+                      {report.primaryStyle.evidence.slice(0, 3).map((ev, i) => (
+                        <li key={i}>{ev}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {report.primaryStyle.missingEvidence.length > 0 && (
+                  <p className="text-[11px] text-amber-300/80 italic">
+                    ⚠️ {report.primaryStyle.missingEvidence[0]}
+                  </p>
+                )}
+
+                {/* Secondary Styles */}
+                {report.secondaryStyles && report.secondaryStyles.length > 0 && (
+                  <div className="pt-2 border-t border-white/5">
+                    <p className="text-[11px] font-semibold text-slate-400 mb-1.5">Phong cách phụ:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {report.secondaryStyles.map((sec) => (
+                        <span
+                          key={sec.id}
+                          className="rounded-lg bg-white/5 px-2 py-1 text-[11px] text-slate-300 border border-white/10"
+                        >
+                          {sec.name} <span className="text-slate-500">({sec.confidence})</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="mt-2 text-xs text-slate-400 italic">
+                Trang phục tự do, chưa hội tụ đủ dấu hiệu để phân loại vào aesthetic cụ thể trong catalog.
+              </p>
+            )}
+          </div>
+
+          {/* Cột Cosplay Recognition */}
+          <div className="rounded-2xl border border-pink-500/20 bg-pink-500/[0.03] p-4">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-pink-400">
+              COSPLAY RECOGNITION
+            </span>
+
+            {report.cosplayResult && report.cosplayResult.identified ? (
+              <div className="mt-2 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-pink-300 text-sm">{report.cosplayResult.characterName}</p>
+                    <p className="text-[11px] text-pink-400/80">Tác phẩm: {report.cosplayResult.franchise}</p>
+                  </div>
+                  <span className="rounded-full bg-pink-500/20 px-2.5 py-0.5 font-mono text-[10px] font-bold text-pink-300 border border-pink-500/30 uppercase">
+                    Độ tin cậy: {report.cosplayResult.confidenceLevel.toUpperCase()} ({Math.round(report.cosplayResult.confidence * 100)}%)
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-300">{report.cosplayResult.explanation}</p>
+
+                {report.cosplayResult.supportingDetails.length > 0 && (
+                  <div className="text-xs text-slate-300 bg-black/40 rounded-xl p-2.5">
+                    <p className="text-[11px] font-semibold text-slate-400 mb-1">Chi tiết phù hợp:</p>
+                    <ul className="list-disc list-inside space-y-0.5 text-[11px]">
+                      {report.cosplayResult.supportingDetails.map((det, i) => (
+                        <li key={i}>{det}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {report.cosplayResult.mismatchedDetails.length > 0 && (
+                  <p className="text-[11px] text-slate-400 italic">
+                    Góp ý: {report.cosplayResult.mismatchedDetails[0]}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="mt-3 text-xs text-slate-400 space-y-1">
+                <p className="italic text-slate-300">Chưa đủ bằng chứng để xác định đây là trang phục Cosplay của một nhân vật cụ thể.</p>
+                <p className="text-[11px] text-slate-500">
+                  Hệ thống không tự ý gán nhân vật khi thiếu các phụ kiện đặc trưng (tóc, vũ khí, trang phục nhận diện).
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+
       {/* CHI TIẾT GIÁ TRỊ ROBUX & DANH SÁCH VẬT PHẨM */}
       <motion.div variants={fadeUp} className="mt-8 rounded-3xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">

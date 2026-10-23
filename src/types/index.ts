@@ -230,6 +230,28 @@ export interface TierAdvice {
   steps: string[];
 }
 
+export interface DetectedStyleInfo {
+  id: string;
+  name: string;
+  confidence: Confidence;
+  confidenceScore: number;
+  evidence: string[];
+  missingEvidence: string[];
+  itemCount: number;
+}
+
+export interface CosplayRecognitionResult {
+  identified: boolean;
+  characterName: string | null;
+  franchise: string | null;
+  confidence: number;
+  confidenceLevel: "high" | "medium" | "insufficient";
+  supportingDetails: string[];
+  mismatchedDetails: string[];
+  aesthetic: string[];
+  explanation: string;
+}
+
 export interface ScoreReport {
   criteria: Record<CriterionKey, CriterionResult>;
   /** Điểm AI hệ thống (0-100) từ 4 tiêu chí tự động (chiếm 75% điểm tổng). */
@@ -244,6 +266,8 @@ export interface ScoreReport {
   personalWeight: number;
   /** Điểm tổng cuối cùng = round(aiScore * 0.75 + personalScore * 0.25). */
   total: number;
+  /** Điểm thô thực tế chưa làm tròn để xác định Rarity chuẩn xác. */
+  rawTotal: number;
   /** Bậc theo điểm thuần, trước khi áp giới hạn chất lượng dữ liệu. */
   uncappedTier: RarityTier;
   rarity: Rarity;
@@ -251,7 +275,13 @@ export interface ScoreReport {
   value: ValueBreakdown;
   styles: StyleMatch[];
   dominantStyle: StyleMatch | null;
-  /** Danh sách nhận diện cosplay anime/phim/fantasy (nếu có). */
+  /** Phong cách chính nhận diện từ Catalog 270 Style */
+  primaryStyle: DetectedStyleInfo | null;
+  /** Các phong cách phụ nhận diện từ Catalog 270 Style */
+  secondaryStyles: DetectedStyleInfo[];
+  /** Kết quả nhận diện Cosplay Anime, Phim ảnh, Fantasy */
+  cosplayResult: CosplayRecognitionResult;
+  /** Danh sách nhận diện cosplay anime/phim/fantasy (tương thích ngược). */
   cosplayDetections: CosplayMatchInfo[];
   strengths: string[];
   weaknesses: string[];

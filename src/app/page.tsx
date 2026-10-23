@@ -31,9 +31,9 @@ export default function HomePage() {
   const [catalog, setCatalog] = useState<CatalogSummary | null>(null);
   const [palette, setPalette] = useState<PaletteStats | null>(null);
 
-  // Báo cáo điểm 5 tiêu chí và Gu cá nhân (mặc định RARE 45đ cân bằng)
+  // Báo cáo điểm 4 tiêu chí AI và Gu cá nhân (mặc định COMMON 0đ theo Master Prompt)
   const [report, setReport] = useState<ScoreReport | null>(null);
-  const [personalTier, setPersonalTier] = useState<RarityTier>("RARE");
+  const [personalTier, setPersonalTier] = useState<RarityTier>("COMMON");
 
   // Tiến trình quét
   const [progress, setProgress] = useState(0);
@@ -42,10 +42,19 @@ export default function HomePage() {
   const scanRunId = useRef(0);
   const isSkipRequested = useRef(false);
 
-  // 1. Tìm user khi nhập username -> Hiển thị màn hình TARGET ACQUIRED
+  // 1. Tìm user khi nhập username -> Reset sạch kết quả cũ & Hiển thị màn hình TARGET ACQUIRED
   const handleSearch = useCallback(async (username: string) => {
     const currentId = ++scanRunId.current;
+    // Reset toàn bộ kết quả avatar cũ, điểm AI cũ, cosplay, giá Robux cũ
     setError(null);
+    setUser(null);
+    setProfile(null);
+    setImageUrl(null);
+    setCatalog(null);
+    setPalette(null);
+    setReport(null);
+    setPersonalTier("COMMON");
+    setProgress(0);
     setPhase("searching");
 
     try {
@@ -59,7 +68,7 @@ export default function HomePage() {
       if (currentId !== scanRunId.current) return;
       setImageUrl(thumbUrl);
 
-      // Chuyển sang phase "found" để người dùng xem avatar, chọn gu và bấm "SCAN MY AVATAR"
+      // Chuyển sang phase "found" để người dùng xem avatar, chọn gu và bấm "QUÉT & CHẤM ĐIỂM"
       setPhase("found");
     } catch (err) {
       if (currentId !== scanRunId.current) return;
@@ -196,7 +205,7 @@ export default function HomePage() {
     setCatalog(null);
     setPalette(null);
     setReport(null);
-    setPersonalTier("RARE");
+    setPersonalTier("COMMON");
     setProgress(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);

@@ -3,9 +3,11 @@ import type {
   CatalogSummary,
   Confidence,
   CosplayMatchInfo,
+  CosplayRecognitionResult,
   CriterionKey,
   CriterionResult,
   DataQuality,
+  DetectedStyleInfo,
   PaletteStats,
   RarityTier,
   RobloxProfile,
@@ -16,6 +18,8 @@ import type {
   ValueBreakdown,
 } from "@/types";
 import { applyDataQualityCap, getRarityForScore, RARITIES, TIER_ORDER } from "./rarity";
+import { AVATAR_STYLES_CATALOG, AVATAR_STYLE_MAP, TOTAL_STYLES_COUNT } from "./data/avatarStyles";
+import { STYLE_GROUPS } from "./data/styleGroups";
 import {
   assetGroup,
   buildStyleUnits,
@@ -434,6 +438,162 @@ function evaluateValue(
   };
 }
 
+/**
+ * Nhận diện phong cách từ Catalog 270 Styles chính thức
+ */
+export function detectCatalog270Styles(
+  profile: RobloxProfile,
+  units: StyleUnit[],
+  palette: PaletteStats | null,
+): {
+  primaryStyle: DetectedStyleInfo | null;
+  secondaryStyles: DetectedStyleInfo[];
+  allDetected: DetectedStyleInfo[];
+} {
+  const assets = profile.avatar.assets ?? [];
+  const bodyColors = profile.avatar.bodyColors;
+  const avatarType = profile.avatar.playerAvatarType;
+  const results: DetectedStyleInfo[] = [];
+
+  for (const styleDef of AVATAR_STYLES_CATALOG) {
+    const evidence: string[] = [];
+    const missingEvidence: string[] = [];
+    let matchedCount = 0;
+
+    // 1. Quét từ khóa qua các item trang phục (dùng ranh giới từ matchKeywords)
+    for (const u of units) {
+      const matchedKw = matchKeywords(u.name, styleDef.keywords);
+      if (matchedKw.length > 0) {
+        matchedCount++;
+        evidence.push(`Vật phẩm "${u.name}" khớp từ khóa: ${matchedKw.join(", ")}`);
+      }
+    }
+
+    // 2. Đặc điểm cấu trúc avatar
+    if (styleDef.id === "r6core" && avatarType === "R6") {
+      matchedCount += 2;
+      evidence.push("Sử dụng bộ khung cơ thể cổ điển R6 (6 bộ phận)");
+    }
+    if (styleDef.id === "classic-noob" && isClassicNoobPalette(bodyColors)) {
+      matchedCount += 3;
+      evidence.push("Phối màu da Noob chuẩn xác: Đầu vàng, Thân xanh dương, Chân xanh lá");
+    }
+    if (styleDef.id === "bacon-hair") {
+      const hasPalHair = assets.some((a) => a.name.toLowerCase().includes("pal hair") || a.name.toLowerCase().includes("bacon"));
+      if (hasPalHair) {
+        matchedCount += 2;
+        evidence.push("Trang bị kiểu tóc Bacon kinh điển (Pal Hair)");
+      }
+    }
+    if (styleDef.id === "headless") {
+      const hasHeadless = assets.some((a) => a.name.toLowerCase().includes("headless"));
+      if (hasHeadless) {
+        matchedCount += 3;
+        evidence.push("Sở hữu trang bị Headless Horseman (Đầu vô hình)");
+      }
+    }
+    if (styleDef.id === "korblox" || styleDef.id === "korblox-flex") {
+      const hasKorblox = assets.some((a) => a.name.toLowerCase().includes("korblox"));
+      if (hasKorblox) {
+        matchedCount += 3;
+        evidence.push("Trang bị gói Korblox Deathspeaker (Chân xương bay)");
+      }
+    }
+    if (styleDef.id === "all-black" && palette?.harmony === "monochrome") {
+      const dominant = palette.colors[0];
+      if (dominant && dominant.share >= 0.6) {
+        matchedCount += 1;
+        evidence.push("Bảng màu thị giác đơn sắc tối màu chiếm ưu thế");
+      }
+    }
+
+    if (matchedCount > 0) {
+      let confidence: Confidence = "low";
+      let confidenceScore = 0.45;
+      if (matchedCount >= 3) {
+        confidence = "high";
+        confidenceScore = Math.min(0.95, 0.75 + matchedCount * 0.05);
+      } else if (matchedCount === 2) {
+        confidence = "medium";
+        confidenceScore = 0.7;
+      }
+
+      if (matchedCount === 1) {
+        missingEvidence.push("Chỉ có 1 chi tiết đại diện, cần bổ sung thêm trang phục/phụ kiện đồng điệu.");
+      }
+
+      results.push({
+        id: styleDef.id,
+        name: styleDef.name,
+        confidence,
+        confidenceScore,
+        evidence,
+        missingEvidence,
+        itemCount: matchedCount,
+      });
+    }
+  }
+
+  results.sort((a, b) => b.itemCount - a.itemCount || b.confidenceScore - a.confidenceScore);
+
+  const primaryStyle = results.length > 0 ? results[0] : null;
+  const secondaryStyles = results.slice(1, 4);
+
+  return {
+    primaryStyle,
+    secondaryStyles,
+    allDetected: results,
+  };
+}
+
+/**
+ * Nhận diện Cosplay nhân vật chuẩn Schema Phần VIII Master Prompt
+ */
+export function buildCosplayRecognition(assets: AvatarAsset[]): CosplayRecognitionResult {
+  const detections = detectCosplayInAssets(assets);
+
+  if (detections.length === 0) {
+    return {
+      identified: false,
+      characterName: null,
+      franchise: null,
+      confidence: 0,
+      confidenceLevel: "insufficient",
+      supportingDetails: [],
+      mismatchedDetails: ["Không tìm thấy phụ kiện đặc trưng của nhân vật cụ thể nào trong catalog."],
+      aesthetic: [],
+      explanation: "Chưa đủ bằng chứng để xác định đây là trang phục Cosplay của một nhân vật cụ thể.",
+    };
+  }
+
+  const primary = detections[0];
+  const matchingAssetCount = assets.filter((a) =>
+    detections.some((d) => matchKeywords(a.name, [d.matchedKeyword]).length > 0)
+  ).length;
+  const isHigh = matchingAssetCount >= 2 || detections.length >= 2;
+  const confidence = isHigh ? 0.9 : 0.75;
+  const confidenceLevel = isHigh ? "high" : "medium";
+
+  const supportingDetails = detections.map(
+    (d) => `Phụ kiện "${d.assetName}" mang đặc trưng của ${d.character} (${d.matchedKeyword})`,
+  );
+
+  return {
+    identified: true,
+    characterName: primary.character,
+    franchise: primary.franchise,
+    confidence,
+    confidenceLevel,
+    supportingDetails,
+    mismatchedDetails:
+      detections.length === 1
+        ? ["Cần bổ sung thêm áo/quần đồng bộ của nhân vật để cosplay hoàn chỉnh hơn."]
+        : [],
+    aesthetic: ["Anime", "Cosplay", primary.franchise],
+    explanation: `Avatar tái hiện rõ nét hình tượng nhân vật ${primary.character} trong tác phẩm "${primary.franchise}" qua các phụ kiện đặc trưng.`,
+  };
+}
+
 // ==========================================
 // TỔNG HỢP VÀ BÁO CÁO TOÀN DIỆN (SCORE REPORT)
 // ==========================================
@@ -441,12 +601,19 @@ export function calculateAvatarRank(
   profile: RobloxProfile,
   catalog: CatalogSummary | null = null,
   palette: PaletteStats | null = null,
-  personalTier: RarityTier = "RARE",
+  personalTier: RarityTier = "COMMON",
 ): ScoreReport {
   const assets = profile.avatar.assets ?? [];
   const units = buildStyleUnits(assets);
 
-  // 1. Nhận diện các phong cách xuất hiện
+  // 1. Nhận diện từ Catalog 270 style chính thức
+  const { primaryStyle, secondaryStyles } = detectCatalog270Styles(profile, units, palette);
+
+  // Nhận diện Cosplay theo schema chính thức
+  const cosplayResult = buildCosplayRecognition(assets);
+  const cosplays = detectCosplayInAssets(assets);
+
+  // 1b. Tương thích ngược với detectedStyles cũ
   const detectedStyles: StyleMatch[] = [];
   const keywordStyles = Object.keys(STYLE_KEYWORDS) as (keyof typeof STYLE_KEYWORDS)[];
 
@@ -474,8 +641,6 @@ export function calculateAvatarRank(
     }
   }
 
-  // Nhận diện Cosplay đặc sắc (Anime, Phim ảnh, Superheroes, Fantasy, Game)
-  const cosplays = detectCosplayInAssets(assets);
   if (cosplays.length > 0) {
     detectedStyles.unshift({
       style: "cosplay",
@@ -486,7 +651,6 @@ export function calculateAvatarRank(
     });
   }
 
-  // Nhận diện Minimalism / Maximalism
   const stylingCount = units.filter(
     (u) => u.group === "accessory" || u.group === "layered" || u.group === "classic",
   ).length;
@@ -518,7 +682,7 @@ export function calculateAvatarRank(
   const humorRes = evaluateHumor(profile, units);
   const { criterion: valueRes, breakdown: valueBreakdown } = evaluateValue(assets, catalog);
 
-  // Đặt trọng số chuẩn xác: Mỗi tiêu chí AI là 18.75% (Tổng 4 cái = 75%)
+  // Đặt trọng số chuẩn xác: Mỗi tiêu chí AI là 18.75% (Tổng 4 tiêu chí = 75%)
   themeRes.weight = 0.1875;
   uniquenessRes.weight = 0.1875;
   humorRes.weight = 0.1875;
@@ -529,11 +693,12 @@ export function calculateAvatarRank(
   const scoreHumor = humorRes.score ?? 0;
   const scoreValue = valueRes.score ?? 0;
 
-  // Điểm AI thuần túy (thang 0-100)
-  const aiScore = Math.round((scoreTheme + scoreUniqueness + scoreHumor + scoreValue) / 4);
+  // Điểm AI thuần túy (thang 0-100), tính chính xác số thực để không làm tròn sớm
+  const aiScoreNumber = (scoreTheme + scoreUniqueness + scoreHumor + scoreValue) / 4;
+  const aiScore = Math.round(aiScoreNumber * 100) / 100;
 
-  // Tiêu chí 5: Chấm theo gu của bạn (chiếm 25% trọng số)
-  const personalScore = RARITIES[personalTier].personalScore;
+  // Tiêu chí 5: Chấm theo gu của bạn (chiếm 25% trọng số, mặc định COMMON = 0 điểm)
+  const personalScore = RARITIES[personalTier]?.personalScore ?? 0;
   const personalRes: CriterionResult = {
     key: "personal",
     label: "Personal Taste (Your Judge)",
@@ -541,7 +706,7 @@ export function calculateAvatarRank(
     score: personalScore,
     weight: 0.25,
     confidence: "high",
-    summary: `Bạn đã trực tiếp đánh giá avatar này xứng đáng ở bậc ${personalTier} (${personalScore} điểm).`,
+    summary: `Bạn đã trực tiếp đánh giá avatar này ở mức ${personalTier} (${personalScore} điểm).`,
     evidence: [`Thanh trượt Gu của bạn: Bậc ${personalTier} đóng góp 25% vào kết quả cuối cùng`],
   };
 
@@ -554,9 +719,9 @@ export function calculateAvatarRank(
   };
 
   // 3. Công thức tính điểm tổng:
-  // Điểm tổng = (Điểm AI × 75%) + (Gu của bạn × 25%)
-  const rawTotal = aiScore * 0.75 + personalScore * 0.25;
-  const total = clamp(Math.round(rawTotal));
+  // Final Score = AI Score × 0.75 + Personal Score × 0.25
+  const rawTotal = aiScoreNumber * 0.75 + personalScore * 0.25;
+  const total = Math.round(rawTotal * 100) / 100;
 
   // 4. Kiểm tra chất lượng dữ liệu
   const qualityIssues: string[] = [];
@@ -578,8 +743,8 @@ export function calculateAvatarRank(
     qualityLevel = "partial";
   }
 
-  // 5. Xác định Rarity theo ngưỡng 0/15/35/60/80/92
-  const uncappedTier = getRarityForScore(total);
+  // 5. Xác định Rarity theo ngưỡng 0/15/35/60/80/92 dùng điểm thực rawTotal
+  const uncappedTier = getRarityForScore(rawTotal);
   const { tier: finalTier, capApplied } = applyDataQualityCap(uncappedTier, qualityLevel);
   const finalRarity = RARITIES[finalTier];
 
@@ -593,9 +758,9 @@ export function calculateAvatarRank(
   const strengths: string[] = [];
   const weaknesses: string[] = [];
 
-  if (cosplays.length > 0) {
+  if (cosplayResult.identified && cosplayResult.characterName) {
     strengths.push(
-      `Nhận diện trang phục Cosplay ấn tượng: ${cosplays.map((c) => `${c.character} (${c.franchise})`).join(", ")}.`,
+      `Nhận diện trang phục Cosplay ấn tượng: ${cosplayResult.characterName} (${cosplayResult.franchise}).`,
     );
   }
 
@@ -606,7 +771,9 @@ export function calculateAvatarRank(
   if (sortedCriteria.length > 0 && (sortedCriteria[0].score ?? 0) >= 65) {
     strengths.push(`Điểm nổi trội nhất ở "${sortedCriteria[0].labelVi}" (${sortedCriteria[0].score}/100): ${sortedCriteria[0].summary}`);
   }
-  if (dominantStyle) {
+  if (primaryStyle) {
+    strengths.push(`Phong cách thẩm mỹ rõ ràng thuộc trường phái ${primaryStyle.name} (Độ tin cậy: ${primaryStyle.confidence.toUpperCase()}).`);
+  } else if (dominantStyle) {
     strengths.push(`Phong cách thẩm mỹ rõ ràng thuộc trường phái ${dominantStyle.label}.`);
   }
 
@@ -615,13 +782,13 @@ export function calculateAvatarRank(
     weaknesses.push(`Cần cải thiện tiêu chí "${lowest.labelVi}" (${lowest.score ?? 0}/100): ${lowest.summary}`);
   }
 
-  // 7. Lời khuyên nâng cấp lên bậc kế tiếp (hoặc LEGENDARY) và MYTHICAL
+  // 7. Lời khuyên nâng cấp lên bậc kế tiếp và MYTHICAL
   let nextTierAdvice: TierAdvice | null = null;
   const currentIdx = TIER_ORDER.indexOf(finalTier);
   if (currentIdx < TIER_ORDER.length - 1) {
     const target = TIER_ORDER[currentIdx + 1];
     const targetMin = RARITIES[target].minScore;
-    const pointsNeeded = Math.max(1, targetMin - total);
+    const pointsNeeded = Math.max(1, Math.ceil(targetMin - rawTotal));
 
     const steps: string[] = [];
     if (scoreTheme < 70) {
@@ -630,17 +797,17 @@ export function calculateAvatarRank(
     if (scoreUniqueness < 70) {
       steps.push("Tạo bản sắc độc lạ: Thử nghiệm phối nhiều lớp (layered clothing) hoặc chọn phụ kiện độc bản ít người dùng.");
     }
-    if (scoreHumor < 60 && dominantStyle?.style === "meme") {
+    if (scoreHumor < 60 && (dominantStyle?.style === "meme" || primaryStyle?.id === "meme")) {
       steps.push("Nhấn mạnh yếu tố meme: Đưa vào các phụ kiện hoặc biểu cảm châm biếm kinh điển.");
     }
     if (scoreValue < 60) {
       steps.push("Đầu tư phụ kiện catalog: Bổ sung thêm các vật phẩm đang bán chính thức có giá trị thẩm mỹ cao.");
     }
-    if (personalScore < 85) {
+    if (personalScore < 80) {
       steps.push(`Nâng đánh giá gu cá nhân: Bạn đang chấm mức ${personalTier} (${personalScore}đ). Nếu cảm thấy avatar xứng đáng hơn, hãy nâng thanh trượt.`);
     }
     if (steps.length === 0) {
-      steps.push("Tối ưu hóa các chi tiết nhỏ để tích lũy thêm điểm tổng trên 5 tiêu chí.");
+      steps.push("Tối ưu hóa các chi tiết nhỏ để tích lũy thêm điểm tổng trên các tiêu chí.");
     }
 
     nextTierAdvice = {
@@ -669,12 +836,16 @@ export function calculateAvatarRank(
     personalTier,
     personalWeight: 0.25,
     total,
+    rawTotal,
     uncappedTier,
     rarity: finalRarity,
     dataQuality,
     value: valueBreakdown,
     styles: detectedStyles,
     dominantStyle,
+    primaryStyle,
+    secondaryStyles,
+    cosplayResult,
     cosplayDetections: cosplays,
     strengths,
     weaknesses,
