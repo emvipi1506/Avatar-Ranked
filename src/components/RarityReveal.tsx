@@ -7,22 +7,23 @@ import confetti from "canvas-confetti";
 import { Sparkles, ArrowRight, ShieldCheck, Zap } from "lucide-react";
 import { scaleIn, fadeUp } from "@/lib/motion";
 import { soundManager } from "@/lib/sound";
-import type { RobloxUser, ScoreResult } from "@/types";
+import type { RobloxUser, ScoreReport } from "@/types";
 
 interface RarityRevealProps {
   user: RobloxUser;
   imageUrl: string | null;
-  result: ScoreResult;
+  report: ScoreReport;
   onComplete: () => void;
 }
 
 export default function RarityReveal({
   user,
   imageUrl,
-  result,
+  report,
   onComplete,
 }: RarityRevealProps) {
-  const { rarity, totalScore, normalizedScore, quote } = result;
+  const { rarity, total } = report;
+  const quote = rarity.quote;
   const [revealed, setRevealed] = useState(false);
   const [flash, setFlash] = useState(true);
 
@@ -219,14 +220,14 @@ export default function RarityReveal({
         className="mx-auto mt-6 max-w-xs rounded-2xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-md"
       >
         <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">
-          TOTAL SCORE
+          ĐIỂM TỰ ĐỘNG KHÁCH QUAN
         </span>
-        <div className="mt-1 flex items-baseline justify-center gap-1.5 font-sans text-4xl font-black text-white sm:text-5xl">
-          <span>{totalScore}</span>
-          <span className="text-xl font-normal text-slate-500">/300</span>
+        <div className="mt-1 flex items-baseline justify-center gap-1.5 font-sans text-5xl font-black text-white sm:text-6xl">
+          <span>{total}</span>
+          <span className="text-xl font-normal text-slate-500">/100</span>
         </div>
         <p className="mt-1 text-xs text-slate-400">
-          Điểm chuẩn hóa: <span className="font-bold text-white">{normalizedScore}/100</span>
+          Công thức: 4 tiêu chí × 25% trọng số đều
         </p>
       </motion.div>
 

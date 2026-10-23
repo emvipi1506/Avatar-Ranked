@@ -1,6 +1,9 @@
 import type {
   AvatarAsset,
+  AvatarBodyColors,
   AvatarEmote,
+  AvatarScales,
+  CatalogSummary,
   RobloxProfile,
   RobloxUser,
   ThumbnailResponse,
@@ -23,8 +26,6 @@ export class RobloxApiError extends Error {
   }
 }
 
-// ---------- Validation ----------
-
 export function isValidUsername(username: string): boolean {
   return USERNAME_REGEX.test(username);
 }
@@ -35,7 +36,6 @@ export function parseUserId(value: string | null): number | null {
   return id > 0 ? id : null;
 }
 
-/** Chuyển lỗi bất kỳ thành status + message thân thiện cho route handler. */
 export function describeError(err: unknown): { status: number; message: string } {
   if (err instanceof RobloxApiError) {
     if (err.status === 429) {
@@ -48,8 +48,6 @@ export function describeError(err: unknown): { status: number; message: string }
   }
   return { status: 500, message: "Đã có lỗi không mong muốn xảy ra." };
 }
-
-// ---------- Server-side: gọi trực tiếp Roblox (chỉ dùng trong route handler) ----------
 
 async function robloxFetch<T>(url: string, init: RequestInit & { revalidate?: number } = {}): Promise<T> {
   const { revalidate = 60, ...rest } = init;
@@ -87,10 +85,14 @@ interface UserDetailsResponse {
   hasVerifiedBadge: boolean;
 }
 
-interface AvatarResponse {
+interface AvatarV2Response {
   playerAvatarType: "R6" | "R15";
   assets: AvatarAsset[];
   emotes?: AvatarEmote[];
+  scales?: AvatarScales;
+  bodyColor3s?: AvatarBodyColors;
+  defaultShirtApplied?: boolean;
+  defaultPantsApplied?: boolean;
 }
 
 async function getCount(url: string): Promise<number> {
@@ -98,14 +100,14 @@ async function getCount(url: string): Promise<number> {
     const data = await robloxFetch<{ count: number }>(url, { revalidate: 300 });
     return data.count ?? 0;
   } catch {
-    return 0; // số liệu phụ, lỗi thì coi như 0
+    return 0;
   }
 }
 
 export async function getProfile(userId: number): Promise<RobloxProfile> {
-  const [details, avatar, friendsCount, followersCount, followingCount] = await Promise.all([
+  const [details, avatarV2, friendsCount, followersCount, followingCount] = await Promise.all([
     robloxFetch<UserDetailsResponse>(`${USERS_API}/v1/users/${userId}`),
-    robloxFetch<AvatarResponse>(`${AVATAR_API}/v1/users/${userId}/avatar`),
+    robloxFetch<AvatarV2Response>(`${AVATAR_API}/v2/avatar/users/${userId}/avatar`),
     getCount(`${FRIENDS_API}/v1/users/${userId}/friends/count`),
     getCount(`${FRIENDS_API}/v1/users/${userId}/followers/count`),
     getCount(`${FRIENDS_API}/v1/users/${userId}/followings/count`),
@@ -123,9 +125,13 @@ export async function getProfile(userId: number): Promise<RobloxProfile> {
     followersCount,
     followingCount,
     avatar: {
-      playerAvatarType: avatar.playerAvatarType,
-      assets: avatar.assets.map((a) => ({ id: a.id, name: a.name, assetType: a.assetType })),
-      emotes: avatar.emotes ?? [],
+      playerAvatarType: avatarV2.playerAvatarType ?? "R15",
+      assets: (avatarV2.assets ?? []).map((a) => ({ id: a.id, name: a.name, assetType: a.assetType })),
+      emotes: avatarV2.emotes ?? [],
+      scales: avatarV2.scales ?? null,
+      bodyColors: avatarV2.bodyColor3s ?? null,
+      defaultShirtApplied: Boolean(avatarV2.defaultShirtApplied),
+      defaultPantsApplied: Boolean(avatarV2.defaultPantsApplied),
     },
   };
 }
@@ -134,20 +140,19 @@ interface ThumbnailApiResponse {
   data: { targetId: number; state: string; imageUrl: string | null }[];
 }
 
-/** Lấy ảnh avatar toàn thân. Roblox có thể trả "Pending" khi đang render nên retry vài lần. */
 export async function getAvatarThumbnail(userId: number, size = "720x720"): Promise<string | null> {
   const url = `${THUMBNAILS_API}/v1/users/avatar?userIds=${userId}&size=${size}&format=Png&isCircular=false`;
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     const data = await robloxFetch<ThumbnailApiResponse>(url, { revalidate: attempt === 0 ? 300 : 0 });
     const item = data.data[0];
     if (item?.state === "Completed" && item.imageUrl) return item.imageUrl;
     if (item && item.state !== "Pending") return null;
-    await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+    await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
   }
   return null;
 }
 
-// ---------- Client-side: gọi qua API route nội bộ (tránh CORS) ----------
+// ---------- Client-side Helper ----------
 
 async function apiRequest<T>(input: string, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init);
@@ -176,6 +181,18 @@ export async function fetchThumbnail(userId: number): Promise<string | null> {
     const data = await apiRequest<ThumbnailResponse>(`/api/roblox/thumbnail?userId=${userId}`);
     return data.imageUrl;
   } catch {
-    return null; // thiếu ảnh không nên làm hỏng cả lượt quét
+    return null;
+  }
+}
+
+export async function fetchCatalogPrices(assetIds: number[]): Promise<CatalogSummary | null> {
+  try {
+    return await apiRequest<CatalogSummary>("/api/roblox/catalog", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ assetIds }),
+    });
+  } catch {
+    return null; // Không thể lấy giá -> trả về null để chấm điểm báo thiếu dữ liệu minh bạch
   }
 }

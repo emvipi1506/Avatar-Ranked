@@ -19,10 +19,33 @@ export interface AvatarEmote {
   position: number;
 }
 
+export interface AvatarScales {
+  height: number;
+  width: number;
+  head: number;
+  depth: number;
+  proportion: number;
+  bodyType: number;
+}
+
+/** Màu cơ thể dạng hex không có dấu # (ví dụ "F5CD30"), lấy từ avatar API v2. */
+export interface AvatarBodyColors {
+  headColor3: string;
+  torsoColor3: string;
+  rightArmColor3: string;
+  leftArmColor3: string;
+  rightLegColor3: string;
+  leftLegColor3: string;
+}
+
 export interface RobloxAvatar {
   playerAvatarType: "R6" | "R15";
   assets: AvatarAsset[];
   emotes: AvatarEmote[];
+  bodyColors: AvatarBodyColors | null;
+  scales: AvatarScales | null;
+  defaultShirtApplied: boolean;
+  defaultPantsApplied: boolean;
 }
 
 export interface RobloxProfile {
@@ -48,20 +71,64 @@ export interface ApiError {
   error: string;
 }
 
-// ===== Rarity & Scoring Types =====
+// ===== Catalog (giá Robux) =====
 
-export type RarityTier =
-  | "COMMON"
-  | "UNCOMMON"
-  | "RARE"
-  | "EPIC"
-  | "LEGENDARY"
-  | "MYTHICAL";
+/**
+ * - priced: đang bán, có giá > 0 đã xác minh
+ * - free: đang bán với giá 0 (khác với thiếu dữ liệu)
+ * - offsale: không còn bán / Not For Sale
+ * - limited: Limited / LimitedU / Collectible — giá bán lại ≠ giá catalog nên không tính
+ * - no-price: catalog có vật phẩm nhưng không có giá riêng (thường là phần của bundle)
+ * - unverified: catalog không trả về vật phẩm này
+ */
+export type CatalogPriceStatus = "priced" | "free" | "offsale" | "limited" | "no-price" | "unverified";
+
+export interface CatalogItemInfo {
+  id: number;
+  status: CatalogPriceStatus;
+  /** Chỉ có giá trị khi status là "priced" (> 0) hoặc "free" (= 0). */
+  price: number | null;
+  favoriteCount: number | null;
+  restrictions: string[];
+}
+
+export interface CatalogSummary {
+  items: CatalogItemInfo[];
+  fetchedAt: string;
+}
+
+// ===== Phân tích màu ảnh avatar =====
+
+export type PaletteHarmony = "neutral" | "monochrome" | "analogous" | "complementary" | "triadic" | "mixed";
+
+export interface PaletteColor {
+  hex: string;
+  hue: number; // 0-360
+  share: number; // 0-1, tỷ lệ trên các pixel có màu
+}
+
+export interface PaletteStats {
+  /** Số pixel avatar đã phân tích (đã bỏ nền trong suốt). */
+  sampledPixels: number;
+  colors: PaletteColor[];
+  hueClusters: number;
+  chromaticShare: number; // 0-1
+  averageSaturation: number; // 0-1
+  harmony: PaletteHarmony;
+  harmonyScore: number; // 0-1
+}
+
+// ===== Rarity =====
+
+export type RarityTier = "COMMON" | "UNCOMMON" | "RARE" | "EPIC" | "LEGENDARY" | "MYTHICAL";
 
 export interface Rarity {
   tier: RarityTier;
   label: string;
-  dropRatePercent: number; // Tỷ lệ rơi mặc định: 40%, 25%, 17%, 10%, 6%, 2%
+  /** Điểm tổng tối thiểu (0-100) để đạt bậc này. */
+  minScore: number;
+  /** Điểm tham khảo khi người dùng chọn bậc này ở thanh "Hợp gu cá nhân". */
+  personalScore: number;
   color: string;
   glowColor: string;
   borderColor: string;
@@ -78,46 +145,115 @@ export interface Rarity {
     | "mythical-cosmic";
 }
 
-export interface ScoreCriterion {
-  key: "uniqueness" | "value" | "humor";
-  title: string;
-  subtitle: string;
-  score: number; // 0 - 100
-  detail: string;
+// ===== Scoring =====
+
+export type CriterionKey = "theme" | "uniqueness" | "humor" | "value";
+
+export type Confidence = "high" | "medium" | "low";
+
+export interface CriterionResult {
+  key: CriterionKey;
+  label: string;
+  labelVi: string;
+  /** null = không đủ dữ liệu để chấm (được tính là 0 trong điểm tổng, không tự điền). */
+  score: number | null;
+  weight: number;
+  confidence: Confidence;
+  summary: string;
+  evidence: string[];
 }
 
-export interface ScoreResult {
-  uniqueness: ScoreCriterion;
-  value: ScoreCriterion;
-  humor: ScoreCriterion;
-  totalScore: number; // 0 - 300
-  normalizedScore: number; // 0 - 100
+export type StyleKey =
+  | "y2k"
+  | "goth"
+  | "cyberpunk"
+  | "streetwear"
+  | "oldmoney"
+  | "grunge"
+  | "fantasy"
+  | "techwear"
+  | "coquette"
+  | "kawaii"
+  | "sporty"
+  | "meme"
+  | "minimalism"
+  | "maximalism";
+
+export interface StyleMatch {
+  style: StyleKey;
+  label: string;
+  /** Số "đơn vị trang phục" khớp (bundle tính là 1). */
+  itemCount: number;
+  /** Bằng chứng: tên vật phẩm + từ khóa khớp, hoặc mô tả cấu trúc. */
+  evidence: string[];
+  source: "keywords" | "structure";
+}
+
+export type ExcludedReason = "offsale" | "limited" | "no-price" | "unverified";
+
+export interface ValueBreakdown {
+  /** false khi không gọi được catalog → không có điểm Đắt tiền. */
+  available: boolean;
+  totalRobux: number;
+  /** Tổng sau khi áp trần từng món — dùng để chấm điểm. */
+  scoredRobux: number;
+  pricedCount: number;
+  freeCount: number;
+  priced: { id: number; name: string; price: number }[];
+  excluded: { id: number; name: string; reason: ExcludedReason }[];
+  /** Tỷ lệ vật phẩm trang phục có trạng thái giá đã xác minh (0-1). */
+  coverage: number;
+  duplicatesRemoved: number;
+}
+
+export type DataQualityLevel = "complete" | "partial" | "insufficient";
+
+export interface DataQuality {
+  level: DataQualityLevel;
+  issues: string[];
+  /** true nếu bậc tự động bị giới hạn xuống LEGENDARY do dữ liệu. */
+  capApplied: boolean;
+}
+
+export interface TierAdvice {
+  target: RarityTier;
+  pointsNeeded: number;
+  steps: string[];
+}
+
+export interface ScoreReport {
+  criteria: Record<CriterionKey, CriterionResult>;
+  /** 0-100, = Σ điểm × trọng số (25% mỗi tiêu chí). */
+  total: number;
+  /** Bậc theo điểm thuần, trước khi áp giới hạn chất lượng dữ liệu. */
+  uncappedTier: RarityTier;
   rarity: Rarity;
-  quote: string;
-  timestamp: string;
-  scanSeed: number;
+  dataQuality: DataQuality;
+  value: ValueBreakdown;
+  styles: StyleMatch[];
+  dominantStyle: StyleMatch | null;
+  strengths: string[];
+  weaknesses: string[];
+  nextTier: TierAdvice | null;
+  mythicalAdvice: string[];
+  limitations: string[];
+  analysisMethod: "rule-based";
 }
 
 // ===== Scanner & UI States =====
 
 export type ScanPhase =
-  | "idle" // Màn hình ban đầu
-  | "searching" // Đang tìm user từ Roblox API
-  | "found" // Đã tìm thấy user, hiển thị avatar & nút "SCAN MY AVATAR"
-  | "init" // Phase 1: INITIALIZING AVATAR SCANNER... (~1s)
-  | "scanning" // Phase 2: SCANNING AVATAR / ANALYZING STYLE (~2.5s)
-  | "calculating" // Phase 3: CALCULATING RARITY... (~1s)
-  | "revealing" // Phase 4: Rarity reveal animation (1-2s)
-  | "done" // Hiển thị Result Card đầy đủ
-  | "error"; // Lỗi
-
-export interface TelemetryLine {
-  text: string;
-  status?: "ok" | "sync" | "warn";
-}
+  | "idle"
+  | "searching"
+  | "found"
+  | "init"
+  | "scanning"
+  | "calculating"
+  | "revealing"
+  | "done"
+  | "error";
 
 export interface ScanStep {
   id: string;
   label: string;
 }
-

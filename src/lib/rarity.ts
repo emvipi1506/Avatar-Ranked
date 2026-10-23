@@ -1,10 +1,17 @@
-import type { Rarity, RarityTier } from "@/types";
+import type { DataQuality, Rarity, RarityTier } from "@/types";
+
+/** Thứ tự từ thấp đến cao — nguồn duy nhất cho mọi so sánh bậc. */
+export const TIER_ORDER: readonly RarityTier[] = ["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHICAL"];
+
+/** Bậc cao nhất được phép khi dữ liệu chưa đầy đủ. */
+export const MAX_TIER_WHEN_DATA_INCOMPLETE: RarityTier = "LEGENDARY";
 
 export const RARITIES: Record<RarityTier, Rarity> = {
   COMMON: {
     tier: "COMMON",
     label: "COMMON",
-    dropRatePercent: 40,
+    minScore: 0,
+    personalScore: 10,
     color: "#94A3B8",
     glowColor: "rgba(148, 163, 184, 0.3)",
     borderColor: "rgba(148, 163, 184, 0.4)",
@@ -17,7 +24,8 @@ export const RARITIES: Record<RarityTier, Rarity> = {
   UNCOMMON: {
     tier: "UNCOMMON",
     label: "UNCOMMON",
-    dropRatePercent: 25,
+    minScore: 15,
+    personalScore: 25,
     color: "#4ADE80",
     glowColor: "rgba(74, 222, 128, 0.45)",
     borderColor: "rgba(74, 222, 128, 0.6)",
@@ -30,7 +38,8 @@ export const RARITIES: Record<RarityTier, Rarity> = {
   RARE: {
     tier: "RARE",
     label: "RARE",
-    dropRatePercent: 17,
+    minScore: 35,
+    personalScore: 45,
     color: "#38BDF8",
     glowColor: "rgba(56, 189, 248, 0.6)",
     borderColor: "rgba(56, 189, 248, 0.75)",
@@ -43,7 +52,8 @@ export const RARITIES: Record<RarityTier, Rarity> = {
   EPIC: {
     tier: "EPIC",
     label: "EPIC",
-    dropRatePercent: 10,
+    minScore: 60,
+    personalScore: 65,
     color: "#C084FC",
     glowColor: "rgba(192, 132, 252, 0.7)",
     borderColor: "rgba(192, 132, 252, 0.85)",
@@ -56,7 +66,8 @@ export const RARITIES: Record<RarityTier, Rarity> = {
   LEGENDARY: {
     tier: "LEGENDARY",
     label: "LEGENDARY",
-    dropRatePercent: 6,
+    minScore: 80,
+    personalScore: 85,
     color: "#FBBF24",
     glowColor: "rgba(251, 191, 36, 0.85)",
     borderColor: "rgba(251, 191, 36, 0.95)",
@@ -69,23 +80,45 @@ export const RARITIES: Record<RarityTier, Rarity> = {
   MYTHICAL: {
     tier: "MYTHICAL",
     label: "MYTHICAL",
-    dropRatePercent: 2,
+    minScore: 92,
+    personalScore: 100,
     color: "#FF007F",
     glowColor: "rgba(255, 0, 127, 0.95)",
     borderColor: "rgba(255, 0, 127, 1)",
     gradient: "linear-gradient(135deg, #FF66B2 0%, #FF007F 35%, #8B5CF6 70%, #06B6D4 100%)",
     quote: "THE AVATAR GOD HAS ARRIVED.",
-    description: "Độ hiếm vô cực! Thực thể tối cao xuất hiện với năng lượng vũ trụ chấn động toàn cõi.",
+    description: "Đỉnh cao tuyệt đối: chủ đề, độ độc lạ, ý tưởng và giá trị đều xuất sắc cùng lúc.",
     soundType: "cosmic",
     visualTheme: "mythical-cosmic",
   },
 };
 
-export const RARITIES_LIST: Rarity[] = [
-  RARITIES.COMMON,
-  RARITIES.UNCOMMON,
-  RARITIES.RARE,
-  RARITIES.EPIC,
-  RARITIES.LEGENDARY,
-  RARITIES.MYTHICAL,
-];
+export const RARITIES_LIST: Rarity[] = TIER_ORDER.map((t) => RARITIES[t]);
+
+export function tierIndex(tier: RarityTier): number {
+  return TIER_ORDER.indexOf(tier);
+}
+
+/** Phân loại điểm tổng (0-100) theo ngưỡng 0 / 15 / 35 / 60 / 80 / 92. */
+export function getRarityForScore(score: number): RarityTier {
+  const safe = Number.isFinite(score) ? score : 0;
+  for (let i = TIER_ORDER.length - 1; i >= 0; i--) {
+    if (safe >= RARITIES[TIER_ORDER[i]].minScore) return TIER_ORDER[i];
+  }
+  return "COMMON";
+}
+
+/** Hạ bậc xuống tối đa `maxTier`, không bao giờ nâng bậc. */
+export function capTier(tier: RarityTier, maxTier: RarityTier): RarityTier {
+  return tierIndex(tier) > tierIndex(maxTier) ? maxTier : tier;
+}
+
+/** Áp quy tắc chất lượng dữ liệu: dữ liệu chưa đầy đủ thì tối đa LEGENDARY. */
+export function applyDataQualityCap(
+  tier: RarityTier,
+  level: DataQuality["level"],
+): { tier: RarityTier; capApplied: boolean } {
+  if (level === "complete") return { tier, capApplied: false };
+  const capped = capTier(tier, MAX_TIER_WHEN_DATA_INCOMPLETE);
+  return { tier: capped, capApplied: capped !== tier };
+}

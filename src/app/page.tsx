@@ -12,10 +12,11 @@ import ResultCard from "@/components/ResultCard";
 import HowItWorks from "@/components/HowItWorks";
 import RarityGuide from "@/components/RarityGuide";
 import Footer from "@/components/Footer";
-import { fetchProfile, fetchThumbnail, lookupUser } from "@/lib/roblox";
+import { fetchCatalogPrices, fetchProfile, fetchThumbnail, lookupUser } from "@/lib/roblox";
 import { calculateAvatarRank } from "@/lib/scoring";
+import { extractPaletteFromImage } from "@/lib/palette";
 import { fadeUp } from "@/lib/motion";
-import type { RobloxProfile, RobloxUser, ScanPhase, ScoreResult } from "@/types";
+import type { CatalogSummary, PaletteStats, RarityTier, RobloxProfile, RobloxUser, ScanPhase, ScoreReport } from "@/types";
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -27,7 +28,12 @@ export default function HomePage() {
   const [user, setUser] = useState<RobloxUser | null>(null);
   const [profile, setProfile] = useState<RobloxProfile | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [result, setResult] = useState<ScoreResult | null>(null);
+  const [catalog, setCatalog] = useState<CatalogSummary | null>(null);
+  const [palette, setPalette] = useState<PaletteStats | null>(null);
+
+  // Báo cáo điểm 5 tiêu chí và Gu cá nhân
+  const [report, setReport] = useState<ScoreReport | null>(null);
+  const [personalTier, setPersonalTier] = useState<RarityTier>("COMMON");
 
   // Tiến trình quét
   const [progress, setProgress] = useState(0);
@@ -62,7 +68,7 @@ export default function HomePage() {
     }
   }, []);
 
-  // 2. Kích hoạt chuỗi quét AI khi nhấn "SCAN MY AVATAR"
+  // 2. Kích hoạt chuỗi quét khi nhấn "SCAN MY AVATAR"
   const handleStartScan = useCallback(async () => {
     if (!user) return;
     const currentId = ++scanRunId.current;
@@ -79,7 +85,6 @@ export default function HomePage() {
       // Phase 2: SCANNING (~2.5s)
       setPhase("scanning");
 
-      // Bắt đầu timer tăng progress bar từ 0 đến 100%
       const scanStart = performance.now();
       const scanDuration = 2500;
 
@@ -89,10 +94,14 @@ export default function HomePage() {
         setProgress(pct);
       }, 50);
 
-      // Đồng thời gọi profile API đầy đủ và tính điểm
-      const [fullProfile] = await Promise.all([
-        fetchProfile(user.id),
-        wait(scanDuration),
+      // Đồng thời tải profile, catalog giá và trích xuất bảng màu từ ảnh avatar
+      const fullProfile = await fetchProfile(user.id);
+      const assetIds = (fullProfile.avatar.assets ?? []).map((a) => a.id);
+
+      const [catSummary, palStats] = await Promise.all([
+        fetchCatalogPrices(assetIds),
+        imageUrl ? extractPaletteFromImage(imageUrl) : Promise.resolve(null),
+        wait(Math.max(500, scanDuration - (performance.now() - scanStart))),
       ]);
 
       clearInterval(progressInterval);
@@ -101,10 +110,14 @@ export default function HomePage() {
 
       setProgress(100);
       setProfile(fullProfile);
+      setCatalog(catSummary);
+      setPalette(palStats);
 
-      // Tính điểm và Rarity
-      const scoreResult = calculateAvatarRank(fullProfile);
-      setResult(scoreResult);
+      // Tính điểm theo 5 tiêu chí
+      const scoreReport = calculateAvatarRank(fullProfile, catSummary, palStats);
+      setReport(scoreReport);
+      // Mặc định thanh trượt gu cá nhân đồng bộ theo kết quả tự động ban đầu
+      setPersonalTier(scoreReport.rarity.tier);
 
       // Phase 3: CALCULATING RARITY (~1s)
       setPhase("calculating");
@@ -119,7 +132,7 @@ export default function HomePage() {
       setError(err instanceof Error ? err.message : "Đã có lỗi khi phân tích avatar.");
       setPhase("error");
     }
-  }, [user]);
+  }, [user, imageUrl]);
 
   // Người dùng nhấn BỎ QUA ANIMATION
   const handleSkipAnimation = useCallback(async () => {
@@ -127,17 +140,25 @@ export default function HomePage() {
     if (!profile && user) {
       try {
         const fullProfile = await fetchProfile(user.id);
-        const scoreResult = calculateAvatarRank(fullProfile);
+        const assetIds = (fullProfile.avatar.assets ?? []).map((a) => a.id);
+        const [catSummary, palStats] = await Promise.all([
+          fetchCatalogPrices(assetIds),
+          imageUrl ? extractPaletteFromImage(imageUrl) : Promise.resolve(null),
+        ]);
+        const scoreReport = calculateAvatarRank(fullProfile, catSummary, palStats);
         setProfile(fullProfile);
-        setResult(scoreResult);
+        setCatalog(catSummary);
+        setPalette(palStats);
+        setReport(scoreReport);
+        setPersonalTier(scoreReport.rarity.tier);
         setPhase("done");
       } catch {
         // fallback
       }
-    } else if (result) {
+    } else if (report) {
       setPhase("done");
     }
-  }, [profile, user, result]);
+  }, [profile, user, imageUrl, report]);
 
   // Khi hoàn thành màn hình Rarity Reveal -> Xem Result Card
   const handleRevealComplete = useCallback(() => {
@@ -147,15 +168,14 @@ export default function HomePage() {
   // Scan lại với cùng một avatar
   const handleScanAgain = useCallback(async () => {
     if (profile) {
-      // Roll điểm và rarity mới
-      const newScore = calculateAvatarRank(profile);
-      setResult(newScore);
-      // Chạy nhanh animation reveal
+      const recalculated = calculateAvatarRank(profile, catalog, palette);
+      setReport(recalculated);
+      setPersonalTier(recalculated.rarity.tier);
       setPhase("revealing");
     } else {
       handleStartScan();
     }
-  }, [profile, handleStartScan]);
+  }, [profile, catalog, palette, handleStartScan]);
 
   // Tìm avatar khác
   const handleNewSearch = useCallback(() => {
@@ -165,7 +185,10 @@ export default function HomePage() {
     setUser(null);
     setProfile(null);
     setImageUrl(null);
-    setResult(null);
+    setCatalog(null);
+    setPalette(null);
+    setReport(null);
+    setPersonalTier("COMMON");
     setProgress(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -229,25 +252,27 @@ export default function HomePage() {
               )}
 
               {/* Phase: REVEALING -> Rarity Reveal hoành tráng */}
-              {phase === "revealing" && user && result && (
+              {phase === "revealing" && user && report && (
                 <motion.div key="reveal-view" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
                   <RarityReveal
                     user={user}
                     imageUrl={imageUrl}
-                    result={result}
+                    report={report}
                     onComplete={handleRevealComplete}
                   />
                 </motion.div>
               )}
 
               {/* Phase: DONE -> Result Card chi tiết */}
-              {phase === "done" && user && profile && result && (
+              {phase === "done" && user && profile && report && (
                 <motion.div key="result-view" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
                   <ResultCard
                     user={user}
                     profile={profile}
                     imageUrl={imageUrl}
-                    result={result}
+                    report={report}
+                    personalTier={personalTier}
+                    onPersonalTierChange={setPersonalTier}
                     onScanAgain={handleScanAgain}
                     onNewSearch={handleNewSearch}
                   />

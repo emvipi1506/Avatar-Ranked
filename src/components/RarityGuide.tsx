@@ -77,7 +77,7 @@ export default function RarityGuide() {
                   backgroundColor: `${rarity.color}15`,
                 }}
               >
-                TỶ LỆ: {rarity.dropRatePercent}%
+                NGƯỠNG: &ge; {rarity.minScore} ĐIỂM
               </span>
             </div>
 
