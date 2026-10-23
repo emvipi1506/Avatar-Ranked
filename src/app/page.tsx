@@ -31,9 +31,9 @@ export default function HomePage() {
   const [catalog, setCatalog] = useState<CatalogSummary | null>(null);
   const [palette, setPalette] = useState<PaletteStats | null>(null);
 
-  // Báo cáo điểm 5 tiêu chí và Gu cá nhân
+  // Báo cáo điểm 5 tiêu chí và Gu cá nhân (mặc định RARE 45đ cân bằng)
   const [report, setReport] = useState<ScoreReport | null>(null);
-  const [personalTier, setPersonalTier] = useState<RarityTier>("COMMON");
+  const [personalTier, setPersonalTier] = useState<RarityTier>("RARE");
 
   // Tiến trình quét
   const [progress, setProgress] = useState(0);
@@ -59,7 +59,7 @@ export default function HomePage() {
       if (currentId !== scanRunId.current) return;
       setImageUrl(thumbUrl);
 
-      // Chuyển sang phase "found" để người dùng xem avatar và bấm "SCAN MY AVATAR"
+      // Chuyển sang phase "found" để người dùng xem avatar, chọn gu và bấm "SCAN MY AVATAR"
       setPhase("found");
     } catch (err) {
       if (currentId !== scanRunId.current) return;
@@ -113,11 +113,9 @@ export default function HomePage() {
       setCatalog(catSummary);
       setPalette(palStats);
 
-      // Tính điểm theo 5 tiêu chí
-      const scoreReport = calculateAvatarRank(fullProfile, catSummary, palStats);
+      // Tính điểm tổng hợp: 75% AI + 25% Gu bạn đã chọn trước khi scan
+      const scoreReport = calculateAvatarRank(fullProfile, catSummary, palStats, personalTier);
       setReport(scoreReport);
-      // Mặc định thanh trượt gu cá nhân đồng bộ theo kết quả tự động ban đầu
-      setPersonalTier(scoreReport.rarity.tier);
 
       // Phase 3: CALCULATING RARITY (~1s)
       setPhase("calculating");
@@ -132,7 +130,7 @@ export default function HomePage() {
       setError(err instanceof Error ? err.message : "Đã có lỗi khi phân tích avatar.");
       setPhase("error");
     }
-  }, [user, imageUrl]);
+  }, [user, imageUrl, personalTier]);
 
   // Người dùng nhấn BỎ QUA ANIMATION
   const handleSkipAnimation = useCallback(async () => {
@@ -145,12 +143,11 @@ export default function HomePage() {
           fetchCatalogPrices(assetIds),
           imageUrl ? extractPaletteFromImage(imageUrl) : Promise.resolve(null),
         ]);
-        const scoreReport = calculateAvatarRank(fullProfile, catSummary, palStats);
+        const scoreReport = calculateAvatarRank(fullProfile, catSummary, palStats, personalTier);
         setProfile(fullProfile);
         setCatalog(catSummary);
         setPalette(palStats);
         setReport(scoreReport);
-        setPersonalTier(scoreReport.rarity.tier);
         setPhase("done");
       } catch {
         // fallback
@@ -158,7 +155,19 @@ export default function HomePage() {
     } else if (report) {
       setPhase("done");
     }
-  }, [profile, user, imageUrl, report]);
+  }, [profile, user, imageUrl, report, personalTier]);
+
+  // Thay đổi Gu thẩm mỹ cá nhân (cập nhật kết quả realtime nếu đã có kết quả)
+  const handlePersonalTierChange = useCallback(
+    (newTier: RarityTier) => {
+      setPersonalTier(newTier);
+      if (profile) {
+        const updatedReport = calculateAvatarRank(profile, catalog, palette, newTier);
+        setReport(updatedReport);
+      }
+    },
+    [profile, catalog, palette],
+  );
 
   // Khi hoàn thành màn hình Rarity Reveal -> Xem Result Card
   const handleRevealComplete = useCallback(() => {
@@ -168,14 +177,13 @@ export default function HomePage() {
   // Scan lại với cùng một avatar
   const handleScanAgain = useCallback(async () => {
     if (profile) {
-      const recalculated = calculateAvatarRank(profile, catalog, palette);
+      const recalculated = calculateAvatarRank(profile, catalog, palette, personalTier);
       setReport(recalculated);
-      setPersonalTier(recalculated.rarity.tier);
       setPhase("revealing");
     } else {
       handleStartScan();
     }
-  }, [profile, catalog, palette, handleStartScan]);
+  }, [profile, catalog, palette, personalTier, handleStartScan]);
 
   // Tìm avatar khác
   const handleNewSearch = useCallback(() => {
@@ -188,7 +196,7 @@ export default function HomePage() {
     setCatalog(null);
     setPalette(null);
     setReport(null);
-    setPersonalTier("COMMON");
+    setPersonalTier("RARE");
     setProgress(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -226,12 +234,14 @@ export default function HomePage() {
           {/* Interactive Workspace theo từng Phase */}
           <div className="mt-4">
             <AnimatePresence mode="wait">
-              {/* Phase: FOUND -> Hiển thị avatar & nút "SCAN MY AVATAR" */}
+              {/* Phase: FOUND -> Hiển thị avatar, thanh chọn Gu và nút "QUÉT & CHẤM ĐIỂM" */}
               {phase === "found" && user && (
                 <motion.div key="found" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
                   <AvatarFoundCard
                     user={user}
                     imageUrl={imageUrl}
+                    personalTier={personalTier}
+                    onPersonalTierChange={setPersonalTier}
                     onScan={handleStartScan}
                     onCancel={handleNewSearch}
                   />
@@ -272,7 +282,7 @@ export default function HomePage() {
                     imageUrl={imageUrl}
                     report={report}
                     personalTier={personalTier}
-                    onPersonalTierChange={setPersonalTier}
+                    onPersonalTierChange={handlePersonalTierChange}
                     onScanAgain={handleScanAgain}
                     onNewSearch={handleNewSearch}
                   />

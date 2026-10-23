@@ -209,6 +209,14 @@ export default function ResultCard({
             </div>
           )}
 
+          {/* Cosplay Detection Badge */}
+          {report.cosplayDetections && report.cosplayDetections.length > 0 && (
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-pink-500/40 bg-pink-500/15 px-3 py-1 text-xs font-bold text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.35)] animate-pulse">
+              <Sparkles className="h-3.5 w-3.5 text-pink-400" />
+              <span>Cosplay: {report.cosplayDetections[0].character} ({report.cosplayDetections[0].franchise})</span>
+            </div>
+          )}
+
           {/* Quote nhận xét vui theo Rarity */}
           <div className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 p-3.5 text-center">
             <span className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
@@ -220,24 +228,27 @@ export default function ResultCard({
           </div>
         </div>
 
-        {/* CỘT PHẢI (7 cols): TOTAL SCORE + 4 CRITERIA */}
+        {/* CỘT PHẢI (7 cols): TOTAL SCORE + 5 CRITERIA */}
         <div className="flex flex-col justify-between lg:col-span-7">
           <div>
-            {/* Header: Điểm tổng và Bậc tự động */}
+            {/* Header: Điểm tổng hợp và Bậc xếp hạng */}
             <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-5">
               <div>
-                <span className="font-mono text-xs uppercase tracking-widest text-slate-400">
-                  ĐIỂM TỰ ĐỘNG KHÁCH QUAN
+                <span className="font-mono text-xs uppercase tracking-widest text-[#46C8FF]">
+                  ĐIỂM TỔNG HỢP (AI 75% + GU BẠN 25%)
                 </span>
                 <div className="flex items-baseline gap-2 font-sans text-5xl font-black text-white sm:text-6xl">
                   <span>{total}</span>
                   <span className="text-xl font-normal text-slate-500">/100</span>
                 </div>
+                <p className="mt-1 font-mono text-xs text-slate-400">
+                  Phân tích AI: <strong className="text-[#46C8FF]">{report.aiScore}đ</strong> &bull; Gu của bạn: <strong className="text-pink-400">{report.personalScore}đ</strong>
+                </p>
               </div>
 
               <div className="text-right">
                 <span className="font-mono text-xs uppercase tracking-widest text-slate-400">
-                  BẬC ĐỘ HIẾM TỰ ĐỘNG
+                  BẬC ĐỘ HIẾM CUỐI CÙNG
                 </span>
                 <p
                   className="font-sans text-3xl font-black uppercase sm:text-4xl"

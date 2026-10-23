@@ -2,6 +2,7 @@ import type {
   AvatarAsset,
   CatalogSummary,
   Confidence,
+  CosplayMatchInfo,
   CriterionKey,
   CriterionResult,
   DataQuality,
@@ -19,6 +20,8 @@ import {
   assetGroup,
   buildStyleUnits,
   CELEBRITY_KEYWORDS,
+  CosplayDetection,
+  detectCosplayInAssets,
   isClassicNoobPalette,
   isPriceableAsset,
   isStylingAsset,
@@ -40,6 +43,7 @@ function evaluateTheme(
   units: StyleUnit[],
   palette: PaletteStats | null,
   styles: StyleMatch[],
+  cosplays: CosplayDetection[] = [],
 ): CriterionResult {
   const assets = profile.avatar.assets;
   const evidence: string[] = [];
@@ -56,7 +60,18 @@ function evaluateTheme(
     evidence.push("Không trích xuất được bảng màu pixel từ ảnh (sử dụng phân tích cấu trúc trang phục)");
   }
 
-  // 2. Tính đầy đủ của trang phục
+  // 2. Nhận diện Cosplay nhân vật Anime, Phim ảnh, Superheroes hoặc Thể loại Fantasy
+  if (cosplays.length > 0) {
+    const bonus = Math.min(45, cosplays.length * 25);
+    score += bonus;
+    for (const c of cosplays) {
+      evidence.push(
+        `⭐ Phát hiện Cosplay nhân vật "${c.character}" (${c.franchise}) từ phụ kiện "${c.assetName}" (từ khóa: "${c.matchedKeyword}") — Tăng mạnh điểm Chủ đề!`,
+      );
+    }
+  }
+
+  // 3. Tính đầy đủ của trang phục
   const completeness = outfitCompleteness(
     assets,
     profile.avatar.defaultShirtApplied,
@@ -72,7 +87,7 @@ function evaluateTheme(
     evidence.push("Trang phục bán phần (chỉ có áo hoặc quần tùy chỉnh)");
   }
 
-  // 3. Sự tập trung vào phong cách chủ đạo
+  // 4. Sự tập trung vào phong cách chủ đạo
   const nonMemeStyles = styles.filter((s) => s.style !== "meme" && s.style !== "minimalism" && s.style !== "maximalism");
   if (nonMemeStyles.length === 1) {
     const top = nonMemeStyles[0];
@@ -90,9 +105,9 @@ function evaluateTheme(
     }
   }
 
-  // 4. Kiểm tra sự quá tải phụ kiện không liên kết
+  // 5. Kiểm tra sự quá tải phụ kiện không liên kết
   const accessoryCount = units.filter((u) => u.group === "accessory").length;
-  if (accessoryCount > 7 && nonMemeStyles.length === 0) {
+  if (accessoryCount > 7 && nonMemeStyles.length === 0 && cosplays.length === 0) {
     score -= 12;
     evidence.push(`Đeo nhiều phụ kiện rời rạc (${accessoryCount} món) nhưng không hội tụ về một ý tưởng phong cách cụ thể`);
   }
@@ -101,12 +116,14 @@ function evaluateTheme(
   return {
     key: "theme",
     label: "Theme & Cohesion",
-    labelVi: "Chủ đề & Hài hòa",
+    labelVi: "Chủ đề & Hài hòa (gồm Cosplay)",
     score: finalScore,
-    weight: 0.25,
-    confidence: palette ? "high" : "medium",
+    weight: 0.1875,
+    confidence: cosplays.length > 0 || palette ? "high" : "medium",
     summary:
-      finalScore >= 75
+      cosplays.length > 0
+        ? `Định hướng Cosplay cực kỳ rõ ràng theo hình tượng ${cosplays.map((c) => c.character).join(", ")}.`
+        : finalScore >= 75
         ? "Tổng thể trang phục có định hướng thẩm mỹ rất rõ ràng, màu sắc và phụ kiện ăn khớp."
         : finalScore >= 45
         ? "Trang phục có ý tưởng tương đối nhưng các chi tiết hoặc màu sắc chưa thực sự đồng nhất."
@@ -424,8 +441,9 @@ export function calculateAvatarRank(
   profile: RobloxProfile,
   catalog: CatalogSummary | null = null,
   palette: PaletteStats | null = null,
+  personalTier: RarityTier = "RARE",
 ): ScoreReport {
-  const assets = profile.avatar.assets;
+  const assets = profile.avatar.assets ?? [];
   const units = buildStyleUnits(assets);
 
   // 1. Nhận diện các phong cách xuất hiện
@@ -456,6 +474,18 @@ export function calculateAvatarRank(
     }
   }
 
+  // Nhận diện Cosplay đặc sắc (Anime, Phim ảnh, Superheroes, Fantasy, Game)
+  const cosplays = detectCosplayInAssets(assets);
+  if (cosplays.length > 0) {
+    detectedStyles.unshift({
+      style: "cosplay",
+      label: `Cosplay (${cosplays[0].character} - ${cosplays[0].franchise})`,
+      itemCount: cosplays.length,
+      evidence: cosplays.map((c) => `Cosplay ${c.character} (${c.franchise}) qua "${c.assetName}"`),
+      source: "keywords",
+    });
+  }
+
   // Nhận diện Minimalism / Maximalism
   const stylingCount = units.filter(
     (u) => u.group === "accessory" || u.group === "layered" || u.group === "classic",
@@ -482,34 +512,51 @@ export function calculateAvatarRank(
   detectedStyles.sort((a, b) => b.itemCount - a.itemCount);
   const dominantStyle = detectedStyles.length > 0 ? detectedStyles[0] : null;
 
-  // 2. Chấm điểm 4 tiêu chí thành phần
-  const themeRes = evaluateTheme(profile, units, palette, detectedStyles);
+  // 2. Chấm điểm 4 tiêu chí AI thành phần
+  const themeRes = evaluateTheme(profile, units, palette, detectedStyles, cosplays);
   const uniquenessRes = evaluateUniqueness(profile, units, catalog, detectedStyles);
   const humorRes = evaluateHumor(profile, units);
   const { criterion: valueRes, breakdown: valueBreakdown } = evaluateValue(assets, catalog);
+
+  // Đặt trọng số chuẩn xác: Mỗi tiêu chí AI là 18.75% (Tổng 4 cái = 75%)
+  themeRes.weight = 0.1875;
+  uniquenessRes.weight = 0.1875;
+  humorRes.weight = 0.1875;
+  valueRes.weight = 0.1875;
+
+  const scoreTheme = themeRes.score ?? 0;
+  const scoreUniqueness = uniquenessRes.score ?? 0;
+  const scoreHumor = humorRes.score ?? 0;
+  const scoreValue = valueRes.score ?? 0;
+
+  // Điểm AI thuần túy (thang 0-100)
+  const aiScore = Math.round((scoreTheme + scoreUniqueness + scoreHumor + scoreValue) / 4);
+
+  // Tiêu chí 5: Chấm theo gu của bạn (chiếm 25% trọng số)
+  const personalScore = RARITIES[personalTier].personalScore;
+  const personalRes: CriterionResult = {
+    key: "personal",
+    label: "Personal Taste (Your Judge)",
+    labelVi: "Chấm theo gu của bạn",
+    score: personalScore,
+    weight: 0.25,
+    confidence: "high",
+    summary: `Bạn đã trực tiếp đánh giá avatar này xứng đáng ở bậc ${personalTier} (${personalScore} điểm).`,
+    evidence: [`Thanh trượt Gu của bạn: Bậc ${personalTier} đóng góp 25% vào kết quả cuối cùng`],
+  };
 
   const criteriaMap: Record<CriterionKey, CriterionResult> = {
     theme: themeRes,
     uniqueness: uniquenessRes,
     humor: humorRes,
     value: valueRes,
+    personal: personalRes,
   };
 
   // 3. Công thức tính điểm tổng:
-  // Điểm tổng = Chủ đề × 25% + Độc lạ × 25% + Hài hước × 25% + Đắt tiền × 25%
-  // Lưu ý: nếu tiêu chí nào có score === null (ví dụ thiếu catalog), nó được tính là 0 và ghi nhận vào cảnh báo dữ liệu.
-  const scoreTheme = themeRes.score ?? 0;
-  const scoreUniqueness = uniquenessRes.score ?? 0;
-  const scoreHumor = humorRes.score ?? 0;
-  const scoreValue = valueRes.score ?? 0;
-
-  const rawTotal =
-    scoreTheme * themeRes.weight +
-    scoreUniqueness * uniquenessRes.weight +
-    scoreHumor * humorRes.weight +
-    scoreValue * valueRes.weight;
-
-  const total = clamp(rawTotal);
+  // Điểm tổng = (Điểm AI × 75%) + (Gu của bạn × 25%)
+  const rawTotal = aiScore * 0.75 + personalScore * 0.25;
+  const total = clamp(Math.round(rawTotal));
 
   // 4. Kiểm tra chất lượng dữ liệu
   const qualityIssues: string[] = [];
@@ -546,6 +593,12 @@ export function calculateAvatarRank(
   const strengths: string[] = [];
   const weaknesses: string[] = [];
 
+  if (cosplays.length > 0) {
+    strengths.push(
+      `Nhận diện trang phục Cosplay ấn tượng: ${cosplays.map((c) => `${c.character} (${c.franchise})`).join(", ")}.`,
+    );
+  }
+
   const sortedCriteria = [themeRes, uniquenessRes, humorRes, valueRes]
     .filter((c) => c.score !== null)
     .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
@@ -572,19 +625,22 @@ export function calculateAvatarRank(
 
     const steps: string[] = [];
     if (scoreTheme < 70) {
-      steps.push("Hài hòa màu sắc: Chọn các phụ kiện có dải màu tương đồng, hạn chế màu tương phản gay gắt không chủ đích.");
+      steps.push("Hài hòa màu sắc hoặc cosplay: Chọn các phụ kiện có cùng chủ đề hoặc mô phỏng nhân vật rõ nét hơn.");
     }
     if (scoreUniqueness < 70) {
       steps.push("Tạo bản sắc độc lạ: Thử nghiệm phối nhiều lớp (layered clothing) hoặc chọn phụ kiện độc bản ít người dùng.");
     }
     if (scoreHumor < 60 && dominantStyle?.style === "meme") {
-      steps.push("Nhấn mạnh yếu tố meme: Đưa vào các phụ kiện hoặc biểu cảm châm biếm kinh điển thay vì chỉ dùng đồ ngẫu nhiên.");
+      steps.push("Nhấn mạnh yếu tố meme: Đưa vào các phụ kiện hoặc biểu cảm châm biếm kinh điển.");
     }
     if (scoreValue < 60) {
       steps.push("Đầu tư phụ kiện catalog: Bổ sung thêm các vật phẩm đang bán chính thức có giá trị thẩm mỹ cao.");
     }
+    if (personalScore < 85) {
+      steps.push(`Nâng đánh giá gu cá nhân: Bạn đang chấm mức ${personalTier} (${personalScore}đ). Nếu cảm thấy avatar xứng đáng hơn, hãy nâng thanh trượt.`);
+    }
     if (steps.length === 0) {
-      steps.push("Tối ưu hóa các chi tiết nhỏ để tích lũy thêm điểm tổng trên 4 tiêu chí.");
+      steps.push("Tối ưu hóa các chi tiết nhỏ để tích lũy thêm điểm tổng trên 5 tiêu chí.");
     }
 
     nextTierAdvice = {
@@ -595,18 +651,23 @@ export function calculateAvatarRank(
   }
 
   const mythicalAdvice: string[] = [
-    "Đạt điểm xuất sắc đồng đều (trung bình >= 92 điểm) trên cả 4 tiêu chí Chủ đề, Độc lạ, Hài hước và Giá trị.",
-    "Cần một định hướng thẩm mỹ đỉnh cao: phối màu hoàn hảo (monochrome/analogous hài hòa), silhouette nhận diện tức thì.",
+    "Đạt điểm xuất sắc đồng đều (trung bình >= 92 điểm) trên cả hệ thống AI (75%) và Gu cá nhân của bạn (25%).",
+    "Cần một định hướng thẩm mỹ đỉnh cao: phối màu hoàn hảo hoặc cosplay xuất chúng, silhouette nhận diện tức thì.",
     "Bắt buộc dữ liệu từ Roblox API và Catalog phải xác minh đầy đủ 100% để vượt qua cơ chế giới hạn chất lượng.",
   ];
 
   const limitations: string[] = [
-    "Hệ thống sử dụng phương pháp phân tích dựa trên quy tắc (Rule-based) và dữ liệu thực từ Roblox Web API, không sử dụng mô hình AI nhận diện hình ảnh ngoại tuyến.",
+    "Hệ thống sử dụng phương pháp phân tích dựa trên quy tắc (Rule-based) từ Roblox Web API kết hợp 25% đánh giá Gu cá nhân của bạn.",
     "Tiêu chí Giá trị chỉ ghi nhận các vật phẩm đang mở bán trên catalog Roblox có giá niêm yết chính thức; vật phẩm Limited và Off-sale không được quy đổi sang giá trị Robux.",
   ];
 
   return {
     criteria: criteriaMap,
+    aiScore,
+    aiWeight: 0.75,
+    personalScore,
+    personalTier,
+    personalWeight: 0.25,
     total,
     uncappedTier,
     rarity: finalRarity,
@@ -614,6 +675,7 @@ export function calculateAvatarRank(
     value: valueBreakdown,
     styles: detectedStyles,
     dominantStyle,
+    cosplayDetections: cosplays,
     strengths,
     weaknesses,
     nextTier: nextTierAdvice,

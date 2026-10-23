@@ -147,7 +147,7 @@ export interface Rarity {
 
 // ===== Scoring =====
 
-export type CriterionKey = "theme" | "uniqueness" | "humor" | "value";
+export type CriterionKey = "theme" | "uniqueness" | "humor" | "value" | "personal";
 
 export type Confidence = "high" | "medium" | "low";
 
@@ -176,6 +176,7 @@ export type StyleKey =
   | "kawaii"
   | "sporty"
   | "meme"
+  | "cosplay"
   | "minimalism"
   | "maximalism";
 
@@ -187,6 +188,14 @@ export interface StyleMatch {
   /** Bằng chứng: tên vật phẩm + từ khóa khớp, hoặc mô tả cấu trúc. */
   evidence: string[];
   source: "keywords" | "structure";
+}
+
+export interface CosplayMatchInfo {
+  category: "anime" | "movie" | "fantasy" | "game";
+  franchise: string;
+  character: string;
+  matchedKeyword: string;
+  assetName: string;
 }
 
 export type ExcludedReason = "offsale" | "limited" | "no-price" | "unverified";
@@ -223,7 +232,17 @@ export interface TierAdvice {
 
 export interface ScoreReport {
   criteria: Record<CriterionKey, CriterionResult>;
-  /** 0-100, = Σ điểm × trọng số (25% mỗi tiêu chí). */
+  /** Điểm AI hệ thống (0-100) từ 4 tiêu chí tự động (chiếm 75% điểm tổng). */
+  aiScore: number;
+  /** Trọng số của AI (75% = 0.75). */
+  aiWeight: number;
+  /** Điểm thẩm mỹ do bạn chấm bằng thanh trượt (chiếm 25% điểm tổng). */
+  personalScore: number;
+  /** Bậc gu cá nhân đã chọn. */
+  personalTier: RarityTier;
+  /** Trọng số của gu cá nhân (25% = 0.25). */
+  personalWeight: number;
+  /** Điểm tổng cuối cùng = round(aiScore * 0.75 + personalScore * 0.25). */
   total: number;
   /** Bậc theo điểm thuần, trước khi áp giới hạn chất lượng dữ liệu. */
   uncappedTier: RarityTier;
@@ -232,6 +251,8 @@ export interface ScoreReport {
   value: ValueBreakdown;
   styles: StyleMatch[];
   dominantStyle: StyleMatch | null;
+  /** Danh sách nhận diện cosplay anime/phim/fantasy (nếu có). */
+  cosplayDetections: CosplayMatchInfo[];
   strengths: string[];
   weaknesses: string[];
   nextTier: TierAdvice | null;

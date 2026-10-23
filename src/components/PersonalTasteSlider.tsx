@@ -33,10 +33,10 @@ export default function PersonalTasteSlider({
           </div>
           <div>
             <h4 className="font-sans text-sm font-extrabold tracking-wide text-white">
-              E. Hợp gu cá nhân (Personal Taste)
+              E. Chấm theo gu của bạn (Personal Taste — 25%)
             </h4>
-            <p className="text-xs text-slate-400">
-              Đánh giá độc lập theo gu thẩm mỹ của bạn — không tính gộp vào điểm tổng khách quan
+            <p className="text-xs text-pink-300/80">
+              Kéo để điều chỉnh lại đánh giá của bạn — kết quả và bậc độ hiếm sẽ cập nhật tức thì!
             </p>
           </div>
         </div>
