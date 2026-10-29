@@ -155,7 +155,12 @@ export async function getAvatarThumbnail(userId: number, size = "720x720"): Prom
 // ---------- Client-side Helper ----------
 
 async function apiRequest<T>(input: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(input, init);
+  let res: Response;
+  try {
+    res = await fetch(input, init);
+  } catch {
+    throw new Error("Không kết nối được tới máy chủ. Kiểm tra mạng rồi thử lại.");
+  }
   const data: unknown = await res.json().catch(() => ({}));
   if (!res.ok) {
     const message = (data as { error?: string }).error ?? "Đã có lỗi xảy ra, thử lại sau.";
