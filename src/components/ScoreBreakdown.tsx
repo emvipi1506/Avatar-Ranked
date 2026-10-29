@@ -25,7 +25,7 @@ export default function ScoreBreakdown({ report }: ScoreBreakdownProps) {
       color: "#46C8FF",
       barColor: "from-[#46C8FF] to-[#0284C7]",
       result: criteria.theme,
-      badge: "AI 18.75%",
+      badge: "AI 35%",
     },
     {
       key: "uniqueness",
@@ -33,7 +33,7 @@ export default function ScoreBreakdown({ report }: ScoreBreakdownProps) {
       color: "#A855F7",
       barColor: "from-[#A855F7] to-[#7E22CE]",
       result: criteria.uniqueness,
-      badge: "AI 18.75%",
+      badge: "AI 30%",
     },
     {
       key: "humor",
@@ -41,7 +41,7 @@ export default function ScoreBreakdown({ report }: ScoreBreakdownProps) {
       color: "#F59E0B",
       barColor: "from-amber-400 to-yellow-500",
       result: criteria.humor,
-      badge: "AI 18.75%",
+      badge: "AI 25%",
     },
     {
       key: "value",
@@ -49,7 +49,7 @@ export default function ScoreBreakdown({ report }: ScoreBreakdownProps) {
       color: "#10B981",
       barColor: "from-emerald-400 to-teal-500",
       result: criteria.value,
-      badge: "AI 18.75%",
+      badge: "AI 10%",
     },
     {
       key: "personal",
@@ -64,11 +64,11 @@ export default function ScoreBreakdown({ report }: ScoreBreakdownProps) {
   return (
     <div className="space-y-4">
       {/* Weighted Formula Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-pink-500/20 bg-pink-500/5 px-4 py-3 font-mono text-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-2xl border border-pink-500/20 bg-pink-500/5 px-4 py-3 font-mono text-xs">
         <span className="font-bold text-white">CÔNG THỨC KẾT HỢP:</span>
         <span className="text-slate-300">
-          <strong className="text-[#46C8FF]">AI Scan: {aiScore}đ (75%)</strong> +{" "}
-          <strong className="text-pink-400">Gu của bạn: {personalScore}đ (25%)</strong>
+          <strong className="text-[#46C8FF]">AI Score ({aiScore}đ &times; 75%)</strong> +{" "}
+          <strong className="text-pink-400">Gu của bạn ({personalScore}đ &times; 25%)</strong>
         </span>
       </div>
 

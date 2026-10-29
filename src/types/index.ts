@@ -240,16 +240,72 @@ export interface DetectedStyleInfo {
   itemCount: number;
 }
 
-export interface CosplayRecognitionResult {
-  identified: boolean;
-  characterName: string | null;
-  franchise: string | null;
+export interface AlternativeHypothesis {
+  characterName: string;
+  franchiseName: string;
   confidence: number;
-  confidenceLevel: "high" | "medium" | "insufficient";
-  supportingDetails: string[];
-  mismatchedDetails: string[];
-  aesthetic: string[];
+  rationale: string;
+}
+
+export interface SearchSourceReference {
+  query: string;
+  title: string;
+  url?: string;
+  snippet?: string;
+  supports: string;
+}
+
+export interface CategorizedStyleTags {
+  aestheticTags: {
+    id: string;
+    name: string;
+    confidence: Confidence;
+    isPrimary?: boolean;
+    isSecondary?: boolean;
+    evidence: string[];
+  }[];
+  cosplayTags: {
+    character: string;
+    status: "confirmed" | "likely" | "possible" | "unconfirmed" | "unknown";
+    confidence: number;
+    evidence: string[];
+  }[];
+  fandomTags: {
+    franchise: string;
+    franchiseType?: string;
+    evidence: string[];
+  }[];
+  categoryTags: {
+    name: "Meme" | "Animal" | "Celebrity" | "Footballer" | "Cartoon" | string;
+    evidence: string[];
+  }[];
+}
+
+export interface CosplayRecognitionResult {
+  isCosplay: boolean;
+  characterName: string | null;
+  franchiseName: string | null;
+  franchiseType: string | null;
+  primaryAesthetic: string | null;
+  secondaryAesthetics: string[];
+  confidence: number; // 0 - 1
+  supportingEvidence: string[];
+  visualEvidence: string[];
+  contradictingEvidence: string[];
+  matchingItems: string[];
+  unmatchedFeatures: string[];
+  alternativeHypotheses: AlternativeHypothesis[];
+  searchSources: SearchSourceReference[];
+  identificationStatus: "confirmed" | "likely" | "possible" | "unconfirmed" | "unknown";
   explanation: string;
+
+  // Trường tương thích ngược
+  identified?: boolean;
+  franchise?: string | null;
+  confidenceLevel?: "high" | "medium" | "insufficient";
+  supportingDetails?: string[];
+  mismatchedDetails?: string[];
+  aesthetic?: string[];
 }
 
 export interface ScoreReport {
@@ -279,12 +335,16 @@ export interface ScoreReport {
   primaryStyle: DetectedStyleInfo | null;
   /** Các phong cách phụ nhận diện từ Catalog 270 Style */
   secondaryStyles: DetectedStyleInfo[];
+  /** Phân loại đầy đủ các style tags: Aesthetic, Cosplay, Fandom, Category */
+  categorizedTags: CategorizedStyleTags;
   /** Kết quả nhận diện Cosplay Anime, Phim ảnh, Fantasy */
   cosplayResult: CosplayRecognitionResult;
   /** Danh sách nhận diện cosplay anime/phim/fantasy (tương thích ngược). */
   cosplayDetections: CosplayMatchInfo[];
   strengths: string[];
   weaknesses: string[];
+  /** Đề xuất nâng cấp outfit cụ thể dựa trên outfit thực tế */
+  outfitRecommendations: string[];
   nextTier: TierAdvice | null;
   mythicalAdvice: string[];
   limitations: string[];

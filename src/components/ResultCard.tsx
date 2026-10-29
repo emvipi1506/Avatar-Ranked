@@ -19,6 +19,12 @@ import {
   Info,
   Tag,
   Coins,
+  Globe,
+  Film,
+  Smile,
+  Eye,
+  CheckCircle2,
+  HelpCircle,
 } from "lucide-react";
 import ScoreBreakdown from "./ScoreBreakdown";
 import PersonalTasteSlider from "./PersonalTasteSlider";
@@ -56,6 +62,8 @@ export default function ResultCard({
     value: valueBreakdown,
     dominantStyle,
     styles,
+    categorizedTags,
+    cosplayResult,
     strengths,
     weaknesses,
     nextTier,
@@ -65,16 +73,19 @@ export default function ResultCard({
 
   const [copied, setCopied] = useState(false);
   const [showValueDetails, setShowValueDetails] = useState(false);
+  const [showAllAesthetics, setShowAllAesthetics] = useState(false);
 
   const selectedPersonalRarity = RARITIES[personalTier];
 
   const handleCopyResult = async () => {
     soundManager.playClick();
+    const aestheticNames = categorizedTags?.aestheticTags?.map((t) => t.name).join(", ") || dominantStyle?.label || "Tự do";
     const textToCopy = `🎮 AVATAR RANKED REPORT:
 👤 ${user.displayName} (@${user.name})
 ✨ Bậc tự động: [${systemRarity.label}] (Tổng điểm: ${total}/100)
 💖 Bậc hợp gu cá nhân: [${selectedPersonalRarity.label}] (${selectedPersonalRarity.personalScore} đ)
-🎨 Phong cách: ${dominantStyle?.label ?? "Tự do"}
+🎨 Phong cách: ${aestheticNames}
+${cosplayResult?.characterName ? `🎭 Cosplay: ${cosplayResult.characterName} (${cosplayResult.franchiseName}) - ${cosplayResult.identificationStatus.toUpperCase()}` : ""}
 📊 Chi tiết 4 tiêu chí:
   • Chủ đề & Hài hòa: ${criteria.theme.score ?? "N/A"}/100
   • Độc lạ & Sáng tạo: ${criteria.uniqueness.score ?? "N/A"}/100
@@ -108,6 +119,10 @@ export default function ResultCard({
     }
   };
 
+  const displayedAesthetics = showAllAesthetics
+    ? categorizedTags?.aestheticTags ?? []
+    : (categorizedTags?.aestheticTags ?? []).slice(0, 6);
+
   return (
     <motion.div
       variants={stagger(0.08)}
@@ -126,7 +141,7 @@ export default function ResultCard({
         style={{ background: systemRarity.gradient }}
       />
 
-      {/* CẢNH BÁO CHẤT LƯỢNG DỮ LIỆU (NẾU THIẾU DỮ LIỆU HOẶC BỊ ÁP TRẦN) */}
+      {/* CẢNH BÁO CHẤT LƯỢNG DỮ LIỆU */}
       {dataQuality.level !== "complete" && (
         <motion.div
           variants={fadeUp}
@@ -201,21 +216,21 @@ export default function ResultCard({
             <p className="text-[11px] text-slate-500">Roblox User ID: #{user.id}</p>
           </div>
 
-          {/* Dominant Style Tag */}
-          {dominantStyle && (
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[#46C8FF]/30 bg-[#46C8FF]/10 px-3 py-1 text-xs font-semibold text-[#46C8FF]">
-              <Tag className="h-3.5 w-3.5" />
-              <span>Phong cách: {dominantStyle.label}</span>
-            </div>
-          )}
-
-          {/* Cosplay Detection Badge */}
-          {report.cosplayDetections && report.cosplayDetections.length > 0 && (
-            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-pink-500/40 bg-pink-500/15 px-3 py-1 text-xs font-bold text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.35)] animate-pulse">
-              <Sparkles className="h-3.5 w-3.5 text-pink-400" />
-              <span>Cosplay: {report.cosplayDetections[0].character} ({report.cosplayDetections[0].franchise})</span>
-            </div>
-          )}
+          {/* Style Badges Summary */}
+          <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+            {report.primaryStyle && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#46C8FF]/40 bg-[#46C8FF]/15 px-3 py-1 text-xs font-bold text-[#46C8FF]">
+                <Tag className="h-3 w-3" />
+                Primary: {report.primaryStyle.name}
+              </span>
+            )}
+            {cosplayResult?.characterName && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-pink-500/40 bg-pink-500/15 px-3 py-1 text-xs font-bold text-pink-300">
+                <Sparkles className="h-3 w-3 text-pink-400" />
+                {cosplayResult.characterName}
+              </span>
+            )}
+          </div>
 
           {/* Quote nhận xét vui theo Rarity */}
           <div className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 p-3.5 text-center">
@@ -274,128 +289,316 @@ export default function ResultCard({
         </div>
       </div>
 
-      {/* NHẬN DIỆN AESTHETIC (CATALOG 270 STYLE) & COSPLAY RECOGNITION */}
+      {/* ============================================================== */}
+      {/* KHU VỰC STYLE TAGS: HIỂN THỊ ĐẦY ĐỦ TẤT CẢ PHONG CÁCH AVATAR   */}
+      {/* ============================================================== */}
       <motion.div variants={fadeUp} className="mt-8 rounded-3xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
-        <h4 className="font-sans text-sm font-extrabold text-white flex items-center gap-2 border-b border-white/10 pb-3">
-          <Tag className="h-4 w-4 text-[#46C8FF]" />
-          Nhận diện Phong cách (Catalog 270 Style) & Cosplay
-        </h4>
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <h4 className="font-sans text-sm font-extrabold text-white flex items-center gap-2">
+            <Tag className="h-4 w-4 text-[#46C8FF]" />
+            Khu vực Style Tags (Đầy đủ phong cách có bằng chứng từ Catalog 270 Style)
+          </h4>
+          <span className="text-[11px] font-mono text-slate-400">
+            Tổng cộng: {(categorizedTags?.aestheticTags?.length ?? 0) + (categorizedTags?.cosplayTags?.length ?? 0) + (categorizedTags?.fandomTags?.length ?? 0) + (categorizedTags?.categoryTags?.length ?? 0)} tags
+          </span>
+        </div>
 
-        <div className="mt-4 grid gap-6 md:grid-cols-2">
-          {/* Cột Aesthetic Styles */}
-          <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-[#46C8FF]">
-              AESTHETIC STYLES
-            </span>
+        {/* 4 Nhóm Tags: Aesthetic, Cosplay, Fandom, Category */}
+        <div className="mt-5 space-y-5">
+          {/* 1. Aesthetic Tags (Phong cách thẩm mỹ) */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#46C8FF] flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-[#46C8FF]" />
+                Aesthetic Tags ({categorizedTags?.aestheticTags?.length ?? 0})
+              </span>
+              {(categorizedTags?.aestheticTags?.length ?? 0) > 6 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllAesthetics(!showAllAesthetics)}
+                  className="text-[11px] text-[#46C8FF] hover:underline font-semibold"
+                >
+                  {showAllAesthetics ? "Thu gọn" : `Xem tất cả (+${(categorizedTags?.aestheticTags?.length ?? 0) - 6})`}
+                </button>
+              )}
+            </div>
 
-            {report.primaryStyle ? (
-              <div className="mt-2 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-bold text-white text-sm">{report.primaryStyle.name}</p>
-                    <span className="text-[11px] text-slate-400">Phong cách chủ đạo ({report.primaryStyle.itemCount} dấu hiệu)</span>
-                  </div>
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase ${
-                      report.primaryStyle.confidence === "high"
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        : report.primaryStyle.confidence === "medium"
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                        : "bg-slate-500/20 text-slate-300 border border-slate-500/30"
+            {displayedAesthetics.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {displayedAesthetics.map((t) => (
+                  <div
+                    key={t.id}
+                    className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition ${
+                      t.isPrimary
+                        ? "border border-[#46C8FF]/50 bg-[#46C8FF]/20 text-white font-bold shadow-[0_0_12px_rgba(70,200,255,0.25)]"
+                        : t.isSecondary
+                        ? "border border-purple-500/40 bg-purple-500/15 text-purple-200 font-semibold"
+                        : "border border-white/10 bg-white/5 text-slate-300"
                     }`}
                   >
-                    Độ tin cậy: {report.primaryStyle.confidence.toUpperCase()}
-                  </span>
-                </div>
-
-                {report.primaryStyle.evidence.length > 0 && (
-                  <div className="text-xs text-slate-300 bg-white/5 rounded-xl p-2.5">
-                    <p className="text-[11px] font-semibold text-slate-400 mb-1">Bằng chứng hỗ trợ:</p>
-                    <ul className="list-disc list-inside space-y-0.5 text-[11px]">
-                      {report.primaryStyle.evidence.slice(0, 3).map((ev, i) => (
-                        <li key={i}>{ev}</li>
-                      ))}
-                    </ul>
+                    <span>{t.name}</span>
+                    {t.isPrimary && (
+                      <span className="rounded bg-[#46C8FF] px-1.5 py-0.2 text-[9px] font-black uppercase text-black">
+                        Primary
+                      </span>
+                    )}
+                    {t.isSecondary && (
+                      <span className="rounded bg-purple-500 px-1.5 py-0.2 text-[9px] font-black uppercase text-white">
+                        Secondary
+                      </span>
+                    )}
+                    <span className="font-mono text-[10px] text-slate-400">
+                      ({t.confidence})
+                    </span>
                   </div>
-                )}
-
-                {report.primaryStyle.missingEvidence.length > 0 && (
-                  <p className="text-[11px] text-amber-300/80 italic">
-                    ⚠️ {report.primaryStyle.missingEvidence[0]}
-                  </p>
-                )}
-
-                {/* Secondary Styles */}
-                {report.secondaryStyles && report.secondaryStyles.length > 0 && (
-                  <div className="pt-2 border-t border-white/5">
-                    <p className="text-[11px] font-semibold text-slate-400 mb-1.5">Phong cách phụ:</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {report.secondaryStyles.map((sec) => (
-                        <span
-                          key={sec.id}
-                          className="rounded-lg bg-white/5 px-2 py-1 text-[11px] text-slate-300 border border-white/10"
-                        >
-                          {sec.name} <span className="text-slate-500">({sec.confidence})</span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                ))}
               </div>
             ) : (
-              <p className="mt-2 text-xs text-slate-400 italic">
-                Trang phục tự do, chưa hội tụ đủ dấu hiệu để phân loại vào aesthetic cụ thể trong catalog.
-              </p>
+              <p className="text-xs text-slate-500 italic">Trang phục tự do, chưa xác định aesthetic nổi trội.</p>
             )}
           </div>
 
-          {/* Cột Cosplay Recognition */}
-          <div className="rounded-2xl border border-pink-500/20 bg-pink-500/[0.03] p-4">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-pink-400">
-              COSPLAY RECOGNITION
-            </span>
-
-            {report.cosplayResult && report.cosplayResult.identified ? (
-              <div className="mt-2 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-bold text-pink-300 text-sm">{report.cosplayResult.characterName}</p>
-                    <p className="text-[11px] text-pink-400/80">Tác phẩm: {report.cosplayResult.franchise}</p>
-                  </div>
-                  <span className="rounded-full bg-pink-500/20 px-2.5 py-0.5 font-mono text-[10px] font-bold text-pink-300 border border-pink-500/30 uppercase">
-                    Độ tin cậy: {report.cosplayResult.confidenceLevel.toUpperCase()} ({Math.round(report.cosplayResult.confidence * 100)}%)
-                  </span>
+          {/* 2. Cosplay & Fandom Tags */}
+          <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-white/5">
+            {/* Cosplay Tags */}
+            <div>
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-pink-400 mb-2 flex items-center gap-1.5">
+                <Smile className="h-3.5 w-3.5 text-pink-400" />
+                Cosplay Tags
+              </span>
+              {categorizedTags?.cosplayTags && categorizedTags.cosplayTags.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {categorizedTags.cosplayTags.map((c, i) => (
+                    <div
+                      key={i}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-pink-500/40 bg-pink-500/10 px-3 py-1.5 text-xs font-bold text-pink-200"
+                    >
+                      <span>{c.character}</span>
+                      <span
+                        className={`rounded px-1.5 py-0.2 font-mono text-[9px] font-black uppercase ${
+                          c.status === "confirmed"
+                            ? "bg-emerald-500 text-black"
+                            : c.status === "likely"
+                            ? "bg-sky-500 text-black"
+                            : c.status === "unconfirmed"
+                            ? "bg-slate-600 text-slate-200"
+                            : "bg-amber-500 text-black"
+                        }`}
+                      >
+                        {c.status}
+                      </span>
+                    </div>
+                  ))}
                 </div>
+              ) : (
+                <p className="text-xs text-slate-500 italic mt-1">Không có dấu hiệu cosplay nhân vật cụ thể.</p>
+              )}
+            </div>
 
-                <p className="text-xs text-slate-300">{report.cosplayResult.explanation}</p>
+            {/* Fandom Tags */}
+            <div>
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2 flex items-center gap-1.5">
+                <Film className="h-3.5 w-3.5 text-indigo-400" />
+                Fandom Tags
+              </span>
+              {categorizedTags?.fandomTags && categorizedTags.fandomTags.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {categorizedTags.fandomTags.map((f, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center gap-1 rounded-xl border border-indigo-500/40 bg-indigo-500/10 px-3 py-1.5 text-xs font-medium text-indigo-200"
+                    >
+                      <Globe className="h-3 w-3 text-indigo-400" />
+                      {f.franchise}
+                      {f.franchiseType && <span className="text-[10px] text-slate-400 font-mono">({f.franchiseType})</span>}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-500 italic mt-1">Không thuộc fandom hay series thương mại nào.</p>
+              )}
+            </div>
+          </div>
 
-                {report.cosplayResult.supportingDetails.length > 0 && (
-                  <div className="text-xs text-slate-300 bg-black/40 rounded-xl p-2.5">
-                    <p className="text-[11px] font-semibold text-slate-400 mb-1">Chi tiết phù hợp:</p>
-                    <ul className="list-disc list-inside space-y-0.5 text-[11px]">
-                      {report.cosplayResult.supportingDetails.map((det, i) => (
-                        <li key={i}>{det}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {report.cosplayResult.mismatchedDetails.length > 0 && (
-                  <p className="text-[11px] text-slate-400 italic">
-                    Góp ý: {report.cosplayResult.mismatchedDetails[0]}
-                  </p>
-                )}
+          {/* 3. Category Tags: Meme, Animal, Celebrity, Footballer, Cartoon */}
+          <div className="pt-2 border-t border-white/5">
+            <span className="font-mono text-xs font-bold uppercase tracking-wider text-amber-400 mb-2 flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              Category Tags (Meme / Animal / Celebrity / Footballer / Cartoon)
+            </span>
+            {categorizedTags?.categoryTags && categorizedTags.categoryTags.length > 0 ? (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {categorizedTags.categoryTags.map((cat, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-200"
+                  >
+                    <span>{cat.name}</span>
+                    <span className="text-[10px] text-amber-300/70 font-normal">({cat.evidence[0]})</span>
+                  </span>
+                ))}
               </div>
             ) : (
-              <div className="mt-3 text-xs text-slate-400 space-y-1">
-                <p className="italic text-slate-300">Chưa đủ bằng chứng để xác định đây là trang phục Cosplay của một nhân vật cụ thể.</p>
-                <p className="text-[11px] text-slate-500">
-                  Hệ thống không tự ý gán nhân vật khi thiếu các phụ kiện đặc trưng (tóc, vũ khí, trang phục nhận diện).
-                </p>
-              </div>
+              <p className="text-xs text-slate-500 italic mt-1">Avatar thiết kế chuẩn mực, không thuộc các danh mục đặc biệt.</p>
             )}
           </div>
         </div>
+      </motion.div>
+
+      {/* ============================================================== */}
+      {/* KHU VỰC HIỂN THỊ KẾT QUẢ COSPLAY ĐẦY ĐỦ THEO MỤC 6             */}
+      {/* ============================================================== */}
+      <motion.div variants={fadeUp} className="mt-8 rounded-3xl border border-pink-500/20 bg-pink-500/[0.03] p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-pink-500/20 pb-3">
+          <h4 className="font-sans text-sm font-extrabold text-white flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-pink-400" />
+            Hồ sơ nhận diện Cosplay chi tiết (Character Recognition Details)
+          </h4>
+          {cosplayResult && (
+            <span
+              className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-black uppercase ${
+                cosplayResult.identificationStatus === "confirmed"
+                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                  : cosplayResult.identificationStatus === "likely"
+                  ? "bg-sky-500/20 text-sky-300 border border-sky-500/40"
+                  : cosplayResult.identificationStatus === "unconfirmed"
+                  ? "bg-slate-600/30 text-slate-300 border border-slate-500/40"
+                  : cosplayResult.identificationStatus === "possible"
+                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                  : "bg-slate-500/20 text-slate-400 border border-slate-500/40"
+              }`}
+            >
+              Status: {cosplayResult.identificationStatus}
+            </span>
+          )}
+        </div>
+
+        {cosplayResult && (cosplayResult.characterName || cosplayResult.isCosplay) ? (
+          <div className="mt-4 space-y-4 text-xs">
+            {/* Thông tin chính: Character, Fandom, Confidence */}
+            <div className="grid gap-4 sm:grid-cols-3 rounded-2xl bg-black/40 border border-white/5 p-4">
+              <div>
+                <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Character</span>
+                <p className="font-bold text-pink-300 text-sm mt-0.5">{cosplayResult.characterName}</p>
+              </div>
+              <div>
+                <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Fandom / Series</span>
+                <p className="font-bold text-white text-sm mt-0.5">
+                  {cosplayResult.franchiseName || "Chưa xác định"}
+                  {cosplayResult.franchiseType && (
+                    <span className="text-slate-400 text-xs ml-1 font-normal">({cosplayResult.franchiseType})</span>
+                  )}
+                </p>
+              </div>
+              <div>
+                <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider block">Confidence</span>
+                <p className="font-bold text-emerald-400 text-sm mt-0.5 font-mono">
+                  {Math.round(cosplayResult.confidence * 100)}% ({cosplayResult.identificationStatus.toUpperCase()})
+                </p>
+              </div>
+            </div>
+
+            {/* Giải thích tổng quan */}
+            <p className="text-slate-300 italic bg-white/5 rounded-xl p-3 border border-white/5">
+              &ldquo;{cosplayResult.explanation}&rdquo;
+            </p>
+
+            {/* Matching Items & Visual Evidence */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Matching Items */}
+              <div className="rounded-2xl border border-white/5 bg-black/30 p-3.5">
+                <span className="font-mono text-[10px] font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                  Matching Items ({cosplayResult.matchingItems?.length ?? 0})
+                </span>
+                {cosplayResult.matchingItems && cosplayResult.matchingItems.length > 0 ? (
+                  <ul className="space-y-1 text-slate-300">
+                    {cosplayResult.matchingItems.map((item, i) => (
+                      <li key={i} className="flex items-start gap-1.5">
+                        <span className="text-emerald-400 font-bold">&bull;</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-slate-500 italic">Không có vật phẩm khớp tên trực tiếp.</p>
+                )}
+              </div>
+
+              {/* Visual Evidence */}
+              <div className="rounded-2xl border border-white/5 bg-black/30 p-3.5">
+                <span className="font-mono text-[10px] font-bold text-[#46C8FF] uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                  <Eye className="h-3.5 w-3.5 text-[#46C8FF]" />
+                  Visual Evidence ({cosplayResult.visualEvidence?.length ?? 0})
+                </span>
+                {cosplayResult.visualEvidence && cosplayResult.visualEvidence.length > 0 ? (
+                  <ul className="space-y-1 text-slate-300">
+                    {cosplayResult.visualEvidence.map((ve, i) => (
+                      <li key={i} className="flex items-start gap-1.5">
+                        <span className="text-[#46C8FF] font-bold">&check;</span>
+                        <span>{ve}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-slate-500 italic">Chưa có dữ liệu hình ảnh trực quan bổ sung.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Mismatches / Unmatched Features */}
+            {(cosplayResult.unmatchedFeatures?.length > 0 || cosplayResult.contradictingEvidence?.length > 0) && (
+              <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3.5">
+                <span className="font-mono text-[10px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+                  Mismatches & Điểm cần bổ sung
+                </span>
+                <ul className="space-y-1 text-slate-300 text-[11px]">
+                  {cosplayResult.unmatchedFeatures?.map((un, i) => (
+                    <li key={`un-${i}`} className="flex items-start gap-1.5">
+                      <span className="text-amber-400">&bull;</span>
+                      <span>{un}</span>
+                    </li>
+                  ))}
+                  {cosplayResult.contradictingEvidence?.map((ce, i) => (
+                    <li key={`ce-${i}`} className="flex items-start gap-1.5 text-amber-300/90 font-medium">
+                      <span className="text-amber-400">⚠️</span>
+                      <span>{ce}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Reference Sources */}
+            {cosplayResult.searchSources && cosplayResult.searchSources.length > 0 && (
+              <div className="rounded-2xl border border-white/5 bg-black/40 p-3.5">
+                <span className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                  <Globe className="h-3.5 w-3.5 text-slate-400" />
+                  Reference Sources (Nguồn đối chiếu & truy vấn)
+                </span>
+                <div className="space-y-2">
+                  {cosplayResult.searchSources.map((src, i) => (
+                    <div key={i} className="rounded-xl bg-white/[0.03] p-2 text-[11px]">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-slate-200">{src.title}</span>
+                        <span className="font-mono text-[10px] text-slate-500">Query: {src.query}</span>
+                      </div>
+                      <p className="text-slate-400 mt-0.5">{src.supports}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mt-3 text-xs text-slate-400 space-y-1">
+            <p className="italic text-slate-300">Avatar không có dấu hiệu mô phỏng một nhân vật Cosplay cụ thể.</p>
+            <p className="text-[11px] text-slate-500">
+              Hệ thống không tự ý gán nhân vật khi thiếu các phụ kiện đặc thù (tóc, vũ khí, trang phục nhận diện).
+            </p>
+          </div>
+        )}
       </motion.div>
 
       {/* CHI TIẾT GIÁ TRỊ ROBUX & DANH SÁCH VẬT PHẨM */}
@@ -514,6 +717,24 @@ export default function ResultCard({
             )}
           </div>
         </div>
+
+        {/* Đề xuất nâng cấp outfit cụ thể */}
+        {report.outfitRecommendations && report.outfitRecommendations.length > 0 && (
+          <div className="mt-5 rounded-2xl border border-sky-500/30 bg-sky-500/5 p-4 text-xs">
+            <p className="font-bold text-sky-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-sky-400" />
+              Đề xuất nâng cấp outfit cụ thể (dựa trên dữ liệu trang phục thực tế):
+            </p>
+            <ul className="space-y-1.5 text-slate-300">
+              {report.outfitRecommendations.map((rec, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span className="font-mono font-bold text-sky-400">&bull;</span>
+                  <span>{rec}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Lời khuyên lên bậc tiếp theo */}
         {nextTier && (

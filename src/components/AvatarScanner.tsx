@@ -16,13 +16,13 @@ interface AvatarScannerProps {
 }
 
 const TELEMETRY_LINES = [
-  "BUFFER_SYNC :: 0x7FF39A [VALID]",
-  "MESH_TESSELLATION: RIG_R15_VERIFIED",
-  "LAYERED_CLOTHING_DETECTION: 100%",
-  "ACCESSORY_MATRIX_PASS: COMPLETE",
-  "AURA_ENTROPY_ANALYSIS: LEVEL_MAX",
-  "COLOR_HARMONY_INDEX: 0.941",
-  "CALCULATING_GACHA_SEED: ROBLOX_RNG",
+  "ROBLOX_API :: AVATAR_METADATA_LOADED [PASS]",
+  "PIXEL_SAMPLING: PALETTE_HARMONY_EXTRACTED",
+  "CATALOG_270_AESTHETICS: PATTERN_MATCHING",
+  "FANDOM_ENGINE: HYPOTHESIS_GENERATION",
+  "CROSS_EXAMINATION: CONTRADICTIONS_CHECKED",
+  "WEIGHTED_CRITERIA: 35%_THEME_30%_ORIG_25%_HUMOR_10%_ROBUX",
+  "DATA_QUALITY_GATE: VERIFYING_COMPLETENESS",
 ];
 
 export default function AvatarScanner({
@@ -58,16 +58,17 @@ export default function AvatarScanner({
     return () => clearInterval(t);
   }, [phase]);
 
-  // Phụ đề trạng thái hiển thị
+  // Phụ đề trạng thái hiển thị theo từng giai đoạn thực tế
   const getPhaseTitle = () => {
-    if (phase === "init") return "INITIALIZING AVATAR SCANNER...";
+    if (phase === "init") return "ĐANG KHỞI TẠO BỘ QUÉT AI & KẾT NỐI ROBLOX API...";
     if (phase === "scanning") {
-      if (progress < 40) return "SCANNING AVATAR...";
-      if (progress < 75) return "ANALYZING STYLE & ACCESSORIES...";
-      return "DETECTING RARITY SIGNATURE...";
+      if (progress < 25) return "THU THẬP METADATA TRANG PHỤC & BẢNG MÀU PIXEL...";
+      if (progress < 55) return "ĐỐI CHIẾU 270 AESTHETICS & XÂY DỰNG GIẢ THUYẾT FANDOM/COSPLAY...";
+      if (progress < 85) return "THẨM ĐỊNH BẰNG CHỨNG CẠNH TRANH, MEME & GIÁ CATALOG...";
+      return "CHẤM ĐIỂM 4 TIÊU CHÍ AI (35% - 30% - 25% - 10%)...";
     }
-    if (phase === "calculating") return "CALCULATING RARITY...";
-    return "PROCESSING...";
+    if (phase === "calculating") return "KẾT HỢP GU CÁ NHÂN (25%) & TÍNH BẬC ĐỘ HIẾM CUỐI CÙNG...";
+    return "ĐANG XỬ LÝ...";
   };
 
   return (
