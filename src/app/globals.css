@@ -17,15 +17,15 @@
   }
 
   body {
-    background-color: var(--bg-near-black);
-    color: var(--text-white);
-    font-family: var(--font-sans), system-ui, sans-serif;
+    background-color: var(--c-bg);
+    color: var(--c-ink);
+    font-family: var(--font-body), system-ui, sans-serif;
     overflow-x: hidden;
   }
 
   ::selection {
-    background: rgba(168, 85, 247, 0.4);
-    color: #ffffff;
+    background: var(--c-lemon);
+    color: var(--c-ink);
   }
 }
 
@@ -298,11 +298,31 @@
   animation: nb-float 5s ease-in-out infinite;
 }
 
+@keyframes nb-scanline {
+  0% {
+    top: -20%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.nb-scanline {
+  top: -20%;
+  animation: nb-scanline 1.7s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .nb-marquee-track,
   .nb-float,
   .nb-stamp-slam {
     animation: none !important;
+  }
+
+  .nb-scanline {
+    top: 42%;
+    animation: none !important;
+    opacity: 0.45;
   }
 }
 
