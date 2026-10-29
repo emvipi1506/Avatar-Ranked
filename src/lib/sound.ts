@@ -2,7 +2,7 @@ import type { RarityTier } from "@/types";
 
 class SoundManager {
   private ctx: AudioContext | null = null;
-  private isMuted: boolean = false;
+  private isMuted: boolean = true;
 
   constructor() {
     if (typeof window !== "undefined") {

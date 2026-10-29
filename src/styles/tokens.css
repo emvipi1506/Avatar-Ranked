@@ -1,0 +1,97 @@
+/* ============================================================
+   AVATAR RANKED — DESIGN TOKENS v1 (NEO-BRUTALISM)
+   Nguồn duy nhất cho raw color values. Không dùng hex ngoài file này.
+   ============================================================ */
+
+:root {
+  /* Base */
+  --c-bg: #fffdf5;
+  --c-surface: #ffffff;
+  --c-surface-2: #f5f3e9;
+  --c-ink: #111111;
+  --c-ink-2: #3d3b33;
+  --c-muted: #6b675a;
+  --c-line: #111111;
+  --c-line-soft: #d8d3c4;
+
+  /* Accents */
+  --c-lemon: #ffe600;
+  --c-coral: #ff6b4a;
+  --c-coral-ink: #b23a1f;
+  --c-mint: #70e3b6;
+  --c-violet: #b590ff;
+  --c-cyan: #5de2e7;
+
+  /* Status */
+  --c-danger: #b42318;
+  --c-danger-bg: #ffe1de;
+  --c-warning: #8a4b00;
+  --c-warning-bg: #fff1c2;
+  --c-success: #05603a;
+  --c-success-bg: #d9fbe9;
+  --c-info: #1d4ed8;
+  --c-info-bg: #e4ecff;
+
+  /* Disabled + tinted surfaces */
+  --c-disabled-bg: #e8e4d8;
+  --c-disabled-ink: #8a8678;
+  --c-praise-bg: #d9fbe9;
+  --c-roast-bg: #ffe1de;
+  --c-tip-bg: #d8fbfd;
+  --c-neutral-bg: #f5f3e9;
+
+  /* Typography */
+  --font-sans: var(--font-body), system-ui, sans-serif;
+
+  --fs-2xs: 0.6875rem; /* 11 */
+  --fs-xs: 0.75rem; /* 12 */
+  --fs-sm: 0.875rem; /* 14 */
+  --fs-md: 1rem; /* 16 */
+  --fs-lg: 1.125rem; /* 18 */
+  --fs-xl: 1.5rem; /* 24 */
+  --fs-2xl: 2rem; /* 32 */
+  --fs-3xl: clamp(2.5rem, 5vw, 3.5rem); /* 40 → 56 */
+  --fs-4xl: clamp(3.5rem, 7vw, 5rem); /* 56 → 80 */
+  --fs-5xl: clamp(4.5rem, 10vw, 7.5rem); /* 72 → 120 */
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 40px;
+  --sp-8: 48px;
+  --sp-9: 64px;
+  --sp-10: 80px;
+  --sp-11: 96px;
+  --sp-12: 128px;
+
+  --container: 1200px;
+  --container-narrow: 760px;
+  --gutter: clamp(16px, 4vw, 32px);
+  --section-y: clamp(64px, 8vw, 120px);
+
+  /* Borders, radius, hard shadows */
+  --bw-1: 2px;
+  --bw-2: 3px;
+  --bw-3: 4px;
+
+  --shadow-1: 3px 3px 0 var(--c-ink);
+  --shadow-2: 4px 4px 0 var(--c-ink);
+  --shadow-3: 6px 6px 0 var(--c-ink);
+  --shadow-4: 8px 8px 0 var(--c-ink);
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 320ms;
+  --dur-reveal: 480ms;
+  --ease-pop: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-stamp: cubic-bezier(0.34, 1.56, 0.64, 1);
+}

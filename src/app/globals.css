@@ -159,3 +159,150 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================
+   NEO-BRUTALISM SCOPE (preview + rebuild)
+   Chỉ áp dụng bên trong .nb-root để UI neon cũ vẫn hoạt động.
+   ============================================================ */
+
+.nb-root {
+  min-height: 100dvh;
+  background-color: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  color-scheme: light;
+  isolation: isolate;
+}
+
+.nb-root ::selection {
+  background: var(--c-lemon);
+  color: var(--c-ink);
+}
+
+.nb-root :focus-visible {
+  outline: 3px solid var(--c-ink);
+  outline-offset: 3px;
+}
+
+.nb-container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.nb-container-narrow {
+  width: 100%;
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.nb-section {
+  padding-block: var(--section-y);
+}
+
+.nb-section-tight {
+  padding-block: clamp(40px, 5vw, 72px);
+}
+
+/* ---------- Patterns ---------- */
+
+.nb-checkerboard {
+  background-color: var(--c-lemon);
+  background-image: conic-gradient(
+    var(--c-surface) 25%,
+    var(--c-lemon) 0 50%,
+    var(--c-surface) 0 75%,
+    var(--c-lemon) 0
+  );
+  background-size: 32px 32px;
+}
+
+.nb-dots {
+  background-image: radial-gradient(var(--c-ink) 1px, transparent 1px);
+  background-size: 12px 12px;
+  background-position: 0 0;
+  opacity: 0.06;
+}
+
+.nb-grid-pattern {
+  background-image:
+    linear-gradient(var(--c-line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-line-soft) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.nb-waves {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='24' viewBox='0 0 80 24'%3E%3Cpath d='M0 12c10-10 20-10 30 0s20 10 30 0 20-10 30 0' fill='none' stroke='%23111111' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  opacity: 0.1;
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes nb-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.nb-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: nb-marquee 22s linear infinite;
+}
+
+.nb-marquee:hover .nb-marquee-track,
+.nb-marquee:focus-within .nb-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes nb-stamp-slam {
+  0% {
+    opacity: 0;
+    transform: scale(1.6) rotate(-14deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.96) rotate(var(--stamp-rotate, -8deg));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(var(--stamp-rotate, -8deg));
+  }
+}
+
+.nb-stamp {
+  transform: rotate(var(--stamp-rotate, -8deg));
+}
+
+.nb-stamp-slam {
+  animation: nb-stamp-slam 420ms var(--ease-stamp) both;
+}
+
+@keyframes nb-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.nb-float {
+  animation: nb-float 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-marquee-track,
+  .nb-float,
+  .nb-stamp-slam {
+    animation: none !important;
+  }
+}
+

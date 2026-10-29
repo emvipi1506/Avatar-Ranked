@@ -12,6 +12,7 @@ import type {
   DataQuality,
   DetectedStyleInfo,
   PaletteStats,
+  PersonalTierSelection,
   RarityTier,
   RobloxProfile,
   ScoreReport,
@@ -1031,7 +1032,7 @@ export function calculateAvatarRank(
   profile: RobloxProfile,
   catalog: CatalogSummary | null = null,
   palette: PaletteStats | null = null,
-  personalTier: RarityTier = "COMMON",
+  personalTier: PersonalTierSelection = "COMMON",
 ): ScoreReport {
   const assets = profile.avatar.assets ?? [];
   const units = buildStyleUnits(assets);
@@ -1194,17 +1195,25 @@ export function calculateAvatarRank(
   const aiScoreNumber = scoreTheme * 0.35 + scoreUniqueness * 0.30 + scoreHumor * 0.25 + scoreValue * 0.10;
   const aiScore = Math.round(aiScoreNumber * 100) / 100;
 
-  // Tiêu chí 5: Chấm theo gu của bạn (chiếm 25% trọng số, mặc định COMMON = 0 điểm)
-  const personalScore = RARITIES[personalTier]?.personalScore ?? 0;
+  // Tiêu chí 5: Chấm theo gu của bạn.
+  // null = "Chưa chọn": không có điểm gu, trọng số 0, điểm tổng tính 100% từ hệ thống.
+  const personalScore = personalTier === null ? null : RARITIES[personalTier]?.personalScore ?? 0;
+  const personalWeight = personalScore === null ? 0 : 0.25;
   const personalRes: CriterionResult = {
     key: "personal",
     label: "Personal Taste (Your Judge)",
     labelVi: "Chấm theo gu của bạn",
     score: personalScore,
-    weight: 0.25,
+    weight: personalWeight,
     confidence: "high",
-    summary: `Bạn đã trực tiếp đánh giá avatar này ở mức ${personalTier} (${personalScore} điểm).`,
-    evidence: [`Thanh trượt Gu của bạn: Bậc ${personalTier} đóng góp 25% vào kết quả cuối cùng`],
+    summary:
+      personalScore === null
+        ? "Bạn chưa chọn mức đánh giá. Điểm tổng tính 100% từ hệ thống."
+        : `Bạn đã trực tiếp đánh giá avatar này ở mức ${personalTier} (${personalScore} điểm).`,
+    evidence:
+      personalScore === null
+        ? ["Chưa chọn gu cá nhân — điểm tổng hiện tính 100% từ hệ thống."]
+        : [`Thanh trượt Gu của bạn: Bậc ${personalTier} đóng góp 25% vào kết quả cuối cùng`],
   };
 
   const criteriaMap: Record<CriterionKey, CriterionResult> = {
@@ -1216,8 +1225,10 @@ export function calculateAvatarRank(
   };
 
   // 4. Công thức tính điểm tổng:
-  // Final Score = AI Score × 0.75 + Personal Score × 0.25
-  const rawTotal = aiScoreNumber * 0.75 + personalScore * 0.25;
+  // - Chưa chọn gu: Final Score = AI Score (100% hệ thống)
+  // - Đã chọn gu:  Final Score = AI Score × 0.75 + Personal Score × 0.25
+  const aiWeight = personalScore === null ? 1 : 0.75;
+  const rawTotal = personalScore === null ? aiScoreNumber : aiScoreNumber * 0.75 + personalScore * 0.25;
   const total = Math.round(rawTotal * 100) / 100;
 
   // 5. Kiểm tra chất lượng dữ liệu
@@ -1303,7 +1314,7 @@ export function calculateAvatarRank(
     if (scoreValue < 60) {
       steps.push("Đầu tư phụ kiện catalog: Bổ sung thêm các vật phẩm đang bán chính thức có giá trị thẩm mỹ cao.");
     }
-    if (personalScore < 80) {
+    if (personalScore !== null && personalScore < 80) {
       steps.push(`Nâng đánh giá gu cá nhân: Bạn đang chấm mức ${personalTier} (${personalScore}đ). Nếu cảm thấy avatar xứng đáng hơn, hãy nâng thanh trượt.`);
     }
     if (steps.length === 0) {
@@ -1317,24 +1328,33 @@ export function calculateAvatarRank(
     };
   }
 
-  const mythicalAdvice: string[] = [
-    "Đạt điểm xuất sắc đồng đều (trung bình >= 92 điểm) trên cả hệ thống AI (75%) và Gu cá nhân của bạn (25%).",
-    "Cần một định hướng thẩm mỹ đỉnh cao: phối màu hoàn hảo hoặc cosplay xuất chúng, silhouette nhận diện tức thì.",
-    "Bắt buộc dữ liệu từ Roblox API và Catalog phải xác minh đầy đủ 100% để vượt qua cơ chế giới hạn chất lượng.",
-  ];
+  const mythicalAdvice: string[] =
+    personalScore === null
+      ? [
+          "Đạt điểm xuất sắc đồng đều (trung bình >= 92 điểm) trên hệ thống AI.",
+          "Cần một định hướng thẩm mỹ đỉnh cao: phối màu hoàn hảo hoặc cosplay xuất chúng, silhouette nhận diện tức thì.",
+          "Bắt buộc dữ liệu từ Roblox API và Catalog phải xác minh đầy đủ 100% để vượt qua cơ chế giới hạn chất lượng.",
+        ]
+      : [
+          "Đạt điểm xuất sắc đồng đều (trung bình >= 92 điểm) trên cả hệ thống AI (75%) và Gu cá nhân của bạn (25%).",
+          "Cần một định hướng thẩm mỹ đỉnh cao: phối màu hoàn hảo hoặc cosplay xuất chúng, silhouette nhận diện tức thì.",
+          "Bắt buộc dữ liệu từ Roblox API và Catalog phải xác minh đầy đủ 100% để vượt qua cơ chế giới hạn chất lượng.",
+        ];
 
   const limitations: string[] = [
-    "Hệ thống phân tích dựa trên metadata phụ kiện, tên item, bảng màu pixel avatar thực tế kết hợp 25% đánh giá Gu cá nhân của bạn.",
+    personalScore === null
+      ? "Hệ thống phân tích dựa trên metadata phụ kiện, tên item, bảng màu pixel avatar thực tế; bạn chưa chọn gu cá nhân nên điểm tổng tính 100% từ hệ thống."
+      : "Hệ thống phân tích dựa trên metadata phụ kiện, tên item, bảng màu pixel avatar thực tế kết hợp 25% đánh giá Gu cá nhân của bạn.",
     "Tiêu chí Giá trị chỉ chiếm 10% điểm AI và chỉ ghi nhận các vật phẩm đang mở bán trên catalog Roblox có giá niêm yết chính thức; vật phẩm Limited và Off-sale không được quy đổi sang giá trị Robux.",
   ];
 
   return {
     criteria: criteriaMap,
     aiScore,
-    aiWeight: 0.75,
+    aiWeight,
     personalScore,
     personalTier,
-    personalWeight: 0.25,
+    personalWeight,
     total,
     rawTotal,
     uncappedTier,

@@ -789,3 +789,54 @@ describe("Avatar Ranked — Full Upgrade Test Suite", () => {
     });
   });
 });
+
+describe("Gu cá nhân nullable — trạng thái “Chưa chọn”", () => {
+  it("null: điểm tổng = 100% điểm hệ thống, không bị trừ 25%", () => {
+    const report = calculateAvatarRank(createMockProfile(), null, null, null);
+
+    expect(report.personalTier).toBeNull();
+    expect(report.personalScore).toBeNull();
+    expect(report.personalWeight).toBe(0);
+    expect(report.aiWeight).toBe(1);
+    expect(report.total).toBe(report.aiScore);
+
+    expect(report.criteria.personal.score).toBeNull();
+    expect(report.criteria.personal.weight).toBe(0);
+    expect(report.criteria.personal.summary).toContain("100%");
+  });
+
+  it("đã chọn RARE: giữ đúng công thức 75% AI + 25% gu", () => {
+    const report = calculateAvatarRank(createMockProfile(), null, null, "RARE");
+    const expectedTotal = Math.round((report.aiScore * 0.75 + 35 * 0.25) * 100) / 100;
+
+    expect(report.personalTier).toBe("RARE");
+    expect(report.personalScore).toBe(35);
+    expect(report.personalWeight).toBe(0.25);
+    expect(report.aiWeight).toBe(0.75);
+    expect(report.total).toBe(expectedTotal);
+
+    expect(report.criteria.personal.score).toBe(35);
+    expect(report.criteria.personal.weight).toBe(0.25);
+  });
+
+  it("null không làm vỡ rarity hay các trường bắt buộc của report", () => {
+    const report = calculateAvatarRank(createMockProfile(), null, null, null);
+
+    expect(TIER_ORDER).toContain(report.rarity.tier);
+    expect(report.uncappedTier).toBe(getRarityForScore(report.aiScore));
+    expect(Number.isFinite(report.total)).toBe(true);
+    expect(report.total).toBeGreaterThanOrEqual(0);
+    expect(report.total).toBeLessThanOrEqual(100);
+  });
+
+  it("bỏ qua tham số vẫn giữ tương thích ngược với default COMMON", () => {
+    const report = calculateAvatarRank(createMockProfile());
+    const expectedTotal = Math.round(report.aiScore * 0.75 * 100) / 100;
+
+    expect(report.personalTier).toBe("COMMON");
+    expect(report.personalScore).toBe(0);
+    expect(report.personalWeight).toBe(0.25);
+    expect(report.aiWeight).toBe(0.75);
+    expect(report.total).toBe(expectedTotal);
+  });
+});

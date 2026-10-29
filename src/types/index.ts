@@ -122,6 +122,9 @@ export interface PaletteStats {
 
 export type RarityTier = "COMMON" | "UNCOMMON" | "RARE" | "EPIC" | "LEGENDARY" | "MYTHICAL";
 
+/** Bậc gu cá nhân người dùng chọn; `null` = "Chưa chọn" (điểm tổng 100% từ hệ thống). */
+export type PersonalTierSelection = RarityTier | null;
+
 export interface Rarity {
   tier: RarityTier;
   label: string;
@@ -310,17 +313,17 @@ export interface CosplayRecognitionResult {
 
 export interface ScoreReport {
   criteria: Record<CriterionKey, CriterionResult>;
-  /** Điểm AI hệ thống (0-100) từ 4 tiêu chí tự động (chiếm 75% điểm tổng). */
+  /** Điểm AI hệ thống (0-100) từ 4 tiêu chí tự động. */
   aiScore: number;
-  /** Trọng số của AI (75% = 0.75). */
+  /** Trọng số của AI: 0.75 khi đã chọn gu, 1 khi "Chưa chọn". */
   aiWeight: number;
-  /** Điểm thẩm mỹ do bạn chấm bằng thanh trượt (chiếm 25% điểm tổng). */
-  personalScore: number;
-  /** Bậc gu cá nhân đã chọn. */
-  personalTier: RarityTier;
-  /** Trọng số của gu cá nhân (25% = 0.25). */
+  /** Điểm thẩm mỹ do bạn chấm; `null` khi chưa chọn gu. */
+  personalScore: number | null;
+  /** Bậc gu cá nhân đã chọn; `null` = "Chưa chọn". */
+  personalTier: PersonalTierSelection;
+  /** Trọng số của gu cá nhân: 0.25 khi đã chọn, 0 khi "Chưa chọn". */
   personalWeight: number;
-  /** Điểm tổng cuối cùng = round(aiScore * 0.75 + personalScore * 0.25). */
+  /** Điểm tổng: `aiScore` khi "Chưa chọn"; ngược lại round(aiScore * 0.75 + personalScore * 0.25). */
   total: number;
   /** Điểm thô thực tế chưa làm tròn để xác định Rarity chuẩn xác. */
   rawTotal: number;

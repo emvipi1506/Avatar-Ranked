@@ -1,16 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import { Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
+import { Be_Vietnam_Pro, Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
+import "@/styles/tokens.css";
 import "./globals.css";
 
-const sans = Be_Vietnam_Pro({
+const display = Bricolage_Grotesque({
+  subsets: ["latin", "vietnamese"],
+  weight: ["700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const body = Be_Vietnam_Pro({
   subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-sans",
+  variable: "--font-body",
   display: "swap",
 });
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
+  weight: ["500", "700"],
   variable: "--font-mono",
   display: "swap",
 });
@@ -27,12 +36,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#07060d",
+  themeColor: "#FFFDF5",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="vi" className={`${sans.variable} ${mono.variable}`}>
+    <html lang="vi" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="min-h-dvh">
         {/* Nền ánh sáng neon cố định */}
         <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
