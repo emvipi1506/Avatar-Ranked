@@ -3,12 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --bg-near-black: #080A12;
-  --bg-dark-navy: #101528;
-  --neon-blue: #46C8FF;
-  --neon-purple: #A855F7;
-  --text-white: #F5F7FF;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 @layer base {
@@ -29,125 +24,6 @@
   }
 }
 
-@layer components {
-  /* Nền kính mờ Sci-fi */
-  .glass-card {
-    background: rgba(16, 21, 40, 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(70, 200, 255, 0.15);
-  }
-
-  .glass-card-hover {
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .glass-card-hover:hover {
-    border-color: rgba(70, 200, 255, 0.4);
-    box-shadow: 0 0 30px -5px rgba(70, 200, 255, 0.25);
-    transform: translateY(-2px);
-  }
-
-  /* Nút bấm Neon Gaming */
-  .btn-gaming-primary {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, #46C8FF 0%, #A855F7 60%, #FF007F 100%);
-    background-size: 200% 200%;
-    animation: gradientShift 6s ease infinite;
-    box-shadow: 0 0 25px rgba(70, 200, 255, 0.45);
-    transition: all 0.25s ease;
-  }
-  .btn-gaming-primary:hover:not(:disabled) {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 0 35px rgba(168, 85, 247, 0.65);
-  }
-  .btn-gaming-primary:active:not(:disabled) {
-    transform: translateY(1px) scale(0.98);
-  }
-
-  .btn-gaming-secondary {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #F5F7FF;
-    transition: all 0.2s ease;
-  }
-  .btn-gaming-secondary:hover:not(:disabled) {
-    background: rgba(70, 200, 255, 0.1);
-    border-color: rgba(70, 200, 255, 0.5);
-    box-shadow: 0 0 20px rgba(70, 200, 255, 0.2);
-  }
-
-  /* Lưới không gian công nghệ */
-  .cyber-grid {
-    background-image:
-      linear-gradient(rgba(70, 200, 255, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(70, 200, 255, 0.06) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 75%);
-    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 75%);
-  }
-
-  /* Gradient chữ chuẩn tương lai */
-  .text-neon-title {
-    background: linear-gradient(135deg, #F5F7FF 0%, #46C8FF 50%, #A855F7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-}
-
-/* Animations tuỳ biến */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes laserSweep {
-  0% { top: -10%; opacity: 0.2; }
-  15% { opacity: 1; }
-  85% { opacity: 1; }
-  100% { top: 110%; opacity: 0.2; }
-}
-
-@keyframes hologramSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes hologramSpinReverse {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-}
-
-@keyframes cameraShake {
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-3px, -2px); }
-  20% { transform: translate(3px, 1px); }
-  30% { transform: translate(-2px, 3px); }
-  40% { transform: translate(2px, -1px); }
-  50% { transform: translate(-1px, 2px); }
-  60% { transform: translate(3px, -2px); }
-  70% { transform: translate(-2px, -1px); }
-  80% { transform: translate(1px, 2px); }
-  90% { transform: translate(-1px, -2px); }
-}
-
-.animate-laser {
-  animation: laserSweep 2s ease-in-out infinite;
-}
-
-.animate-hologram {
-  animation: hologramSpin 14s linear infinite;
-}
-
-.animate-hologram-reverse {
-  animation: hologramSpinReverse 10s linear infinite;
-}
-
-.animate-camera-shake {
-  animation: cameraShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
-}
-
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -161,8 +37,8 @@
 }
 
 /* ============================================================
-   NEO-BRUTALISM SCOPE (preview + rebuild)
-   Chỉ áp dụng bên trong .nb-root để UI neon cũ vẫn hoạt động.
+   NEO-BRUTALISM UTILITIES
+   Toàn bộ UI mới nằm trong .nb-root; raw color chỉ sống ở tokens.css.
    ============================================================ */
 
 .nb-root {
@@ -191,19 +67,8 @@
   padding-inline: var(--gutter);
 }
 
-.nb-container-narrow {
-  width: 100%;
-  max-width: var(--container-narrow);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-}
-
 .nb-section {
   padding-block: var(--section-y);
-}
-
-.nb-section-tight {
-  padding-block: clamp(40px, 5vw, 72px);
 }
 
 /* ---------- Patterns ---------- */
@@ -231,12 +96,6 @@
     linear-gradient(var(--c-line-soft) 1px, transparent 1px),
     linear-gradient(90deg, var(--c-line-soft) 1px, transparent 1px);
   background-size: 32px 32px;
-}
-
-.nb-waves {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='24' viewBox='0 0 80 24'%3E%3Cpath d='M0 12c10-10 20-10 30 0s20 10 30 0 20-10 30 0' fill='none' stroke='%23111111' stroke-width='2'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  opacity: 0.1;
 }
 
 /* ---------- Motion ---------- */
@@ -284,20 +143,6 @@
   animation: nb-stamp-slam 420ms var(--ease-stamp) both;
 }
 
-@keyframes nb-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-.nb-float {
-  animation: nb-float 5s ease-in-out infinite;
-}
-
 @keyframes nb-scanline {
   0% {
     top: -20%;
@@ -314,7 +159,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .nb-marquee-track,
-  .nb-float,
   .nb-stamp-slam {
     animation: none !important;
   }

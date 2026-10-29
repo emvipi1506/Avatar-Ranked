@@ -20,6 +20,13 @@ export interface VerdictRevealProps {
   onComplete: () => void;
 }
 
+function readThemeColors(tokenNames: string[]): string[] {
+  const styles = getComputedStyle(document.documentElement);
+  return tokenNames
+    .map((name) => styles.getPropertyValue(name).trim())
+    .filter(Boolean);
+}
+
 export default function VerdictReveal({ user, imageUrl, report, onComplete }: VerdictRevealProps) {
   const verdict = getVerdictView(report);
   const bubble = getVerdictBubbles(report)[0];
@@ -34,10 +41,11 @@ export default function VerdictReveal({ user, imageUrl, report, onComplete }: Ve
     import("canvas-confetti")
       .then(({ default: confetti }) => {
         if (cancelled) return;
-        const colors =
+        const colors = readThemeColors(
           report.rarity.tier === "MYTHICAL"
-            ? ["#FF007F", "#B590FF", "#5DE2E7", "#FFE600", "#FFFDF5"]
-            : ["#FFE600", "#FF6B4A", "#70E3B6", "#FFFDF5"];
+            ? ["--c-coral", "--c-violet", "--c-cyan", "--c-lemon", "--c-bg"]
+            : ["--c-lemon", "--c-coral", "--c-mint", "--c-bg"],
+        );
 
         confetti({ particleCount: 90, spread: 80, origin: { y: 0.62 }, colors });
         if (report.rarity.tier === "MYTHICAL") {

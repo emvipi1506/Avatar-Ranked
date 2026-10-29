@@ -13,10 +13,6 @@ const config: Config = {
         ink: {
           DEFAULT: "var(--c-ink)",
           2: "var(--c-ink-2)",
-          950: "#07060d",
-          900: "#0d0b18",
-          800: "#151226",
-          700: "#1f1b35",
         },
         muted: "var(--c-muted)",
         line: {
@@ -51,12 +47,6 @@ const config: Config = {
         roast: "var(--c-roast-bg)",
         tip: "var(--c-tip-bg)",
         neutral: "var(--c-neutral-bg)",
-        neon: {
-          pink: "#ff4fd8",
-          violet: "#7c5cff",
-          cyan: "#22d3ee",
-          lime: "#a3e635",
-        },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
@@ -76,8 +66,6 @@ const config: Config = {
         "hard-2": "var(--shadow-2)",
         "hard-3": "var(--shadow-3)",
         "hard-4": "var(--shadow-4)",
-        glow: "0 0 40px -8px rgba(124, 92, 255, 0.65)",
-        "glow-cyan": "0 0 40px -8px rgba(34, 211, 238, 0.6)",
       },
       borderRadius: {
         "nb-sm": "var(--r-sm)",
@@ -86,20 +74,6 @@ const config: Config = {
       },
       borderWidth: {
         "3": "3px",
-      },
-      keyframes: {
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-12px)" },
-        },
-        shimmer: {
-          "0%": { backgroundPosition: "0% 50%" },
-          "100%": { backgroundPosition: "200% 50%" },
-        },
-      },
-      animation: {
-        float: "float 6s ease-in-out infinite",
-        shimmer: "shimmer 4s linear infinite",
       },
     },
   },
