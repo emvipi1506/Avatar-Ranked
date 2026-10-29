@@ -9,14 +9,14 @@ export interface LogoProps {
 
 export default function Logo({ className, href = "/", tone = "ink" }: LogoProps) {
   return (
-    <Link href={href} className={cn("group inline-flex items-center gap-2.5", className)}>
+    <Link href={href} className={cn("group inline-flex shrink-0 items-center gap-2.5", className)}>
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-nb-sm border-3 border-ink bg-lemon font-display text-lg font-extrabold leading-none text-ink shadow-hard-1 transition-transform duration-[180ms] group-hover:-rotate-3">
         AR
       </span>
-      <span className="flex flex-col leading-none">
+      <span className="flex min-w-0 flex-col leading-none">
         <span
           className={cn(
-            "font-display text-lg font-extrabold uppercase tracking-[-0.02em]",
+            "whitespace-nowrap font-display text-base font-extrabold uppercase tracking-[-0.02em] min-[360px]:text-lg",
             tone === "cream" ? "text-cream" : "text-ink",
           )}
         >
@@ -24,7 +24,7 @@ export default function Logo({ className, href = "/", tone = "ink" }: LogoProps)
         </span>
         <span
           className={cn(
-            "mt-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]",
+            "mt-1 hidden whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-[0.12em] min-[360px]:block",
             tone === "cream" ? "text-line-soft" : "text-muted",
           )}
         >

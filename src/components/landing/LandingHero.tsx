@@ -79,7 +79,7 @@ export default function LandingHero() {
               </div>
             </div>
 
-            <div className="mt-5 flex items-end justify-between gap-3">
+            <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
               <ScoreDisplay score={mockReport.total} label="ĐIỂM MẪU" />
               <Stamp label={verdict.stamp} tone="roast" size="sm" rotation={6} />
             </div>

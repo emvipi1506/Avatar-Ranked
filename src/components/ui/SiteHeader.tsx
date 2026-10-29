@@ -70,7 +70,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
         className,
       )}
     >
-      <div className="nb-container flex h-[72px] items-center justify-between gap-4">
+      <div className="nb-container flex h-[72px] items-center justify-between gap-2 sm:gap-4">
         <Logo href={variant === "preview" ? "/preview" : "/"} />
 
         <div className="flex items-center gap-2">
