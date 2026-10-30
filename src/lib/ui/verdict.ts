@@ -57,15 +57,17 @@ export function truncateText(text: string, maxLength = 180): string {
 /** 3 bubble cố định: khen, roast, gợi ý — luôn có fallback, không bịa dữ liệu mới. */
 export function getVerdictBubbles(report: ScoreReport): VerdictBubble[] {
   const praise = report.strengths[0] ?? report.rarity.description;
-  const roast =
-    report.weaknesses[0] ??
-    report.limitations[0] ??
-    "Không có gì để chê. Đáng ngờ.";
-  const tip =
-    report.outfitRecommendations[0] ??
-    report.nextTier?.steps[0] ??
-    report.mythicalAdvice[0] ??
-    "Thử thêm một phụ kiện tối màu để tăng chiều sâu cho silhouette.";
+  const roast = report.secretAccount
+    ? (report.weaknesses[0] ?? "Không có gì để chê. Đáng ngờ.")
+    : (report.weaknesses[0] ??
+      report.limitations[0] ??
+      "Không có gì để chê. Đáng ngờ.");
+  const tip = report.secretAccount
+    ? "Không cần thêm gì cả — bộ fit này đã đạt chuẩn MYTHICAL tuyệt đối."
+    : (report.outfitRecommendations[0] ??
+      report.nextTier?.steps[0] ??
+      report.mythicalAdvice[0] ??
+      "Thử thêm một phụ kiện tối màu để tăng chiều sâu cho silhouette.");
 
   return [
     { tone: "praise", speaker: "THE JUDGE", text: truncateText(praise) },

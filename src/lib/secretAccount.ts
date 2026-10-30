@@ -82,5 +82,6 @@ export function applySecretAccountBoost(report: ScoreReport): ScoreReport {
     outfitRecommendations: [],
     nextTier: null,
     mythicalAdvice: [],
+    secretAccount: true,
   };
 }

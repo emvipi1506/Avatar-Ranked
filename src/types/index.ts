@@ -352,6 +352,8 @@ export interface ScoreReport {
   mythicalAdvice: string[];
   limitations: string[];
   analysisMethod: "rule-based";
+  /** Báo cáo của tài khoản chủ web, đã được chủ web chứng nhận MYTHICAL. */
+  secretAccount?: boolean;
 }
 
 // ===== Scanner & UI States =====

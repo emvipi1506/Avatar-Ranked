@@ -36,6 +36,7 @@ describe("secretAccount", () => {
     expect(boosted.nextTier).toBeNull();
     expect(boosted.mythicalAdvice).toEqual([]);
     expect(boosted.dataQuality.capApplied).toBe(false);
+    expect(boosted.secretAccount).toBe(true);
     expect(boosted.criteria.theme.summary).toContain("đồng bộ hoàn hảo");
   });
 

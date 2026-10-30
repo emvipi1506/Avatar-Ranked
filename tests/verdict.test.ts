@@ -60,6 +60,23 @@ describe("Verdict bubbles", () => {
     expect(bubbles[2].text.length).toBeGreaterThan(0);
   });
 
+  it("tài khoản chủ web không nhận gợi ý phối đồ hay limitation làm roast", () => {
+    const secret = withTier("MYTHICAL", {
+      secretAccount: true,
+      strengths: ["Được chủ web chứng nhận MYTHICAL."],
+      weaknesses: [],
+      limitations: ["Hệ thống phân tích dựa trên metadata phụ kiện."],
+      outfitRecommendations: [],
+      nextTier: null,
+      mythicalAdvice: [],
+    });
+    const bubbles = getVerdictBubbles(secret);
+    expect(bubbles[1].text).toContain("Đáng ngờ");
+    expect(bubbles[1].text).not.toContain("metadata");
+    expect(bubbles[2].text).toContain("MYTHICAL");
+    expect(bubbles[2].text).not.toContain("phụ kiện tối màu");
+  });
+
   it("cắt text dài tại ranh giới từ và thêm dấu …", () => {
     const text = "một hai ba bốn năm sáu bảy tám chín mười";
     const cut = truncateText(text, 20);
