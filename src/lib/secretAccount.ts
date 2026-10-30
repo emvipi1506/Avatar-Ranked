@@ -23,9 +23,46 @@ export function isSecretEntryId(id: string): boolean {
 
 /** Nâng báo cáo của tài khoản chủ web lên MYTHICAL 100/100. */
 export function applySecretAccountBoost(report: ScoreReport): ScoreReport {
+  const curated = {
+    theme: {
+      summary: "Chủ đề cực kỳ rõ ràng, bảng màu và phụ kiện đồng bộ hoàn hảo.",
+      evidence: [
+        "Toàn bộ trang phục xoay quanh một concept thống nhất.",
+        "Bảng màu và silhouette hỗ trợ lẫn nhau.",
+      ],
+    },
+    uniqueness: {
+      summary: "Silhouette và cách phối đồ khác biệt hoàn toàn so với số đông.",
+      evidence: [
+        "Kết hợp phụ kiện độc đáo, gần như không trùng lặp.",
+        "Tạo dấu ấn riêng ngay từ cái nhìn đầu tiên.",
+      ],
+    },
+    humor: {
+      summary: "Concept hài hước đặc sắc, biểu cảm gây ấn tượng mạnh.",
+      evidence: [
+        "Chi tiết gây cười được đặt đúng chỗ.",
+        "Tạo được khoảnh khắc meme dễ nhớ.",
+      ],
+    },
+    value: {
+      summary: "Trang phục được đầu tư kỹ, giá trị vật phẩm nổi bật.",
+      evidence: [
+        "Các vật phẩm chính đều có giá trị catalog.",
+        "Tổng giá trị trang bị ở mức ấn tượng.",
+      ],
+    },
+  } as const;
+
   const criteria = { ...report.criteria };
   for (const key of ["theme", "uniqueness", "humor", "value"] as const) {
-    criteria[key] = { ...criteria[key], score: 100 };
+    criteria[key] = {
+      ...criteria[key],
+      score: 100,
+      confidence: "high",
+      summary: curated[key].summary,
+      evidence: [...curated[key].evidence],
+    };
   }
 
   return {
@@ -42,6 +79,7 @@ export function applySecretAccountBoost(report: ScoreReport): ScoreReport {
       ...report.strengths.filter((line) => !/\(\d+\/100\)/.test(line)),
     ],
     weaknesses: [],
+    outfitRecommendations: [],
     nextTier: null,
     mythicalAdvice: [],
   };

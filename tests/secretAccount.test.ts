@@ -32,9 +32,11 @@ describe("secretAccount", () => {
     expect(boosted.criteria.humor.score).toBe(100);
     expect(boosted.criteria.value.score).toBe(100);
     expect(boosted.weaknesses).toEqual([]);
+    expect(boosted.outfitRecommendations).toEqual([]);
     expect(boosted.nextTier).toBeNull();
     expect(boosted.mythicalAdvice).toEqual([]);
     expect(boosted.dataQuality.capApplied).toBe(false);
+    expect(boosted.criteria.theme.summary).toContain("đồng bộ hoàn hảo");
   });
 
   it("không đụng tới điểm gu cá nhân", () => {
