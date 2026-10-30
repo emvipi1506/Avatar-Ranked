@@ -26,7 +26,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://avatar-ranked.vercel.app"),
+  metadataBase: new URL("https://avatar-ranked-roblox.vercel.app"),
   title: "Avatar Ranked — Avatar Roblox của bạn có drip không?",
   description:
     "Nhập username Roblox để nhận điểm /10, con dấu verdict và một tràng roast (hoặc khen). Chấm theo 4 tiêu chí, gu cá nhân là tùy chọn.",

@@ -9,7 +9,7 @@
 
   const CONFIG = Object.assign(
     {
-      apiBase: "https://avatar-ranked.vercel.app",
+      apiBase: "https://avatar-ranked-roblox.vercel.app",
       pollMs: 1000,
       rotateMs: 10000,
       highlightMs: 8000,
