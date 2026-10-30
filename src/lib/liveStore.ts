@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { Redis } from "@upstash/redis";
 import {
   LIVE_MAX_ENTRIES,
   mergeLiveEntry,
@@ -13,13 +14,26 @@ import {
 } from "@/lib/leaderboard";
 
 /**
- * Bảng live dùng file JSON chung trên server, không dùng localStorage.
- * Chỉ phù hợp khi chạy `next start` / `next dev` trên máy stream (hướng A).
- * Trên serverless (Vercel...) filesystem không ghi bền được.
+ * Bảng live dùng một store chung, không dùng localStorage.
+ *
+ * - Khi có Upstash Redis (Vercel Marketplace / Vercel KV), dùng Redis REST.
+ * - Khi không có env, fallback về file JSON cho `next dev` / `next start`
+ *   trên máy stream (hướng A).
+ *
+ * Filesystem trên Vercel chỉ đọc, nên production bắt buộc phải có Redis.
  */
 const STORE_VERSION = 1;
 const DATA_DIR = path.join(process.cwd(), "server", "data");
 const STORE_FILE = path.join(DATA_DIR, "live-leaderboard.json");
+const REDIS_KEY = "avatar-ranked:live-board:v1";
+
+const REDIS_URL =
+  process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? "";
+const REDIS_TOKEN =
+  process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN ?? "";
+
+const redis =
+  REDIS_URL && REDIS_TOKEN ? new Redis({ url: REDIS_URL, token: REDIS_TOKEN }) : null;
 
 /**
  * "Trùm bí mật" của web: luôn giữ hạng 1 trên bảng live.
@@ -100,6 +114,10 @@ function sanitizeStore(value: unknown): StoreFile {
 
 async function readStore(): Promise<StoreFile> {
   try {
+    if (redis) {
+      return sanitizeStore(await redis.get<unknown>(REDIS_KEY));
+    }
+
     const raw = await fs.readFile(STORE_FILE, "utf8");
     return sanitizeStore(JSON.parse(raw) as unknown);
   } catch {
@@ -108,6 +126,11 @@ async function readStore(): Promise<StoreFile> {
 }
 
 async function writeStore(store: StoreFile): Promise<void> {
+  if (redis) {
+    await redis.set(REDIS_KEY, store);
+    return;
+  }
+
   await fs.mkdir(DATA_DIR, { recursive: true });
   const payload = `${JSON.stringify(store, null, 2)}\n`;
   const tempFile = `${STORE_FILE}.${process.pid}.tmp`;
