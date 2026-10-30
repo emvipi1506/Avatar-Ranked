@@ -10,6 +10,8 @@ import VerdictReveal from "@/components/scan/VerdictReveal";
 import SiteFooter from "@/components/ui/SiteFooter";
 import SiteHeader from "@/components/ui/SiteHeader";
 import SkipLink from "@/components/ui/SkipLink";
+import { createLeaderboardEntry, recordLeaderboardEntry } from "@/lib/leaderboard";
+import { publishLiveScan } from "@/lib/liveClient";
 import { extractPaletteFromImage } from "@/lib/palette";
 import {
   fetchCatalogPrices,
@@ -76,6 +78,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
   const skipRequested = useRef(false);
   const autoStarted = useRef(false);
   const previousInitial = useRef(initialUsername);
+  const savedEntryKey = useRef<string | null>(null);
 
   const resetReportData = useCallback(() => {
     setUser(null);
@@ -88,6 +91,26 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
     setProgress(0);
     setSlow(false);
   }, []);
+
+  /**
+   * Ghi kết quả vào bảng ngay khi vừa chấm xong, không đợi người dùng bấm
+   * "Xem chi tiết kết quả". Nhờ vậy overlay live cập nhật ngay cả khi streamer
+   * dừng ở màn hình verdict.
+   */
+  const saveScanResult = useCallback(
+    (scanUser: RobloxUser, scanReport: ScoreReport, avatarUrl: string | null) => {
+      const entry = createLeaderboardEntry(scanUser, scanReport, avatarUrl);
+      const key = `${entry.id}:${entry.score}:${entry.aiScore}:${entry.tier}:${entry.avatarUrl ?? ""}`;
+      if (savedEntryKey.current === key) return;
+      savedEntryKey.current = key;
+
+      recordLeaderboardEntry(entry);
+      void publishLiveScan(entry).catch((error: unknown) => {
+        console.error("[live] Không gửi được lượt quét lên bảng live:", error);
+      });
+    },
+    [],
+  );
 
   const handleSearch = useCallback(
     async (raw: string) => {
@@ -238,6 +261,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
 
       const scoreReport = calculateAvatarRank(fullProfile, catalogSummary, paletteStats, personalTier);
       setReport(scoreReport);
+      saveScanResult(user, scoreReport, imageUrl);
 
       if (skipRequested.current) {
         setPhase("done");
@@ -259,7 +283,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
       setError(errorMessage(err));
       setPhase("found");
     }
-  }, [imageUrl, personalTier, user]);
+  }, [imageUrl, personalTier, saveScanResult, user]);
 
   const handleSkipAnimation = useCallback(() => {
     skipRequested.current = true;
