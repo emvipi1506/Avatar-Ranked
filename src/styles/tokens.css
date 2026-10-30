@@ -43,6 +43,10 @@
   --c-tip-bg: #d8fbfd;
   --c-neutral-bg: #f5f3e9;
 
+  /* Bảng xếp hạng — dòng vừa được thêm/cập nhật. */
+  --c-highlight-bg: #fff8cc;
+  --c-highlight-line: #ff6b4a;
+
   /* Footer — khối tối riêng, không đảo màu theo theme. */
   --c-footer-bg: #111111;
   --c-footer-ink: #fffdf5;
@@ -141,6 +145,9 @@
   --c-roast-bg: #3a1512;
   --c-tip-bg: #0b2f33;
   --c-neutral-bg: #1e1e22;
+
+  --c-highlight-bg: #2a2708;
+  --c-highlight-line: #ffe600;
 
   --c-footer-bg: #08080a;
   --c-footer-ink: #f7f2e7;

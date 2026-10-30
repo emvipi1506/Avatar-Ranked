@@ -19,3 +19,28 @@ export function scoreAriaLabel(score: number): string {
   const safe = clampScore(score);
   return `${formatScore100(safe)} trên 100, tương đương ${formatScore10(safe)} trên 10`;
 }
+
+/**
+ * Thời gian tương đối, tiếng Việt. Mốc từ 7 ngày trở lên dùng dd/mm/yyyy
+ * để không phụ thuộc locale của môi trường chạy test.
+ */
+export function formatRelativeTime(timestamp: number, now = Date.now()): string {
+  if (!Number.isFinite(timestamp)) return "";
+
+  const diff = now - timestamp;
+  if (diff < 60_000) return "vừa xong";
+
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 60) return `${minutes} phút trước`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} giờ trước`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} ngày trước`;
+
+  const date = new Date(timestamp);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${day}/${month}/${date.getFullYear()}`;
+}

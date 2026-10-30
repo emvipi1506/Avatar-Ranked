@@ -24,6 +24,7 @@ const NAV: Record<SiteHeaderVariant, NavItem[]> = {
   ],
   scan: [
     { href: "/", label: "Trang chủ" },
+    { href: "/leaderboard", label: "BXH" },
     { href: "/scan", label: "Scan mới" },
   ],
   preview: [

@@ -37,6 +37,14 @@ export default function SiteFooter() {
             </li>
             <li>
               <Link
+                href="/leaderboard"
+                className="text-[var(--c-footer-muted)] underline-offset-4 hover:text-[var(--c-footer-accent)] hover:underline"
+              >
+                Bảng xếp hạng
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/#bang-diem"
                 className="text-[var(--c-footer-muted)] underline-offset-4 hover:text-[var(--c-footer-accent)] hover:underline"
               >

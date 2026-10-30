@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import LeaderboardSection from "@/components/leaderboard/LeaderboardSection";
 import ResultPanel from "@/components/scan/ResultPanel";
 import ScanEntry from "@/components/scan/ScanEntry";
 import ScanTheatre from "@/components/scan/ScanTheatre";
@@ -358,15 +359,23 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
         )}
 
         {phase === "done" && user && profile && report && (
-          <ResultPanel
-            user={user}
-            imageUrl={imageUrl}
-            report={report}
-            personalTier={personalTier}
-            onPersonalTierChange={handlePersonalTierChange}
-            onScanAgain={handleScanAgain}
-            onNewSearch={handleNewSearch}
-          />
+          <>
+            <ResultPanel
+              user={user}
+              imageUrl={imageUrl}
+              report={report}
+              personalTier={personalTier}
+              onPersonalTierChange={handlePersonalTierChange}
+              onScanAgain={handleScanAgain}
+              onNewSearch={handleNewSearch}
+            />
+            <LeaderboardSection
+              className="border-t-3 border-ink"
+              user={user}
+              imageUrl={imageUrl}
+              report={report}
+            />
+          </>
         )}
       </main>
       <SiteFooter />
