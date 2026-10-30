@@ -8,6 +8,8 @@ export interface ScoreDisplayProps {
   score: number;
   label?: string;
   className?: string;
+  /** Dùng khi đặt trên nền accent sáng (lemon/mint/coral...). */
+  onAccent?: boolean;
   /** Chỉ bật count-up ở màn reveal; mặc định hiển thị ngay giá trị thật. */
   animate?: boolean;
 }
@@ -16,6 +18,7 @@ export default function ScoreDisplay({
   score,
   label = "FINAL VERDICT",
   className,
+  onAccent = false,
   animate = false,
 }: ScoreDisplayProps) {
   const target = clampScore(score);
@@ -54,11 +57,21 @@ export default function ScoreDisplay({
   return (
     <div className={cn("inline-block", className)}>
       {label && (
-        <p className="font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.1em] text-ink-2">
+        <p
+          className={cn(
+            "font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.1em]",
+            onAccent ? "text-on-accent-2" : "text-ink-2",
+          )}
+        >
           {label}
         </p>
       )}
-      <p className="mt-1 font-display text-score font-extrabold tabular-nums tracking-[-0.03em] text-ink">
+      <p
+        className={cn(
+          "mt-1 font-display text-score font-extrabold tabular-nums tracking-[-0.03em]",
+          onAccent ? "text-on-accent" : "text-ink",
+        )}
+      >
         <span aria-hidden>{formatScore10(display)}</span>
         <span aria-hidden className="ml-1 font-mono text-2xl font-bold tracking-normal">
           /10

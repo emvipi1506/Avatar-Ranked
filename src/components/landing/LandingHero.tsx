@@ -56,10 +56,10 @@ export default function LandingHero() {
         </div>
 
         <div className="relative mx-auto w-full max-w-[420px] lg:max-w-[450px]">
-          <span className="absolute -left-3 -top-4 z-10 rotate-[-6deg] rounded-nb-sm border-2 border-ink bg-mint px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-ink shadow-hard-1">
+          <span className="absolute -left-3 -top-4 z-10 rotate-[-6deg] rounded-nb-sm border-2 border-ink bg-mint px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-on-accent shadow-hard-1">
             Kết quả mẫu
           </span>
-          <span className="absolute -bottom-4 -right-3 z-10 rotate-[5deg] rounded-nb-sm border-2 border-ink bg-coral px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-ink shadow-hard-1">
+          <span className="absolute -bottom-4 -right-3 z-10 rotate-[5deg] rounded-nb-sm border-2 border-ink bg-coral px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-on-accent shadow-hard-1">
             Drip overflow
           </span>
 
@@ -90,7 +90,7 @@ export default function LandingHero() {
           </Card>
 
           <span className="absolute -right-4 top-1/3 z-10 grid h-11 w-11 rotate-12 place-items-center rounded-full border-3 border-ink bg-lemon shadow-hard-1">
-            <Zap className="h-5 w-5 text-ink" aria-hidden />
+            <Zap className="h-5 w-5 text-on-accent" aria-hidden />
           </span>
         </div>
       </div>

@@ -27,6 +27,10 @@ const config: Config = {
         mint: "var(--c-mint)",
         violet: "var(--c-violet)",
         cyan: "var(--c-cyan)",
+        "on-accent": {
+          DEFAULT: "var(--c-on-accent)",
+          2: "var(--c-on-accent-2)",
+        },
         danger: {
           DEFAULT: "var(--c-danger)",
           bg: "var(--c-danger-bg)",

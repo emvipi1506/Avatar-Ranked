@@ -6,10 +6,10 @@ export type CardPadding = "none" | "sm" | "md" | "lg";
 
 const VARIANT_CLASSES: Record<CardVariant, string> = {
   surface: "bg-surface",
-  lemon: "bg-lemon",
-  mint: "bg-mint",
-  violet: "bg-violet",
-  cyan: "bg-cyan",
+  lemon: "bg-lemon text-on-accent",
+  mint: "bg-mint text-on-accent",
+  violet: "bg-violet text-on-accent",
+  cyan: "bg-cyan text-on-accent",
   flat: "bg-surface-2",
 };
 

@@ -27,7 +27,7 @@ export default function PersonalTasteControl({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-2.5">
           <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-nb-sm border-2 border-ink bg-coral">
-            <Heart className="h-4 w-4 text-ink" aria-hidden />
+            <Heart className="h-4 w-4 text-on-accent" aria-hidden />
           </span>
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -77,13 +77,13 @@ export default function PersonalTasteControl({
               className={cn(
                 "relative flex min-h-[62px] flex-col items-center justify-center rounded-nb-sm border-2 border-ink px-1.5 py-2 text-center transition-[transform,box-shadow,background-color] duration-[120ms]",
                 active
-                  ? "-translate-y-0.5 text-ink shadow-hard-2"
+                  ? "-translate-y-0.5 text-on-accent shadow-hard-2"
                   : "bg-surface-2 text-ink shadow-hard-1 hover:-translate-y-0.5 hover:bg-surface hover:shadow-hard-2",
               )}
               style={active ? { backgroundColor: rarity.color } : undefined}
             >
               {isSystem && (
-                <span className="absolute -right-1.5 -top-1.5 rounded-[3px] border-2 border-ink bg-lemon px-1 py-0.5 font-mono text-[8px] font-bold uppercase leading-none text-ink">
+                <span className="absolute -right-1.5 -top-1.5 rounded-[3px] border-2 border-ink bg-lemon px-1 py-0.5 font-mono text-[8px] font-bold uppercase leading-none text-on-accent">
                   Hệ thống
                 </span>
               )}

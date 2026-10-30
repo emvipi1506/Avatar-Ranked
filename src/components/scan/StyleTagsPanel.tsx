@@ -48,34 +48,43 @@ export default function StyleTagsPanel({ report, className }: StyleTagsPanelProp
 
           {aestheticTags.length > 0 ? (
             <div className="mt-3 flex flex-wrap gap-2">
-              {aestheticTags.map((tag) => (
-                <span
-                  key={tag.id}
-                  className={cn(
-                    "inline-flex max-w-full items-center gap-1.5 rounded-nb-sm border-2 border-ink px-2.5 py-1.5 text-xs font-semibold text-ink",
-                    tag.isPrimary
-                      ? "bg-lemon shadow-hard-1"
-                      : tag.isSecondary
-                        ? "bg-violet"
-                        : "bg-surface-2",
-                  )}
-                >
-                  <span className="truncate">{tag.name}</span>
-                  {tag.isPrimary && (
-                    <span className="rounded-[3px] bg-ink px-1 py-0.5 font-mono text-[8px] font-bold uppercase text-cream">
-                      Primary
+              {aestheticTags.map((tag) => {
+                const onAccent = tag.isPrimary || tag.isSecondary;
+
+                return (
+                  <span
+                    key={tag.id}
+                    className={cn(
+                      "inline-flex max-w-full items-center gap-1.5 rounded-nb-sm border-2 border-ink px-2.5 py-1.5 text-xs font-semibold",
+                      tag.isPrimary
+                        ? "bg-lemon text-on-accent shadow-hard-1"
+                        : tag.isSecondary
+                          ? "bg-violet text-on-accent"
+                          : "bg-surface-2 text-ink",
+                    )}
+                  >
+                    <span className="truncate">{tag.name}</span>
+                    {tag.isPrimary && (
+                      <span className="rounded-[3px] bg-ink px-1 py-0.5 font-mono text-[8px] font-bold uppercase text-cream">
+                        Primary
+                      </span>
+                    )}
+                    {tag.isSecondary && (
+                      <span className="rounded-[3px] border border-ink bg-surface px-1 py-0.5 font-mono text-[8px] font-bold uppercase text-ink">
+                        Secondary
+                      </span>
+                    )}
+                    <span
+                      className={cn(
+                        "font-mono text-[9px] font-bold uppercase",
+                        onAccent ? "text-on-accent-2" : "text-muted",
+                      )}
+                    >
+                      {CONFIDENCE_TEXT[tag.confidence]}
                     </span>
-                  )}
-                  {tag.isSecondary && (
-                    <span className="rounded-[3px] border border-ink bg-surface px-1 py-0.5 font-mono text-[8px] font-bold uppercase text-ink">
-                      Secondary
-                    </span>
-                  )}
-                  <span className="font-mono text-[9px] font-bold uppercase text-muted">
-                    {CONFIDENCE_TEXT[tag.confidence]}
                   </span>
-                </span>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="mt-2 text-sm italic leading-[1.6] text-muted">

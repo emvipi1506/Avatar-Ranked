@@ -66,11 +66,11 @@ export default function VerdictPreview() {
                     </dt>
                     <dd className="mt-0.5 font-mono text-sm font-bold text-ink">{mockReport.aiScore}/100</dd>
                   </div>
-                  <div className="rounded-nb-sm border-2 border-ink bg-mint px-3 py-2">
-                    <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-ink-2">
+                  <div className="rounded-nb-sm border-2 border-ink bg-mint px-3 py-2 text-on-accent">
+                    <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-on-accent-2">
                       Gu cá nhân
                     </dt>
-                    <dd className="mt-0.5 font-mono text-sm font-bold text-ink">Chưa chọn</dd>
+                    <dd className="mt-0.5 font-mono text-sm font-bold text-on-accent">Chưa chọn</dd>
                   </div>
                 </dl>
               </div>
@@ -100,11 +100,11 @@ export default function VerdictPreview() {
               </SpeechBubble>
             </div>
 
-            <Card variant="lemon" rotate={1} className="mt-9">
-              <p className="font-display text-lg font-extrabold uppercase leading-tight text-ink">
+            <Card variant="lemon" rotate={1} className="mt-9 text-on-accent">
+              <p className="font-display text-lg font-extrabold uppercase leading-tight text-on-accent">
                 Muốn biết avatar của bạn bị chấm thế nào?
               </p>
-              <p className="mt-2 text-sm leading-[1.6] text-ink-2">
+              <p className="mt-2 text-sm leading-[1.6] text-on-accent-2">
                 Nhập username, chọn gu nếu muốn, rồi để hệ thống làm phần còn lại.
               </p>
               <Link

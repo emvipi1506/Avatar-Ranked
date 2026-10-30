@@ -5,10 +5,10 @@ export type StampTone = "roast" | "praise" | "legendary" | "mythical" | "neutral
 export type StampSize = "sm" | "md" | "lg";
 
 const TONE_CLASSES: Record<StampTone, string> = {
-  roast: "bg-coral text-ink",
-  praise: "bg-mint text-ink",
-  legendary: "bg-lemon text-ink",
-  mythical: "bg-coral text-ink",
+  roast: "bg-coral text-on-accent",
+  praise: "bg-mint text-on-accent",
+  legendary: "bg-lemon text-on-accent",
+  mythical: "bg-coral text-on-accent",
   neutral: "bg-surface-2 text-ink",
 };
 

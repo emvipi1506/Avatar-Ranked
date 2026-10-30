@@ -94,11 +94,11 @@ export default function PreviewPage() {
                 </div>
               </div>
               <div className="mt-5 flex items-end justify-between gap-3">
-                <ScoreDisplay score={mockReport.total} label="KẾT QUẢ MẪU" />
+                <ScoreDisplay score={mockReport.total} label="KẾT QUẢ MẪU" onAccent />
                 <Stamp label="DRIP OVERFLOW" tone="roast" size="sm" rotation={6} />
               </div>
             </Card>
-            <span className="absolute -left-4 -top-4 rotate-[-8deg] rounded-nb-sm border-2 border-ink bg-mint px-3 py-1.5 font-mono text-[10px] font-bold uppercase shadow-hard-1">
+            <span className="absolute -left-4 -top-4 rotate-[-8deg] rounded-nb-sm border-2 border-ink bg-mint px-3 py-1.5 font-mono text-[10px] font-bold uppercase text-on-accent shadow-hard-1">
               100% dữ liệu công khai
             </span>
           </div>
@@ -106,14 +106,14 @@ export default function PreviewPage() {
       </section>
 
       {/* Ticker */}
-      <div className="nb-marquee overflow-hidden border-b-3 border-ink bg-lemon py-3" aria-label="Roast, rate, rank, repeat">
+      <div className="nb-marquee overflow-hidden border-b-3 border-ink bg-lemon py-3 text-on-accent" aria-label="Roast, rate, rank, repeat">
         <div className="nb-marquee-track">
           {[0, 1].map((copy) => (
             <div key={copy} aria-hidden={copy === 1} className="flex shrink-0 items-center">
               {TICKER.map((word) => (
                 <span
                   key={`${copy}-${word}`}
-                  className="mx-5 flex items-center gap-5 font-display text-xl font-extrabold uppercase tracking-[-0.02em] text-ink"
+                  className="mx-5 flex items-center gap-5 font-display text-xl font-extrabold uppercase tracking-[-0.02em]"
                 >
                   {word}
                   <Sparkles className="h-4 w-4" aria-hidden />
@@ -316,15 +316,15 @@ export default function PreviewPage() {
       {/* Next */}
       <section className="nb-section">
         <div className="nb-container">
-          <div className="grid items-center gap-8 rounded-nb-lg border-3 border-ink bg-coral p-6 shadow-hard-4 md:grid-cols-[1fr_auto] md:p-10">
+          <div className="grid items-center gap-8 rounded-nb-lg border-3 border-ink bg-coral p-6 text-on-accent shadow-hard-4 md:grid-cols-[1fr_auto] md:p-10">
             <div>
-              <p className="font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.1em] text-ink">
+              <p className="font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.1em] text-on-accent">
                 Phase 1 gate
               </p>
-              <h2 className="mt-2 font-display text-display-sm font-extrabold uppercase leading-none tracking-[-0.02em] text-ink">
+              <h2 className="mt-2 font-display text-display-sm font-extrabold uppercase leading-none tracking-[-0.02em] text-on-accent">
                 Tokens + primitives + /preview đã dựng.
               </h2>
-              <p className="mt-3 max-w-[60ch] text-base leading-[1.6] text-ink">
+              <p className="mt-3 max-w-[60ch] text-base leading-[1.6] text-on-accent">
                 Tiếp theo: landing page tại <code className="font-mono font-bold">/</code> và scan
                 workspace tại <code className="font-mono font-bold">/scan</code>, sau đó QA và swap route.
               </p>

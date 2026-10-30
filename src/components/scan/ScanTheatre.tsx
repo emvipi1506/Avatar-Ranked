@@ -56,7 +56,7 @@ export default function ScanTheatre({
       <div className="nb-container max-w-4xl">
         <Card padding="lg" className="relative overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-line-soft pb-4">
-            <span className="inline-flex items-center gap-2 rounded-nb-sm border-2 border-ink bg-lemon px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-ink shadow-hard-1">
+            <span className="inline-flex items-center gap-2 rounded-nb-sm border-2 border-ink bg-lemon px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-on-accent shadow-hard-1">
               <span className="h-2 w-2 animate-pulse rounded-full bg-danger" aria-hidden />
               Đang quét
             </span>
@@ -86,7 +86,7 @@ export default function ScanTheatre({
                   aria-hidden
                   className="pointer-events-none absolute inset-0 grid place-items-center rounded-nb-md bg-ink/55"
                 >
-                  <span className="nb-stamp grid h-24 w-24 place-items-center rounded-full border-3 border-ink bg-lemon font-display text-sm font-extrabold uppercase leading-none text-ink shadow-hard-2">
+                  <span className="nb-stamp grid h-24 w-24 place-items-center rounded-full border-3 border-ink bg-lemon font-display text-sm font-extrabold uppercase leading-none text-on-accent shadow-hard-2">
                     Tính điểm
                   </span>
                 </div>
@@ -116,7 +116,7 @@ export default function ScanTheatre({
                     ) : step.active ? (
                       <Loader2 className="h-5 w-5 shrink-0 animate-spin text-ink" aria-hidden />
                     ) : (
-                      <Circle className="h-5 w-5 shrink-0 text-line-soft" aria-hidden />
+                      <Circle className="h-5 w-5 shrink-0 text-muted" aria-hidden />
                     )}
                     <span
                       className={`text-sm leading-[1.4] ${step.active || step.done ? "font-semibold text-ink" : "text-muted"}`}

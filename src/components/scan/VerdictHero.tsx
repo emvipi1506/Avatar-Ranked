@@ -88,17 +88,19 @@ export default function VerdictHero({ user, imageUrl, report }: VerdictHeroProps
                 {formatScore100(report.aiScore)}/100
               </dd>
             </div>
-            <div className="rounded-nb-sm border-2 border-ink bg-mint px-3 py-2">
-              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-ink-2">
+            <div className="rounded-nb-sm border-2 border-ink bg-mint px-3 py-2 text-on-accent">
+              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-on-accent-2">
                 Gu cá nhân
               </dt>
-              <dd className="mt-0.5 font-mono text-sm font-bold text-ink">{getPersonalLabel(report)}</dd>
+              <dd className="mt-0.5 font-mono text-sm font-bold text-on-accent">
+                {getPersonalLabel(report)}
+              </dd>
             </div>
-            <div className="rounded-nb-sm border-2 border-ink bg-lemon px-3 py-2">
-              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-ink-2">
+            <div className="rounded-nb-sm border-2 border-ink bg-lemon px-3 py-2 text-on-accent">
+              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-on-accent-2">
                 Điểm gốc
               </dt>
-              <dd className="mt-0.5 font-mono text-sm font-bold tabular-nums text-ink">
+              <dd className="mt-0.5 font-mono text-sm font-bold tabular-nums text-on-accent">
                 {formatScore100(report.total)}/100
               </dd>
             </div>

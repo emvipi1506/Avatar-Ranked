@@ -7,6 +7,7 @@ import { soundManager } from "@/lib/sound";
 import { cn } from "@/lib/cn";
 import { buttonClasses } from "./Button";
 import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
 
 export type SiteHeaderVariant = "landing" | "scan" | "preview";
 
@@ -79,12 +80,14 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-nb-sm px-3 py-2 font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.06em] text-ink-2 transition-colors duration-[120ms] hover:bg-lemon hover:text-ink"
+                className="rounded-nb-sm px-3 py-2 font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.06em] text-ink-2 transition-colors duration-[120ms] hover:bg-lemon hover:text-on-accent"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
+
+          <ThemeToggle />
 
           {mounted && (
             <button
@@ -93,7 +96,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
               aria-pressed={!muted}
               aria-label={muted ? "Bật âm thanh" : "Tắt âm thanh"}
               title={muted ? "Bật âm thanh" : "Tắt âm thanh"}
-              className="grid h-11 w-11 place-items-center rounded-nb-sm border-2 border-ink bg-surface text-ink shadow-hard-1 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
+              className="hidden h-11 w-11 place-items-center rounded-nb-sm border-2 border-ink bg-surface text-ink shadow-hard-1 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 min-[360px]:grid"
             >
               {muted ? (
                 <VolumeX className="h-5 w-5" aria-hidden />

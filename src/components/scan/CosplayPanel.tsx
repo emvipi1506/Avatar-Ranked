@@ -77,11 +77,11 @@ export default function CosplayPanel({ cosplayResult, className }: CosplayPanelP
                 )}
               </p>
             </div>
-            <div className="rounded-nb-sm border-2 border-ink bg-lemon px-3 py-2">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-ink-2">
+            <div className="rounded-nb-sm border-2 border-ink bg-lemon px-3 py-2 text-on-accent">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-on-accent-2">
                 Độ tin cậy
               </p>
-              <p className="mt-0.5 font-mono text-sm font-bold text-ink">{confidence}%</p>
+              <p className="mt-0.5 font-mono text-sm font-bold text-on-accent">{confidence}%</p>
             </div>
           </div>
 

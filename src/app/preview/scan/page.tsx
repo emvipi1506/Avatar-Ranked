@@ -93,7 +93,7 @@ export default function PreviewScanPage() {
                     <span className="grid h-7 w-7 shrink-0 place-items-center rounded-nb-sm border-2 border-ink bg-lemon font-mono text-xs font-bold">
                       {index + 1}
                     </span>
-                    <span className="text-sm font-semibold leading-[1.5] text-ink">{step}</span>
+                    <span className="text-sm font-semibold leading-[1.5] text-on-accent">{step}</span>
                   </li>
                 ))}
               </ol>

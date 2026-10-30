@@ -36,7 +36,7 @@ export default function RarityGuide() {
                     <p className="mt-1 font-mono text-xs font-bold text-muted">{rangeFor(index)} điểm</p>
                   </div>
                   <span
-                    className="rounded-nb-sm border-2 border-ink px-2 py-1 font-mono text-[10px] font-bold text-ink shadow-hard-1"
+                    className="rounded-nb-sm border-2 border-ink px-2 py-1 font-mono text-[10px] font-bold text-on-accent shadow-hard-1"
                     style={{ backgroundColor: rarity.color }}
                   >
                     GU {rarity.personalScore}đ

@@ -67,7 +67,7 @@ export default function CriteriaGrid({ report, className }: CriteriaGridProps) {
                     className="grid h-8 w-8 shrink-0 place-items-center rounded-nb-sm border-2 border-ink"
                     style={{ backgroundColor: accent }}
                   >
-                    <Icon className="h-4 w-4 text-ink" aria-hidden />
+                    <Icon className="h-4 w-4 text-on-accent" aria-hidden />
                   </span>
                   <div className="min-w-0">
                     <h4 className="font-body text-sm font-bold leading-tight text-ink">

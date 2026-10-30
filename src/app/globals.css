@@ -6,6 +6,10 @@
   color-scheme: light;
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -20,7 +24,7 @@
 
   ::selection {
     background: var(--c-lemon);
-    color: var(--c-ink);
+    color: var(--c-on-accent);
   }
 }
 
@@ -46,18 +50,23 @@
   background-color: var(--c-bg);
   color: var(--c-ink);
   font-family: var(--font-body), system-ui, sans-serif;
-  color-scheme: light;
   isolation: isolate;
 }
 
 .nb-root ::selection {
   background: var(--c-lemon);
-  color: var(--c-ink);
+  color: var(--c-on-accent);
 }
 
 .nb-root :focus-visible {
   outline: 3px solid var(--c-ink);
   outline-offset: 3px;
+}
+
+/* Trên nền accent sáng, viền focus phải tối để đủ tương phản. */
+.nb-root :is(.bg-lemon, .bg-coral, .bg-mint, .bg-violet, .bg-cyan):focus-visible,
+.nb-root :is(.bg-lemon, .bg-coral, .bg-mint, .bg-violet, .bg-cyan) :focus-visible {
+  outline-color: var(--c-on-accent);
 }
 
 .nb-container {
@@ -168,5 +177,24 @@
     animation: none !important;
     opacity: 0.45;
   }
+}
+
+/* ---------- Theme toggle ----------
+   Icon được chọn bằng CSS để đúng ngay từ frame đầu, trước khi hydrate. */
+
+.theme-toggle-icon-sun {
+  display: none;
+}
+
+.theme-toggle-icon-moon {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-toggle-icon-sun {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-toggle-icon-moon {
+  display: none;
 }
 

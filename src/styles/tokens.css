@@ -21,6 +21,9 @@
   --c-mint: #70e3b6;
   --c-violet: #b590ff;
   --c-cyan: #5de2e7;
+  /* Chữ trên nền accent sáng — luôn là màu tối ở cả 2 theme. */
+  --c-on-accent: #111111;
+  --c-on-accent-2: #3d3b33;
 
   /* Status */
   --c-danger: #b42318;
@@ -39,6 +42,13 @@
   --c-roast-bg: #ffe1de;
   --c-tip-bg: #d8fbfd;
   --c-neutral-bg: #f5f3e9;
+
+  /* Footer — khối tối riêng, không đảo màu theo theme. */
+  --c-footer-bg: #111111;
+  --c-footer-ink: #fffdf5;
+  --c-footer-muted: #d8d3c4;
+  --c-footer-accent: #ffe600;
+  --c-footer-border: #111111;
 
   /* Typography */
   --font-sans: var(--font-body), system-ui, sans-serif;
@@ -94,4 +104,47 @@
   --dur-reveal: 480ms;
   --ease-pop: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-stamp: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================
+   DARK THEME
+   Đảo base/surface/ink; accent giữ nguyên độ sáng và dùng
+   --c-on-accent cho chữ. Bật bằng data-theme trên <html>.
+   ============================================================ */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --c-bg: #0b0b0d;
+  --c-surface: #151518;
+  --c-surface-2: #1e1e22;
+  --c-ink: #f7f2e7;
+  --c-ink-2: #d8d2c4;
+  --c-muted: #a8a393;
+  --c-line: #f7f2e7;
+  --c-line-soft: #3a3840;
+
+  --c-coral-ink: #ff9a82;
+
+  --c-danger: #ff9d92;
+  --c-danger-bg: #3a1512;
+  --c-warning: #ffd166;
+  --c-warning-bg: #3a2a0d;
+  --c-success: #7ce8b8;
+  --c-success-bg: #0d3324;
+  --c-info: #a7c0ff;
+  --c-info-bg: #131f3d;
+
+  --c-disabled-bg: #2a2830;
+  --c-disabled-ink: #8b867a;
+  --c-praise-bg: #0d3324;
+  --c-roast-bg: #3a1512;
+  --c-tip-bg: #0b2f33;
+  --c-neutral-bg: #1e1e22;
+
+  --c-footer-bg: #08080a;
+  --c-footer-ink: #f7f2e7;
+  --c-footer-muted: #a8a393;
+  --c-footer-accent: #ffe600;
+  --c-footer-border: #f7f2e7;
 }

@@ -49,7 +49,7 @@ export default function HowItWorks() {
                 <Card className="h-full" padding="md">
                   <div className="flex items-center justify-between gap-3">
                     <span className="grid h-12 w-12 place-items-center rounded-nb-sm border-3 border-ink bg-lemon shadow-hard-1">
-                      <Icon className="h-6 w-6 text-ink" aria-hidden />
+                      <Icon className="h-6 w-6 text-on-accent" aria-hidden />
                     </span>
                     <span className="font-display text-4xl font-extrabold leading-none text-muted">
                       0{index + 1}
