@@ -21,6 +21,32 @@ const STORE_VERSION = 1;
 const DATA_DIR = path.join(process.cwd(), "server", "data");
 const STORE_FILE = path.join(DATA_DIR, "live-leaderboard.json");
 
+/**
+ * "Trùm bí mật" của web: luôn giữ hạng 1 trên bảng live.
+ * Chỉ được ghép vào lúc đọc, không ghi vào file và không bị Reset xóa.
+ * Đây là content bí mật, không đụng tới bảng localStorage của người xem.
+ */
+const SECRET_ENTRY: LeaderboardEntry = {
+  id: "uncie_rice",
+  username: "Uncie_Rice",
+  displayName: "CRISPYPORK",
+  avatarUrl:
+    "https://tr.rbxcdn.com/30DAY-Avatar-5921A0FB63D01764281FE9082B1B1565-Png/720/720/Avatar/Png/noFilter",
+  score: 100,
+  aiScore: 100,
+  tier: "MYTHICAL",
+  scannedAt: 0,
+  firstScannedAt: 0,
+};
+
+/** Ghép entry bí mật vào danh sách đọc từ file, loại bản trùng nếu có. */
+function withSecretEntry(entries: readonly LeaderboardEntry[]): LeaderboardEntry[] {
+  return rankLeaderboard([
+    ...entries.filter((entry) => entry.id !== SECRET_ENTRY.id),
+    SECRET_ENTRY,
+  ]).slice(0, LIVE_MAX_ENTRIES);
+}
+
 interface StoreFile {
   version: number;
   updatedAt: number;
@@ -98,7 +124,7 @@ async function writeStore(store: StoreFile): Promise<void> {
 
 export async function getLiveSnapshot(): Promise<LiveBoardSnapshot> {
   const store = await readStore();
-  return { entries: store.entries, updatedAt: store.updatedAt };
+  return { entries: withSecretEntry(store.entries), updatedAt: store.updatedAt };
 }
 
 export async function recordLiveEntry(next: LeaderboardEntry): Promise<LiveRecordResult> {
