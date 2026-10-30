@@ -8,20 +8,20 @@
   color-scheme: dark;
 
   /* Base */
-  --c-bg: #07080f;
-  --c-surface: #0d1222;
-  --c-surface-2: #111a2e;
+  --c-bg: #080a12;
+  --c-surface: #101528;
+  --c-surface-2: #141b33;
   --c-ink: #f5f7ff;
-  --c-ink-2: #c8d3e8;
-  --c-muted: #8290ad;
-  --c-line: #263553;
-  --c-line-soft: #1a253c;
+  --c-ink-2: #cbd5e1;
+  --c-muted: #94a3b8;
+  --c-line: rgba(70, 200, 255, 0.18);
+  --c-line-soft: rgba(255, 255, 255, 0.08);
 
   /* Accents */
   --c-lemon: #46c8ff;
-  --c-coral: #ff4fd8;
+  --c-coral: #ff007f;
   --c-coral-ink: #ff8ae8;
-  --c-mint: #5eead4;
+  --c-mint: #70e3b6;
   --c-violet: #a855f7;
   --c-cyan: #46c8ff;
   /* Chữ trên nền accent sáng — luôn là màu tối để đủ tương phản. */
@@ -29,11 +29,11 @@
   --c-on-accent-2: #182238;
 
   /* Status */
-  --c-danger: #ff8a9b;
-  --c-danger-bg: #2a1018;
+  --c-danger: #ff6b8a;
+  --c-danger-bg: #2a0d17;
   --c-warning: #ffd166;
   --c-warning-bg: #2a220c;
-  --c-success: #6ee7b7;
+  --c-success: #70e3b6;
   --c-success-bg: #0b2a22;
   --c-info: #93c5fd;
   --c-info-bg: #101f3a;
@@ -42,7 +42,7 @@
   --c-disabled-bg: #1a2233;
   --c-disabled-ink: #6f7c96;
   --c-praise-bg: #0b2a22;
-  --c-roast-bg: #2a1018;
+  --c-roast-bg: #2a0d17;
   --c-tip-bg: #0b2530;
   --c-neutral-bg: #111a2e;
 
@@ -53,12 +53,13 @@
   /* Footer — khối tối riêng, không đổi theo theme. */
   --c-footer-bg: #05060b;
   --c-footer-ink: #f5f7ff;
-  --c-footer-muted: #8290ad;
+  --c-footer-muted: #94a3b8;
   --c-footer-accent: #46c8ff;
-  --c-footer-border: #1a253c;
+  --c-footer-border: rgba(70, 200, 255, 0.14);
 
   /* Typography */
   --font-sans: var(--font-body), system-ui, sans-serif;
+  --font-display: var(--font-body), system-ui, sans-serif;
 
   --fs-2xs: 0.6875rem; /* 11 */
   --fs-xs: 0.75rem; /* 12 */
@@ -100,9 +101,9 @@
   --shadow-3: 0 0 38px rgba(168, 85, 247, 0.16), 0 16px 44px rgba(0, 0, 0, 0.48);
   --shadow-4: 0 0 56px rgba(70, 200, 255, 0.2), 0 22px 60px rgba(0, 0, 0, 0.52);
 
-  --r-sm: 10px;
-  --r-md: 14px;
-  --r-lg: 20px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 24px;
 
   /* Motion */
   --dur-fast: 140ms;

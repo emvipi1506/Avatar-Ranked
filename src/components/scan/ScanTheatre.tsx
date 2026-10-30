@@ -56,7 +56,7 @@ export default function ScanTheatre({
       <div className="nb-container max-w-4xl">
         <Card padding="lg" className="relative overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-line-soft pb-4">
-            <span className="inline-flex items-center gap-2 rounded-nb-sm border-2 border-ink bg-lemon px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-on-accent shadow-hard-1">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(70,200,255,0.35)] bg-[rgba(70,200,255,0.10)] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-cyan shadow-[0_0_18px_rgba(70,200,255,0.15)]">
               <span className="h-2 w-2 animate-pulse rounded-full bg-danger" aria-hidden />
               Đang quét
             </span>
@@ -78,7 +78,7 @@ export default function ScanTheatre({
               />
               {phase === "scanning" && (
                 <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-nb-md">
-                  <div className="nb-scanline absolute inset-x-0 h-16 border-y-4 border-coral bg-coral/20" />
+                  <div className="nb-scanline absolute inset-x-0 h-16 border-y-2 border-[#46C8FF] bg-[#46C8FF]/20 shadow-[0_0_30px_rgba(70,200,255,0.55)]" />
                 </div>
               )}
               {phase === "calculating" && (
@@ -86,7 +86,7 @@ export default function ScanTheatre({
                   aria-hidden
                   className="pointer-events-none absolute inset-0 grid place-items-center rounded-nb-md bg-ink/55"
                 >
-                  <span className="nb-stamp grid h-24 w-24 place-items-center rounded-full border-3 border-ink bg-lemon font-display text-sm font-extrabold uppercase leading-none text-on-accent shadow-hard-2">
+                  <span className="nb-stamp grid h-24 w-24 place-items-center rounded-full border border-white/20 bg-[linear-gradient(135deg,#46C8FF_0%,#A855F7_60%,#FF007F_100%)] font-display text-sm font-extrabold uppercase leading-none text-white shadow-[0_0_35px_rgba(168,85,247,0.5)]">
                     Tính điểm
                   </span>
                 </div>

@@ -5,7 +5,7 @@ const TICKER = ["ROAST", "RATE", "RANK", "REPEAT"];
 export default function Ticker() {
   return (
     <div
-      className="nb-marquee overflow-hidden border-y border-white/10 bg-[linear-gradient(90deg,rgba(70,200,255,0.10),rgba(168,85,247,0.12),rgba(255,79,216,0.10))] py-3 text-cyan backdrop-blur"
+      className="nb-marquee overflow-hidden border-y border-white/10 bg-[linear-gradient(90deg,rgba(70,200,255,0.10),rgba(168,85,247,0.12),rgba(255,0,127,0.10))] py-3 text-cyan backdrop-blur"
       aria-label="Roast, rate, rank, repeat"
     >
       <div className="nb-marquee-track">

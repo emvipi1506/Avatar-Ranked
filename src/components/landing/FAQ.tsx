@@ -26,15 +26,16 @@ const FAQS = [
 
 export default function FAQ() {
   return (
-    <section id="faq" className="nb-section border-b border-white/10 bg-transparent">
-      <div className="nb-container grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+    <section id="faq" className="nb-section border-b border-white/5 bg-transparent">
+      <div className="nb-container">
         <SectionHeading
+          align="center"
           eyebrow="04 · FAQ"
           title="Hỏi nhanh. Đáp gọn."
           description="Những điều cần biết trước khi để hệ thống soi avatar của bạn."
         />
 
-        <div className="divide-y divide-white/[0.07] overflow-hidden rounded-2xl border border-white/10 bg-[rgba(13,18,34,0.72)] shadow-[0_18px_48px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+        <div className="mx-auto mt-10 max-w-3xl divide-y divide-white/[0.07] overflow-hidden rounded-2xl border border-white/10 bg-[rgba(13,18,34,0.72)] shadow-[0_18px_48px_rgba(0,0,0,0.4)] backdrop-blur-xl">
           {FAQS.map((item, index) => (
             <details key={item.q} open={index === 0} className="group">
               <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-4 py-4 transition-colors hover:bg-white/[0.03] sm:px-5 [&::-webkit-details-marker]:hidden">

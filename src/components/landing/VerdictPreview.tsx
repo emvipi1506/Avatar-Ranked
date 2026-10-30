@@ -16,9 +16,10 @@ export default function VerdictPreview() {
   const bubbles = getVerdictBubbles(mockReport);
 
   return (
-    <section id="ket-qua-mau" className="nb-section border-b border-line bg-transparent">
+    <section id="ket-qua-mau" className="nb-section border-b border-white/5 bg-transparent">
       <div className="nb-container">
         <SectionHeading
+          align="center"
           eyebrow="02 — Kết quả mẫu"
           title="Verdict trông như thế này."
           description="Một điểm tổng /10, một con dấu tier, và ba bubble khen — roast — gợi ý. Chi tiết tiêu chí vẫn dùng thang /100."
@@ -27,7 +28,7 @@ export default function VerdictPreview() {
         <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <Card className="relative" padding="lg">
             <div className="flex items-center justify-between gap-3">
-              <span className="font-mono text-[length:var(--fs-2xs)] font-bold uppercase tracking-[0.1em] text-coral-ink">
+              <span className="font-mono text-[length:var(--fs-2xs)] font-bold uppercase tracking-[0.1em] text-[#FF007F]">
                 Sample report
               </span>
               <Badge tier={mockReport.rarity.tier}>{mockReport.rarity.label}</Badge>
@@ -55,28 +56,28 @@ export default function VerdictPreview() {
                   <Stamp label={verdict.stamp} tone="roast" size="sm" rotation={-6} />
                 </div>
 
-                <p className="mt-3 border-t-2 border-line-soft pt-3 text-sm italic leading-[1.5] text-ink-2">
+                <p className="mt-3 border-t border-white/10 pt-3 text-sm italic leading-[1.5] text-ink-2">
                   &ldquo;{verdict.quote}&rdquo;
                 </p>
 
                 <dl className="mt-4 grid grid-cols-2 gap-2">
-                  <div className="rounded-nb-sm border-2 border-ink bg-surface-2 px-3 py-2">
+                  <div className="rounded-xl border border-white/10 bg-[rgba(8,10,18,0.6)] px-3 py-2">
                     <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-muted">
                       Hệ thống
                     </dt>
                     <dd className="mt-0.5 font-mono text-sm font-bold text-ink">{mockReport.aiScore}/100</dd>
                   </div>
-                  <div className="rounded-nb-sm border-2 border-ink bg-mint px-3 py-2 text-on-accent">
-                    <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-on-accent-2">
+                  <div className="rounded-xl border border-[rgba(112,227,182,0.3)] bg-[rgba(112,227,182,0.10)] px-3 py-2">
+                    <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-[rgba(112,227,182,0.75)]">
                       Gu cá nhân
                     </dt>
-                    <dd className="mt-0.5 font-mono text-sm font-bold text-on-accent">Chưa chọn</dd>
+                    <dd className="mt-0.5 font-mono text-sm font-bold text-mint">Chưa chọn</dd>
                   </div>
                 </dl>
               </div>
             </div>
 
-            <p className="mt-5 rounded-nb-sm border-2 border-dashed border-ink-2 px-3 py-2 text-xs leading-[1.5] text-ink-2">
+            <p className="mt-5 rounded-xl border border-dashed border-white/15 px-3 py-2 text-xs leading-[1.5] text-ink-2">
               Kết quả mẫu dùng dữ liệu tĩnh. Avatar thật sẽ được tải từ Roblox CDN khi bạn quét.
             </p>
           </Card>

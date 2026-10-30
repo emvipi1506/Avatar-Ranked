@@ -5,16 +5,14 @@ export type ButtonVariant = "primary" | "secondary" | "accent" | "ghost" | "dang
 export type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary:
-    "border-transparent bg-[linear-gradient(110deg,#46c8ff_0%,#a855f7_55%,#ff4fd8_100%)] text-white shadow-[0_0_28px_rgba(70,200,255,0.28)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(168,85,247,0.42)]",
-  secondary:
-    "border-white/10 bg-white/[0.04] text-ink hover:border-[rgba(70,200,255,0.45)] hover:bg-[rgba(70,200,255,0.08)]",
+  primary: "btn-gaming-primary border-transparent text-white",
+  secondary: "btn-gaming-secondary border-white/15 text-ink",
   accent:
     "border-transparent bg-cyan text-[#050a14] shadow-[0_0_26px_rgba(70,200,255,0.3)] hover:bg-[#7ad8ff]",
   ghost:
     "border-transparent bg-transparent text-ink-2 hover:bg-white/[0.06] hover:text-white",
   danger:
-    "border-[rgba(255,138,155,0.35)] bg-danger-bg text-danger hover:bg-[rgba(255,138,155,0.14)]",
+    "border-[rgba(255,107,138,0.35)] bg-danger-bg text-danger hover:bg-[rgba(255,107,138,0.14)]",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {

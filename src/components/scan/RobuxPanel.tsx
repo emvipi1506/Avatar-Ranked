@@ -35,11 +35,11 @@ export default function RobuxPanel({ value, className }: RobuxPanelProps) {
       ) : (
         <div className="space-y-5">
           <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <div className="rounded-nb-sm border-2 border-ink bg-lemon px-3 py-2 text-on-accent">
-              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-on-accent-2">
+            <div className="rounded-xl border border-[rgba(70,200,255,0.3)] bg-[rgba(70,200,255,0.10)] px-3 py-2">
+              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-[rgba(70,200,255,0.75)]">
                 Tổng giá
               </dt>
-              <dd className="mt-0.5 font-mono text-sm font-bold text-on-accent">
+              <dd className="mt-0.5 font-mono text-sm font-bold text-cyan">
                 {formatRobux(value.totalRobux)}
               </dd>
             </div>

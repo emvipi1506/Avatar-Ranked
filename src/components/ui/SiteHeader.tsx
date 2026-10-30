@@ -68,7 +68,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b border-white/10 bg-[rgba(7,8,15,0.78)] backdrop-blur-xl",
+        "sticky top-0 z-50 border-b border-white/10 bg-[rgba(8,10,18,0.8)] backdrop-blur-xl",
         className,
       )}
     >
@@ -81,7 +81,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-full px-3 py-2 font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.06em] text-muted transition-colors duration-[140ms] hover:bg-white/[0.06] hover:text-white"
+                className="rounded-lg px-2.5 py-2 text-sm font-semibold text-slate-400 transition-colors duration-[140ms] hover:bg-white/5 hover:text-white sm:px-3"
               >
                 {item.label}
               </Link>
@@ -128,7 +128,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
       {menuOpen && (
         <div
           id="mobile-menu"
-          className="absolute inset-x-0 top-full border-b border-white/10 bg-[rgba(7,8,15,0.97)] p-4 backdrop-blur-xl lg:hidden"
+          className="absolute inset-x-0 top-full border-b border-white/10 bg-[rgba(8,10,18,0.97)] p-4 backdrop-blur-xl lg:hidden"
         >
           <nav aria-label="Điều hướng mobile" className="flex flex-col gap-2">
             {navItems.map((item) => (
@@ -136,7 +136,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 font-mono text-xs font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:border-[rgba(70,200,255,0.35)] hover:text-cyan"
+                className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm font-semibold text-ink transition-colors hover:border-[rgba(70,200,255,0.35)] hover:text-cyan"
               >
                 {item.label}
               </Link>

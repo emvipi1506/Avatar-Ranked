@@ -5,11 +5,11 @@ export type CardVariant = "surface" | "lemon" | "mint" | "violet" | "cyan" | "fl
 export type CardPadding = "none" | "sm" | "md" | "lg";
 
 const VARIANT_CLASSES: Record<CardVariant, string> = {
-  surface: "border-white/10 bg-[rgba(13,18,34,0.78)]",
-  lemon: "border-[rgba(70,200,255,0.30)] bg-[rgba(70,200,255,0.10)]",
-  mint: "border-[rgba(94,234,212,0.28)] bg-[rgba(94,234,212,0.09)]",
-  violet: "border-[rgba(168,85,247,0.30)] bg-[rgba(168,85,247,0.10)]",
-  cyan: "border-[rgba(70,200,255,0.30)] bg-[rgba(70,200,255,0.10)]",
+  surface: "glass-card border-[rgba(70,200,255,0.15)] bg-[rgba(16,21,40,0.65)]",
+  lemon: "border-[rgba(70,200,255,0.30)] bg-[rgba(70,200,255,0.09)]",
+  mint: "border-[rgba(112,227,182,0.28)] bg-[rgba(112,227,182,0.08)]",
+  violet: "border-[rgba(168,85,247,0.30)] bg-[rgba(168,85,247,0.09)]",
+  cyan: "border-[rgba(70,200,255,0.30)] bg-[rgba(70,200,255,0.09)]",
   flat: "border-line-soft bg-surface-2/70",
 };
 
@@ -45,7 +45,7 @@ export default function Card({
         "relative rounded-nb-lg border text-ink backdrop-blur-xl",
         VARIANT_CLASSES[variant],
         PADDING_CLASSES[padding],
-        variant !== "flat" && "shadow-hard-3",
+        variant !== "flat" && "shadow-[0_0_38px_rgba(70,200,255,0.10),0_16px_44px_rgba(0,0,0,0.42)]",
         interactive &&
           "transition-[transform,box-shadow,border-color] duration-[180ms] ease-[var(--ease-pop)] hover:-translate-y-0.5 hover:border-[rgba(70,200,255,0.4)] hover:shadow-hard-4 active:translate-y-0",
         className,

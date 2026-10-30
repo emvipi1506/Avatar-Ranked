@@ -25,8 +25,8 @@ export default function VerdictHero({ user, imageUrl, report }: VerdictHeroProps
     <Card padding="lg" className="relative overflow-hidden">
       <span
         aria-hidden
-        className="absolute inset-x-0 top-0 h-2 border-b-3 border-ink"
-        style={{ backgroundColor: report.rarity.color }}
+        className="absolute inset-x-0 top-0 h-1"
+        style={{ background: report.rarity.gradient }}
       />
 
       <div className="grid gap-7 md:grid-cols-[235px_1fr] md:items-start">
@@ -80,7 +80,7 @@ export default function VerdictHero({ user, imageUrl, report }: VerdictHeroProps
           <p className="mt-2 text-sm leading-[1.6] text-ink-2">{report.rarity.description}</p>
 
           <dl className="mt-5 grid gap-2 sm:grid-cols-3">
-            <div className="rounded-nb-sm border-2 border-ink bg-surface-2 px-3 py-2">
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
               <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-muted">
                 Hệ thống
               </dt>
@@ -88,19 +88,19 @@ export default function VerdictHero({ user, imageUrl, report }: VerdictHeroProps
                 {formatScore100(report.aiScore)}/100
               </dd>
             </div>
-            <div className="rounded-nb-sm border-2 border-ink bg-mint px-3 py-2 text-on-accent">
-              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-on-accent-2">
+            <div className="rounded-xl border border-[rgba(112,227,182,0.3)] bg-[rgba(112,227,182,0.10)] px-3 py-2">
+              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-[rgba(112,227,182,0.75)]">
                 Gu cá nhân
               </dt>
-              <dd className="mt-0.5 font-mono text-sm font-bold text-on-accent">
+              <dd className="mt-0.5 font-mono text-sm font-bold text-mint">
                 {getPersonalLabel(report)}
               </dd>
             </div>
-            <div className="rounded-nb-sm border-2 border-ink bg-lemon px-3 py-2 text-on-accent">
-              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-on-accent-2">
+            <div className="rounded-xl border border-[rgba(70,200,255,0.3)] bg-[rgba(70,200,255,0.10)] px-3 py-2">
+              <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.05em] text-[rgba(70,200,255,0.75)]">
                 Điểm gốc
               </dt>
-              <dd className="mt-0.5 font-mono text-sm font-bold tabular-nums text-on-accent">
+              <dd className="mt-0.5 font-mono text-sm font-bold tabular-nums text-cyan">
                 {formatScore100(report.total)}/100
               </dd>
             </div>

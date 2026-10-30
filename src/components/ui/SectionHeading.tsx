@@ -21,15 +21,15 @@ export default function SectionHeading({
   return (
     <div className={cn(align === "center" && "mx-auto text-center", className)}>
       {eyebrow && (
-        <p className="font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.1em] text-coral-ink">
+        <p className="font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.18em] text-[#46C8FF]">
           {eyebrow}
         </p>
       )}
       <h2
         id={id}
         className={cn(
-          "mt-2 max-w-[20ch] font-display text-display-md font-extrabold uppercase tracking-[-0.02em] text-ink",
-          align === "center" && "mx-auto",
+          "mt-2 max-w-[20ch] font-sans text-3xl font-black uppercase tracking-tight text-white sm:text-4xl",
+          align === "center" && "mx-auto max-w-[24ch] text-balance",
         )}
       >
         {title}
@@ -37,8 +37,8 @@ export default function SectionHeading({
       {description && (
         <p
           className={cn(
-            "mt-3 max-w-[65ch] text-[length:var(--fs-lg)] leading-[1.55] text-ink-2",
-            align === "center" && "mx-auto",
+            "mt-3 max-w-[65ch] text-sm leading-relaxed text-slate-400 sm:text-base",
+            align === "center" && "mx-auto text-balance",
           )}
         >
           {description}

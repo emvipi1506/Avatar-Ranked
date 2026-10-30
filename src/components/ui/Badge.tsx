@@ -7,8 +7,8 @@ export type BadgeVariant = "neutral" | "outline" | "accent" | "lemon" | "mint" |
 
 const VARIANT_CLASSES: Record<Exclude<BadgeVariant, "neutral" | "outline" | "accent">, string> = {
   lemon: "border-[rgba(70,200,255,0.35)] bg-[rgba(70,200,255,0.10)] text-cyan",
-  mint: "border-[rgba(94,234,212,0.32)] bg-[rgba(94,234,212,0.09)] text-mint",
-  coral: "border-[rgba(255,79,216,0.32)] bg-[rgba(255,79,216,0.09)] text-coral-ink",
+  mint: "border-[rgba(112,227,182,0.32)] bg-[rgba(112,227,182,0.09)] text-mint",
+  coral: "border-[rgba(255,0,127,0.35)] bg-[rgba(255,0,127,0.10)] text-coral-ink",
   violet: "border-[rgba(168,85,247,0.35)] bg-[rgba(168,85,247,0.10)] text-violet",
   cyan: "border-[rgba(70,200,255,0.35)] bg-[rgba(70,200,255,0.10)] text-cyan",
 };
@@ -43,7 +43,8 @@ export default function Badge({
         "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[length:var(--fs-2xs)] font-bold uppercase tracking-[0.08em]",
         variant === "neutral" && "border-white/10 bg-white/[0.05] text-ink-2",
         variant === "outline" && "border-line bg-transparent text-ink-2",
-        variant === "accent" && "border-[rgba(70,200,255,0.35)] bg-[rgba(70,200,255,0.10)] text-cyan",
+        variant === "accent" &&
+          "border-[rgba(70,200,255,0.35)] bg-[rgba(70,200,255,0.10)] text-cyan shadow-[0_0_18px_rgba(70,200,255,0.12)]",
         !tier && VARIANT_CLASSES[variant as keyof typeof VARIANT_CLASSES],
         className,
       )}
