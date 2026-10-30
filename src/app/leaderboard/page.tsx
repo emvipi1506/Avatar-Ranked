@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { MonitorPlay } from "lucide-react";
 import LeaderboardSection from "@/components/leaderboard/LeaderboardSection";
-import { buttonClasses } from "@/components/ui/Button";
 import SiteFooter from "@/components/ui/SiteFooter";
 import SiteHeader from "@/components/ui/SiteHeader";
 import SkipLink from "@/components/ui/SkipLink";
@@ -10,7 +8,7 @@ import SkipLink from "@/components/ui/SkipLink";
 export const metadata: Metadata = {
   title: "Bảng xếp hạng avatar — Avatar Ranked",
   description:
-    "Lịch sử các avatar Roblox đã quét, xếp theo điểm tổng /10. Avatar vừa quét tự động vào đúng hạng, 6 mục mỗi trang.",
+    "Lịch sử các avatar Roblox đã quét, xếp theo điểm tổng /10. Avatar vừa quét tự động vào bảng, 6 mục mỗi trang.",
   alternates: { canonical: "/leaderboard" },
   robots: { index: false, follow: true },
 };
@@ -25,31 +23,37 @@ export default function LeaderboardPage() {
           headingLevel="h1"
           eyebrow="Hall of drip"
           title="Bảng xếp hạng"
-          description="Lịch sử các avatar đã quét trên trình duyệt này. Xếp theo điểm tổng /10; avatar vừa quét tự động vào đúng hạng."
+          description="Lịch sử các avatar đã quét trên trình duyệt này. Xếp theo điểm tổng /10; avatar vừa quét tự động vào bảng."
           showCta
-          className="border-b-3 border-ink"
+          className="border-b border-white/10"
         />
 
-        <div className="bg-surface-2">
-          <div className="nb-container flex max-w-5xl flex-wrap items-center justify-between gap-3 py-5">
-            <div>
-              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-coral-ink">
+        <div className="border-b border-white/10 bg-white/[0.02]">
+          <div className="nb-container flex max-w-5xl flex-wrap items-start justify-between gap-4 py-5">
+            <div className="min-w-0 max-w-[58ch]">
+              <p className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-cyan">
+                <MonitorPlay className="h-3 w-3" aria-hidden />
                 Dành cho streamer
               </p>
-              <p className="mt-1 max-w-[58ch] text-sm leading-[1.5] text-ink-2">
-                Bảng live đọc dữ liệu chung từ server, tự cập nhật và tự xoay trang —
-                dùng làm Browser Source trong OBS.
+              <p className="mt-1.5 text-sm leading-[1.55] text-ink-2">
+                Overlay live chạy <strong className="font-semibold text-ink">tách riêng khỏi web</strong>.
+                Bật overlay trên máy stream, sau đó thêm URL vào Browser Source của OBS.
               </p>
             </div>
-            <Link
-              href="/live"
-              target="_blank"
-              rel="noreferrer"
-              className={buttonClasses({ variant: "ghost", size: "sm" })}
+
+            <div
+              aria-label="Cách chạy overlay live"
+              className="rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 font-mono text-[10px] leading-[1.8] text-ink-2"
             >
-              Mở bảng live
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-            </Link>
+              <p>
+                <span className="text-muted">1.</span>{" "}
+                <code className="text-cyan">npm run live</code>
+              </p>
+              <p>
+                <span className="text-muted">2.</span>{" "}
+                <code className="text-cyan">http://localhost:4173/</code>
+              </p>
+            </div>
           </div>
         </div>
       </main>

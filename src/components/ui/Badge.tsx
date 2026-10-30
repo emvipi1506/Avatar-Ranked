@@ -6,11 +6,11 @@ import type { RarityTier } from "@/types";
 export type BadgeVariant = "neutral" | "outline" | "accent" | "lemon" | "mint" | "coral" | "violet" | "cyan";
 
 const VARIANT_CLASSES: Record<Exclude<BadgeVariant, "neutral" | "outline" | "accent">, string> = {
-  lemon: "bg-lemon text-on-accent",
-  mint: "bg-mint text-on-accent",
-  coral: "bg-coral text-on-accent",
-  violet: "bg-violet text-on-accent",
-  cyan: "bg-cyan text-on-accent",
+  lemon: "border-[rgba(70,200,255,0.35)] bg-[rgba(70,200,255,0.10)] text-cyan",
+  mint: "border-[rgba(94,234,212,0.32)] bg-[rgba(94,234,212,0.09)] text-mint",
+  coral: "border-[rgba(255,79,216,0.32)] bg-[rgba(255,79,216,0.09)] text-coral-ink",
+  violet: "border-[rgba(168,85,247,0.35)] bg-[rgba(168,85,247,0.10)] text-violet",
+  cyan: "border-[rgba(70,200,255,0.35)] bg-[rgba(70,200,255,0.10)] text-cyan",
 };
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
@@ -27,18 +27,24 @@ export default function Badge({
   style,
   ...rest
 }: BadgeProps) {
-  const tierStyle = tier
-    ? { backgroundColor: RARITIES[tier].color, color: "var(--c-on-accent)" }
+  const rarity = tier ? RARITIES[tier] : null;
+  const tierStyle = rarity
+    ? {
+        backgroundColor: `${rarity.color}1a`,
+        borderColor: `${rarity.color}66`,
+        color: rarity.color,
+        boxShadow: `0 0 18px ${rarity.glowColor}`,
+      }
     : undefined;
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-nb-sm border-2 border-ink px-2 py-1 font-mono text-[length:var(--fs-2xs)] font-bold uppercase tracking-[0.06em]",
-        variant === "neutral" && "bg-surface-2 text-ink shadow-hard-1",
-        variant === "outline" && "bg-transparent text-ink",
-        variant === "accent" && "bg-lemon text-on-accent shadow-hard-1",
-        tier ? "shadow-hard-1" : VARIANT_CLASSES[variant as keyof typeof VARIANT_CLASSES],
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[length:var(--fs-2xs)] font-bold uppercase tracking-[0.08em]",
+        variant === "neutral" && "border-white/10 bg-white/[0.05] text-ink-2",
+        variant === "outline" && "border-line bg-transparent text-ink-2",
+        variant === "accent" && "border-[rgba(70,200,255,0.35)] bg-[rgba(70,200,255,0.10)] text-cyan",
+        !tier && VARIANT_CLASSES[variant as keyof typeof VARIANT_CLASSES],
         className,
       )}
       style={{ ...tierStyle, ...style }}

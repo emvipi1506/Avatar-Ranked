@@ -162,8 +162,8 @@ export default function ScanEntry({
           <aside className="space-y-6">
             <Card variant="mint" rotate={1}>
               <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5" aria-hidden />
-                <h2 className="font-display text-xl font-extrabold uppercase leading-none text-on-accent">
+                <Sparkles className="h-5 w-5 text-mint" aria-hidden />
+                <h2 className="font-display text-xl font-extrabold uppercase leading-none text-ink">
                   Cách hoạt động
                 </h2>
               </div>
@@ -174,10 +174,10 @@ export default function ScanEntry({
                   "Nhận verdict, điểm /10 và báo cáo chi tiết.",
                 ].map((step, index) => (
                   <li key={step} className="flex items-start gap-3">
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-nb-sm border-2 border-ink bg-lemon font-mono text-xs font-bold text-on-accent">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[rgba(94,234,212,0.35)] bg-[rgba(94,234,212,0.12)] font-mono text-xs font-bold text-mint">
                       {index + 1}
                     </span>
-                    <span className="text-sm font-semibold leading-[1.5] text-on-accent">{step}</span>
+                    <span className="text-sm font-semibold leading-[1.5] text-ink-2">{step}</span>
                   </li>
                 ))}
               </ol>

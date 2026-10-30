@@ -13,14 +13,14 @@ export default function LandingHero() {
   const verdict = getVerdictView(mockReport);
 
   return (
-    <section className="relative overflow-hidden border-b-3 border-ink bg-cream">
+    <section className="relative overflow-hidden border-b border-line bg-transparent">
       <div aria-hidden className="nb-dots absolute inset-0" />
       <div className="nb-container relative grid gap-10 py-12 md:grid-cols-[1.08fr_0.92fr] md:items-center md:gap-8 md:py-16 lg:gap-12 lg:py-20">
         <div>
           <Badge variant="accent">ROBLOX AVATAR ROAST &amp; RATE</Badge>
 
           <h1 className="mt-5 max-w-[12ch] font-display text-[length:var(--fs-3xl)] font-extrabold uppercase leading-[0.95] tracking-[-0.03em] text-ink sm:text-display-lg">
-            Avatar của bạn có drip không?
+            Avatar của bạn có <span className="neon-title">drip</span> không?
           </h1>
 
           <p className="mt-5 max-w-[56ch] text-[length:var(--fs-lg)] leading-[1.6] text-ink-2">
@@ -46,7 +46,7 @@ export default function LandingHero() {
             <span>Chỉ dùng dữ liệu công khai</span>
           </p>
 
-          <div className="mt-7 flex items-start gap-3 rounded-nb-md border-2 border-ink bg-surface px-4 py-3 shadow-hard-1 sm:max-w-md">
+          <div className="mt-7 flex items-start gap-3 rounded-nb-md border border-white/10 bg-white/[0.03] px-4 py-3 shadow-hard-1 sm:max-w-md">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden />
             <p className="text-sm leading-[1.5] text-ink-2">
               Hệ thống chấm theo rule-based, đối chiếu catalog và bảng màu thật. Kết quả để giải
@@ -70,6 +70,7 @@ export default function LandingHero() {
                 username={mockUser.name}
                 imageUrl={null}
                 priority
+                imageClassName="p-2"
                 className="mx-auto w-full max-w-[270px]"
                 sizes="(max-width: 1024px) 70vw, 270px"
               />

@@ -8,7 +8,7 @@ const FAQS = [
   },
   {
     q: "Điểm được tính như thế nào?",
-    a: "Hệ thống chấm 4 tiêu chí: chủ đề & hài hòa (35%), độc lạ & sáng tạo (30%), hài hước & meme (25%), giá trị catalog (10%). Khi bạn chưa chọn gu, điểm tổng = 100% điểm hệ thống. Khi chọn gu, điểm tổng = 75% hệ thống + 25% gu của bạn.",
+    a: "Hệ thống chấm 4 tiêu chí: chỉn chu & hài hòa (35%), độc lạ & sáng tạo (30%), hài hước & meme (25%), giá trị catalog (10%). Khi bạn chưa chọn gu, điểm tổng = 100% điểm hệ thống. Khi chọn gu, điểm tổng = 75% hệ thống + 25% gu của bạn.",
   },
   {
     q: "Vì sao mặc định là “Chưa chọn”?",
@@ -20,33 +20,33 @@ const FAQS = [
   },
   {
     q: "Avatar riêng tư hoặc profile bị khóa thì sao?",
-    a: "Hệ thống chỉ đọc được dữ liệu công khai. Nếu profile hoặc avatar không truy cập được, bạn sẽ thấy thông báo lỗi và có thể thử lại. Ảnh thumbnail lỗi sẽ được thay bằng avatar minh họa, điểm vẫn được tính nếu dữ liệu avatar còn đủ.",
+    a: "Hệ thống chỉ đọc được dữ liệu công khai. Nếu profile hoặc avatar không truy cập được, bạn sẽ thấy thông báo lỗi và có thể thử lại. Ảnh thumbnail lỗi sẽ được thay bằng avatar minh họa; điểm vẫn được tính nếu dữ liệu avatar còn đủ.",
   },
 ];
 
 export default function FAQ() {
   return (
-    <section id="faq" className="nb-section border-b-3 border-ink bg-cream">
+    <section id="faq" className="nb-section border-b border-white/10 bg-transparent">
       <div className="nb-container grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
         <SectionHeading
-          eyebrow="04 — FAQ"
+          eyebrow="04 · FAQ"
           title="Hỏi nhanh. Đáp gọn."
           description="Những điều cần biết trước khi để hệ thống soi avatar của bạn."
         />
 
-        <div className="divide-y-2 divide-line-soft rounded-nb-lg border-3 border-ink bg-surface shadow-hard-3">
+        <div className="divide-y divide-white/[0.07] overflow-hidden rounded-2xl border border-white/10 bg-[rgba(13,18,34,0.72)] shadow-[0_18px_48px_rgba(0,0,0,0.4)] backdrop-blur-xl">
           {FAQS.map((item, index) => (
             <details key={item.q} open={index === 0} className="group">
-              <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-4 py-4 [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-4 py-4 transition-colors hover:bg-white/[0.03] sm:px-5 [&::-webkit-details-marker]:hidden">
                 <span className="font-body text-sm font-bold leading-[1.5] text-ink sm:text-base">
                   {item.q}
                 </span>
                 <Plus
-                  className="mt-0.5 h-5 w-5 shrink-0 text-ink transition-transform duration-200 group-open:rotate-45"
+                  className="mt-0.5 h-5 w-5 shrink-0 text-cyan transition-transform duration-200 group-open:rotate-45"
                   aria-hidden
                 />
               </summary>
-              <p className="px-4 pb-4 text-sm leading-[1.65] text-ink-2">{item.a}</p>
+              <p className="px-4 pb-4 text-sm leading-[1.65] text-ink-2 sm:px-5">{item.a}</p>
             </details>
           ))}
         </div>

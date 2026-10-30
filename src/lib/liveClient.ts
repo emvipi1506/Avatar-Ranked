@@ -1,4 +1,4 @@
-import type { LiveBoardSnapshot, LiveRecordResult } from "@/lib/live";
+import type { LiveRecordResult } from "@/lib/live";
 import type { LeaderboardEntry } from "@/lib/leaderboard";
 
 const LIVE_API = "/api/live/board";
@@ -44,17 +44,4 @@ export async function clearLiveBoard(): Promise<boolean> {
     cache: "no-store",
   });
   return response.ok;
-}
-
-export async function fetchLiveBoard(
-  signal?: AbortSignal,
-): Promise<LiveBoardSnapshot & { total: number }> {
-  const response = await fetch(LIVE_API, {
-    cache: "no-store",
-    signal,
-  });
-  if (!response.ok) {
-    throw new Error(await errorFromResponse(response));
-  }
-  return (await response.json()) as LiveBoardSnapshot & { total: number };
 }

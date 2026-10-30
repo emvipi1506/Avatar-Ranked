@@ -69,7 +69,7 @@ export default function ScoreDisplay({
       <p
         className={cn(
           "mt-1 font-display text-score font-extrabold tabular-nums tracking-[-0.03em]",
-          onAccent ? "text-on-accent" : "text-ink",
+          onAccent ? "text-on-accent" : "neon-score",
         )}
       >
         <span aria-hidden>{formatScore10(display)}</span>

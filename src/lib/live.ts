@@ -11,14 +11,6 @@ import { isValidUsername } from "@/lib/roblox";
 import { RARITIES } from "@/lib/rarity";
 import type { RarityTier } from "@/types";
 
-/** Số dòng mỗi trang trên bảng live (và tự xoay trang khi có nhiều hơn). */
-export const LIVE_PAGE_SIZE = 6;
-/** Nhịp hỏi lại server của trang /live. */
-export const LIVE_POLL_MS = 2000;
-/** Thời gian giữ một trang trước khi tự xoay. */
-export const LIVE_ROTATE_MS = 10_000;
-/** Thời gian làm nổi bật avatar vừa được thêm/cập nhật. */
-export const LIVE_HIGHLIGHT_MS = 8000;
 /** Giới hạn số entry lưu trên server, giống bảng cục bộ. */
 export const LIVE_MAX_ENTRIES = LEADERBOARD_MAX_ENTRIES;
 

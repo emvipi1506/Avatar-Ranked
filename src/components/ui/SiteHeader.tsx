@@ -7,7 +7,6 @@ import { soundManager } from "@/lib/sound";
 import { cn } from "@/lib/cn";
 import { buttonClasses } from "./Button";
 import Logo from "./Logo";
-import ThemeToggle from "./ThemeToggle";
 
 export type SiteHeaderVariant = "landing" | "scan" | "preview";
 
@@ -20,6 +19,7 @@ const NAV: Record<SiteHeaderVariant, NavItem[]> = {
   landing: [
     { href: "/#how-it-works", label: "Cách hoạt động" },
     { href: "/#bang-diem", label: "Bảng điểm" },
+    { href: "/leaderboard", label: "BXH" },
     { href: "/#faq", label: "FAQ" },
   ],
   scan: [
@@ -68,7 +68,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b-3 border-ink bg-cream",
+        "sticky top-0 z-50 border-b border-white/10 bg-[rgba(7,8,15,0.78)] backdrop-blur-xl",
         className,
       )}
     >
@@ -76,19 +76,17 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
         <Logo href={variant === "preview" ? "/preview" : "/"} />
 
         <div className="flex items-center gap-2">
-          <nav aria-label="Điều hướng chính" className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Điều hướng chính" className="hidden items-center gap-1 lg:flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-nb-sm px-3 py-2 font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.06em] text-ink-2 transition-colors duration-[120ms] hover:bg-lemon hover:text-on-accent"
+                className="rounded-full px-3 py-2 font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.06em] text-muted transition-colors duration-[140ms] hover:bg-white/[0.06] hover:text-white"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
-
-          <ThemeToggle />
 
           {mounted && (
             <button
@@ -97,12 +95,12 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
               aria-pressed={!muted}
               aria-label={muted ? "Bật âm thanh" : "Tắt âm thanh"}
               title={muted ? "Bật âm thanh" : "Tắt âm thanh"}
-              className="hidden h-11 w-11 place-items-center rounded-nb-sm border-2 border-ink bg-surface text-ink shadow-hard-1 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 min-[360px]:grid"
+              className="hidden h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-muted transition-colors hover:border-[rgba(70,200,255,0.4)] hover:text-cyan min-[360px]:grid"
             >
               {muted ? (
-                <VolumeX className="h-5 w-5" aria-hidden />
+                <VolumeX className="h-4 w-4" aria-hidden />
               ) : (
-                <Volume2 className="h-5 w-5" aria-hidden />
+                <Volume2 className="h-4 w-4" aria-hidden />
               )}
             </button>
           )}
@@ -120,7 +118,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             aria-label={menuOpen ? "Đóng menu" : "Mở menu"}
-            className="grid h-11 w-11 place-items-center rounded-nb-sm border-2 border-ink bg-surface text-ink shadow-hard-1 md:hidden"
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-ink transition-colors hover:border-[rgba(70,200,255,0.4)] hover:text-cyan lg:hidden"
           >
             {menuOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
           </button>
@@ -130,7 +128,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
       {menuOpen && (
         <div
           id="mobile-menu"
-          className="absolute inset-x-0 top-full border-b-3 border-ink bg-cream p-4 shadow-hard-4 md:hidden"
+          className="absolute inset-x-0 top-full border-b border-white/10 bg-[rgba(7,8,15,0.97)] p-4 backdrop-blur-xl lg:hidden"
         >
           <nav aria-label="Điều hướng mobile" className="flex flex-col gap-2">
             {navItems.map((item) => (
@@ -138,7 +136,7 @@ export default function SiteHeader({ variant = "landing", className }: SiteHeade
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className="rounded-nb-sm border-2 border-ink bg-surface px-3 py-3 font-mono text-xs font-bold uppercase tracking-[0.06em] text-ink shadow-hard-1"
+                className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 font-mono text-xs font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:border-[rgba(70,200,255,0.35)] hover:text-cyan"
               >
                 {item.label}
               </Link>

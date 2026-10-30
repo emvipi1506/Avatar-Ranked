@@ -7,6 +7,21 @@ export const dynamic = "force-dynamic";
 
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" };
 
+/**
+ * Overlay live chạy tách khỏi website (static server riêng / OBS) cần đọc bảng qua
+ * CORS. Chỉ mở cho GET; POST/DELETE vẫn giữ kiểm tra same-origin bên dưới.
+ */
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Accept, Cache-Control, Pragma",
+  "Access-Control-Max-Age": "600",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+}
+
 /** Chặn website khác gọi POST/DELETE bằng trình duyệt của người dùng. */
 function isTrustedWrite(request: Request): boolean {
   const origin = request.headers.get("origin");
@@ -23,13 +38,13 @@ export async function GET() {
     const snapshot = await getLiveSnapshot();
     return NextResponse.json(
       { ...snapshot, total: snapshot.entries.length },
-      { headers: NO_STORE },
+      { headers: { ...NO_STORE, ...CORS_HEADERS } },
     );
   } catch (error) {
     console.error("[live] Không đọc được bảng live:", error);
     return NextResponse.json(
       { error: "Không đọc được bảng live." },
-      { status: 500, headers: NO_STORE },
+      { status: 500, headers: { ...NO_STORE, ...CORS_HEADERS } },
     );
   }
 }

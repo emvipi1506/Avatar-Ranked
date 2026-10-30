@@ -69,13 +69,13 @@ export default function VerdictReveal({ user, imageUrl, report, onComplete }: Ve
 
           <div className="relative flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.12em] text-on-accent-2">
+              <p className="font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.12em] text-ink-2">
                 Rarity decoded
               </p>
               <h2
                 id="verdict-reveal-title"
                 tabIndex={-1}
-                className="mt-1 max-w-[18ch] font-display text-[length:var(--fs-2xl)] font-extrabold uppercase leading-[0.95] tracking-[-0.02em] text-on-accent focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-4 focus-visible:outline-on-accent"
+                className="mt-1 max-w-[18ch] font-display text-[length:var(--fs-2xl)] font-extrabold uppercase leading-[0.95] tracking-[-0.02em] text-ink focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-4 focus-visible:outline-ink"
               >
                 Avatar của {user.displayName} đã có verdict.
               </h2>
@@ -97,23 +97,23 @@ export default function VerdictReveal({ user, imageUrl, report, onComplete }: Ve
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tier={report.rarity.tier}>{report.rarity.label}</Badge>
-                <span className="font-mono text-xs font-bold text-on-accent-2">@{user.name}</span>
+                <span className="font-mono text-xs font-bold text-ink-2">@{user.name}</span>
               </div>
 
               <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
-                <ScoreDisplay score={report.total} label="ĐIỂM TỔNG" onAccent animate />
-                <div className="max-w-[240px] text-sm leading-[1.5] text-on-accent-2">
-                  <p className="font-semibold text-on-accent">{getPersonalLabel(report)}</p>
+                <ScoreDisplay score={report.total} label="ĐIỂM TỔNG" animate />
+                <div className="max-w-[240px] text-sm leading-[1.5] text-ink-2">
+                  <p className="font-semibold text-ink">{getPersonalLabel(report)}</p>
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.04em]">
                     {getFormulaLabel(report)}
                   </p>
                 </div>
               </div>
 
-              <p className="mt-3 text-sm italic leading-[1.6] text-on-accent">
+              <p className="mt-3 text-sm italic leading-[1.6] text-ink">
                 &ldquo;{verdict.quote}&rdquo;
               </p>
-              <p className="mt-2 text-xs leading-[1.5] text-on-accent-2">
+              <p className="mt-2 text-xs leading-[1.5] text-ink-2">
                 Điểm chính hiển thị /10. Bảng tiêu chí chi tiết vẫn dùng thang /100.
               </p>
 
@@ -129,8 +129,8 @@ export default function VerdictReveal({ user, imageUrl, report, onComplete }: Ve
             </div>
           </div>
 
-          <div className="relative mt-7 flex flex-col gap-3 border-t-2 border-ink pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="font-mono text-[length:var(--fs-2xs)] font-bold uppercase tracking-[0.05em] text-on-accent-2">
+          <div className="relative mt-7 flex flex-col gap-3 border-t border-line-soft pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-mono text-[length:var(--fs-2xs)] font-bold uppercase tracking-[0.05em] text-ink-2">
               {report.strengths.length} điểm mạnh · {report.weaknesses.length} điểm cần cải thiện
             </p>
             <Button

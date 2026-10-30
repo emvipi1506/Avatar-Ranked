@@ -16,7 +16,7 @@ export default function VerdictPreview() {
   const bubbles = getVerdictBubbles(mockReport);
 
   return (
-    <section id="ket-qua-mau" className="nb-section border-b-3 border-ink bg-cream">
+    <section id="ket-qua-mau" className="nb-section border-b border-line bg-transparent">
       <div className="nb-container">
         <SectionHeading
           eyebrow="02 — Kết quả mẫu"
@@ -100,11 +100,11 @@ export default function VerdictPreview() {
               </SpeechBubble>
             </div>
 
-            <Card variant="lemon" rotate={1} className="mt-9 text-on-accent">
-              <p className="font-display text-lg font-extrabold uppercase leading-tight text-on-accent">
+            <Card variant="lemon" rotate={1} className="mt-9 text-ink">
+              <p className="font-display text-lg font-extrabold uppercase leading-tight text-ink">
                 Muốn biết avatar của bạn bị chấm thế nào?
               </p>
-              <p className="mt-2 text-sm leading-[1.6] text-on-accent-2">
+              <p className="mt-2 text-sm leading-[1.6] text-ink-2">
                 Nhập username, chọn gu nếu muốn, rồi để hệ thống làm phần còn lại.
               </p>
               <Link

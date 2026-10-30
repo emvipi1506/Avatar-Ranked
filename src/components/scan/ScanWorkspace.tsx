@@ -370,7 +370,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
               onNewSearch={handleNewSearch}
             />
             <LeaderboardSection
-              className="border-t-3 border-ink"
+              className="border-t border-white/10"
               user={user}
               imageUrl={imageUrl}
               report={report}

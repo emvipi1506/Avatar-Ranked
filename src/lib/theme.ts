@@ -2,45 +2,36 @@ export type Theme = "light" | "dark";
 
 export const THEME_STORAGE_KEY = "avatar-ranked-theme";
 
+/** Site đã cố định dark theo giao diện cũ; giữ type để không phá API cũ. */
 export const THEME_COLORS: Record<Theme, string> = {
-  light: "#FFFDF5",
-  dark: "#0B0B0D",
+  light: "#07080f",
+  dark: "#07080f",
 };
 
-/** Chạy trước khi paint để tránh nháy theme khi tải trang. */
-export const THEME_INIT_SCRIPT = `(function(){try{var key="${THEME_STORAGE_KEY}";var stored=window.localStorage.getItem(key);var theme=stored==="light"||stored==="dark"?stored:(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=theme;document.documentElement.style.colorScheme=theme;}catch(e){}})();`;
+/** Chạy trước khi paint để luôn vào giao diện tối, không nháy theme. */
+export const THEME_INIT_SCRIPT = `(function(){try{document.documentElement.dataset.theme="dark";document.documentElement.style.colorScheme="dark";}catch(e){}})();`;
 
 export function getSystemTheme(): Theme {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "dark";
 }
 
 export function getStoredTheme(): Theme | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const value = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return value === "light" || value === "dark" ? value : null;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
-/** Theme đang hiển thị, ưu tiên data-theme đã set bởi script init. */
+/** Theme đang hiển thị — site luôn dark. */
 export function getActiveTheme(): Theme {
-  if (typeof document === "undefined") return "light";
-  const current = document.documentElement.dataset.theme;
-  if (current === "light" || current === "dark") return current;
-  return getStoredTheme() ?? getSystemTheme();
+  return "dark";
 }
 
-export function syncThemeColor(theme: Theme): void {
+export function syncThemeColor(theme: Theme = "dark"): void {
   if (typeof document === "undefined") return;
   document
     .querySelectorAll('meta[name="theme-color"]')
     .forEach((meta) => meta.setAttribute("content", THEME_COLORS[theme]));
 }
 
-export function applyTheme(theme: Theme): void {
+export function applyTheme(theme: Theme = "dark"): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   root.dataset.theme = theme;
@@ -48,12 +39,7 @@ export function applyTheme(theme: Theme): void {
   syncThemeColor(theme);
 }
 
-/** Lưu lựa chọn của người dùng rồi áp dụng ngay. */
-export function setThemePreference(theme: Theme): void {
-  try {
-    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-  } catch {
-    // Trình duyệt chặn storage: vẫn đổi theme cho phiên hiện tại.
-  }
+/** Giữ lại để code cũ không vỡ; site không còn chuyển sang light. */
+export function setThemePreference(theme: Theme = "dark"): void {
   applyTheme(theme);
 }

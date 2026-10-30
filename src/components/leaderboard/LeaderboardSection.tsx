@@ -2,9 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Trash2, TriangleAlert, Trophy } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Crown,
+  Sparkles,
+  Trash2,
+  TriangleAlert,
+  Trophy,
+} from "lucide-react";
 import AvatarFrame from "@/components/ui/AvatarFrame";
-import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
 import { buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { formatRelativeTime, formatScore10 } from "@/lib/format";
@@ -43,34 +51,165 @@ interface Notice {
   tone: "success" | "warning";
 }
 
+const PODIUM_ACCENTS: Record<number, { color: string; label: string }> = {
+  1: { color: "#fbbf24", label: "Quán quân" },
+  2: { color: "#cbd5e1", label: "Á quân" },
+  3: { color: "#f59e0b", label: "Hạng ba" },
+};
+
 function rankTone(rank: number): string {
-  if (rank === 1) return "bg-lemon text-on-accent";
-  if (rank === 2) return "bg-mint text-on-accent";
-  if (rank === 3) return "bg-coral text-on-accent";
-  return "bg-surface-2 text-ink";
+  if (rank === 1) {
+    return "border-[rgba(251,191,36,0.45)] bg-[rgba(251,191,36,0.12)] text-[#fbbf24]";
+  }
+  if (rank === 2) {
+    return "border-[rgba(203,213,225,0.38)] bg-[rgba(203,213,225,0.10)] text-[#e2e8f0]";
+  }
+  if (rank === 3) {
+    return "border-[rgba(245,158,11,0.42)] bg-[rgba(245,158,11,0.12)] text-[#f59e0b]";
+  }
+  return "border-white/10 bg-white/[0.04] text-ink-2";
 }
 
 function LeaderboardSkeleton() {
   return (
-    <Card padding="none" className="overflow-hidden" aria-hidden>
-      <div className="border-b-2 border-line-soft px-4 py-3">
-        <div className="h-3 w-44 rounded bg-surface-2" />
+    <div className="neon-panel overflow-hidden rounded-[22px]" aria-hidden>
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <div className="h-3 w-44 rounded bg-white/[0.06]" />
+        <div className="h-3 w-16 rounded bg-white/[0.06]" />
+      </div>
+      <div className="grid gap-3 p-3 sm:grid-cols-3 sm:gap-4 sm:p-4">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+          >
+            <div className="h-16 w-16 rounded-2xl bg-white/[0.06]" />
+            <div className="h-3 w-20 rounded bg-white/[0.06]" />
+            <div className="h-2.5 w-14 rounded bg-white/[0.05]" />
+            <div className="h-6 w-12 rounded bg-white/[0.06]" />
+          </div>
+        ))}
       </div>
       {Array.from({ length: 3 }).map((_, index) => (
         <div
           key={index}
-          className="flex items-center gap-3 border-b-2 border-line-soft px-3 py-3 last:border-b-0 sm:px-5"
+          className="flex items-center gap-3 border-t border-white/[0.06] px-4 py-3"
         >
-          <div className="h-9 w-9 rounded-nb-sm bg-surface-2" />
-          <div className="h-10 w-10 rounded-nb-sm bg-surface-2" />
+          <div className="h-9 w-9 rounded-lg bg-white/[0.06]" />
+          <div className="h-10 w-10 rounded-lg bg-white/[0.06]" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-1/2 rounded bg-surface-2" />
-            <div className="h-2.5 w-1/3 rounded bg-surface-2" />
+            <div className="h-3 w-1/2 rounded bg-white/[0.06]" />
+            <div className="h-2.5 w-1/3 rounded bg-white/[0.05]" />
           </div>
-          <div className="h-6 w-12 rounded bg-surface-2" />
+          <div className="h-6 w-12 rounded bg-white/[0.06]" />
         </div>
       ))}
-    </Card>
+    </div>
+  );
+}
+
+function PodiumCard({
+  entry,
+  rank,
+  isNew,
+}: {
+  entry: LeaderboardEntry;
+  rank: number;
+  isNew: boolean;
+}) {
+  const accent = PODIUM_ACCENTS[rank] ?? PODIUM_ACCENTS[3];
+  const rarity = RARITIES[entry.tier];
+
+  return (
+    <article
+      className={cn(
+        "relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl border p-2.5 text-center transition-transform duration-300 sm:gap-2.5 sm:p-4",
+        rank === 1 && "sm:-translate-y-1 sm:pb-5",
+      )}
+      style={{
+        borderColor: `${accent.color}44`,
+        background: `linear-gradient(180deg, ${accent.color}16 0%, rgba(9,14,28,0.9) 58%, rgba(7,10,20,0.95) 100%)`,
+        boxShadow:
+          rank === 1
+            ? `0 0 34px ${accent.color}30, inset 0 1px 0 rgba(255,255,255,0.08)`
+            : `0 0 22px ${accent.color}14, inset 0 1px 0 rgba(255,255,255,0.05)`,
+      }}
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${accent.color}, transparent)`,
+        }}
+      />
+
+      <div className="flex w-full items-center justify-between gap-1">
+        <span
+          className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.04em] sm:px-2 sm:text-[10px]"
+          style={{
+            borderColor: `${accent.color}55`,
+            backgroundColor: `${accent.color}14`,
+            color: accent.color,
+          }}
+        >
+          {rank === 1 && <Crown className="h-3 w-3" aria-hidden />}
+          #{rank}
+        </span>
+        {isNew && (
+          <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(70,200,255,0.45)] bg-[rgba(70,200,255,0.14)] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase leading-none text-cyan shadow-[0_0_14px_rgba(70,200,255,0.25)]">
+            <Sparkles className="h-2.5 w-2.5" aria-hidden />
+            Mới
+          </span>
+        )}
+      </div>
+
+      <div className="relative">
+        <span
+          aria-hidden
+          className="absolute inset-0 -z-10 rounded-2xl blur-xl"
+          style={{ backgroundColor: `${accent.color}30` }}
+        />
+        <AvatarFrame
+          displayName={entry.displayName}
+          username={entry.username}
+          imageUrl={entry.avatarUrl}
+          sizes="96px"
+          className="h-14 w-14 rounded-2xl sm:h-20 sm:w-20"
+        />
+      </div>
+
+      <div className="w-full min-w-0">
+        <p className="truncate font-display text-[11px] font-extrabold uppercase leading-tight tracking-[-0.01em] text-ink min-[380px]:text-xs sm:text-base">
+          {entry.displayName}
+        </p>
+        <p className="mt-0.5 truncate font-mono text-[9px] font-semibold text-muted sm:text-[10px]">
+          @{entry.username}
+        </p>
+      </div>
+
+      <Badge tier={entry.tier} className="hidden sm:inline-flex">
+        {entry.tier}
+      </Badge>
+
+      <p
+        aria-label={`${formatScore10(entry.score)} trên 10`}
+        className="neon-score font-display text-xl font-extrabold leading-none tabular-nums tracking-[-0.03em] sm:text-3xl"
+      >
+        {formatScore10(entry.score)}
+        <span className="ml-0.5 font-mono text-[9px] font-bold text-muted sm:text-[10px]">
+          /10
+        </span>
+      </p>
+
+      <span
+        aria-hidden
+        className="h-0.5 w-8 rounded-full sm:w-10"
+        style={{ backgroundColor: `${accent.color}88` }}
+      />
+      <span className="sr-only">
+        {accent.label} · hạng {rank} · bậc {rarity.label}
+      </span>
+    </article>
   );
 }
 
@@ -79,7 +218,7 @@ export default function LeaderboardSection({
   headingLevel = "h2",
   eyebrow,
   title = "Bảng xếp hạng",
-  description = "Xếp theo điểm tổng /10. Avatar vừa quét tự động vào đúng hạng — 6 mục mỗi trang.",
+  description = "Xếp theo điểm tổng /10. Avatar vừa quét tự động ghi vào bảng — 6 mục mỗi trang.",
   showCta = false,
   user,
   report,
@@ -191,6 +330,9 @@ export default function LeaderboardSection({
 
   const view = paginateLeaderboard(entries, page);
   const eyebrowText = eyebrow ?? `Lịch sử quét · ${view.total} avatar`;
+  const podiumEntries = view.page === 1 ? view.items.slice(0, 3) : [];
+  const rowEntries = view.page === 1 ? view.items.slice(3) : view.items;
+  const rowStart = view.page === 1 ? view.start + 3 : view.start;
 
   const handleReset = () => {
     clearLeaderboard();
@@ -212,14 +354,11 @@ export default function LeaderboardSection({
   };
 
   return (
-    <section
-      aria-labelledby="leaderboard-title"
-      className={cn("nb-section", className)}
-    >
+    <section aria-labelledby="leaderboard-title" className={cn("nb-section", className)}>
       <div className="nb-container max-w-5xl">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="font-mono text-[length:var(--fs-xs)] font-bold uppercase tracking-[0.1em] text-coral-ink">
+          <div className="min-w-0">
+            <p className="neon-kicker">
               {mounted ? eyebrowText : "Lịch sử quét"}
             </p>
             <Heading
@@ -227,13 +366,20 @@ export default function LeaderboardSection({
               id="leaderboard-title"
               tabIndex={-1}
               className={cn(
-                "mt-2 max-w-[16ch] font-display font-extrabold uppercase leading-[0.95] tracking-[-0.02em] text-ink",
+                "mt-2 max-w-[16ch] font-display font-extrabold uppercase leading-[0.95] tracking-[-0.03em] text-ink",
                 headingLevel === "h1"
                   ? "text-[length:var(--fs-3xl)]"
                   : "text-[length:var(--fs-2xl)]",
               )}
             >
-              {title}
+              {title.split(" ").length > 1 ? (
+                <>
+                  {title.split(" ").slice(0, -1).join(" ")}{" "}
+                  <span className="neon-title">{title.split(" ").slice(-1)}</span>
+                </>
+              ) : (
+                title
+              )}
             </Heading>
             <p className="mt-3 max-w-[62ch] text-sm leading-[1.6] text-ink-2 sm:text-base">
               {description}
@@ -252,56 +398,66 @@ export default function LeaderboardSection({
             <div
               role="status"
               className={cn(
-                "mb-4 flex items-start gap-2.5 rounded-nb-md border-3 border-ink px-4 py-3 shadow-hard-2",
+                "mb-4 flex items-start gap-2.5 rounded-xl border px-4 py-3 backdrop-blur",
                 notice.tone === "success"
-                  ? "bg-mint text-on-accent"
-                  : "bg-warning-bg text-warning",
+                  ? "border-[rgba(70,200,255,0.32)] bg-[rgba(70,200,255,0.08)] text-cyan"
+                  : "border-[rgba(255,209,102,0.32)] bg-warning-bg text-warning",
               )}
             >
               <Trophy className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-              <p className="text-sm font-bold leading-[1.5]">{notice.text}</p>
+              <p className="text-sm font-semibold leading-[1.5]">{notice.text}</p>
             </div>
           )}
 
           {liveError && (
             <div
               role="status"
-              className="mb-4 flex items-start gap-2.5 rounded-nb-md border-3 border-ink bg-warning-bg px-4 py-3 text-warning shadow-hard-2"
+              className="mb-4 flex items-start gap-2.5 rounded-xl border border-[rgba(255,209,102,0.32)] bg-warning-bg px-4 py-3 text-warning backdrop-blur"
             >
               <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-              <p className="text-sm font-bold leading-[1.5]">{liveError}</p>
+              <p className="text-sm font-semibold leading-[1.5]">{liveError}</p>
             </div>
           )}
 
           {!mounted ? (
             <LeaderboardSkeleton />
           ) : view.total === 0 ? (
-            <Card padding="lg" className="text-center">
-              <span className="mx-auto grid h-14 w-14 place-items-center rounded-full border-3 border-ink bg-lemon text-on-accent shadow-hard-2">
-                <Trophy className="h-7 w-7" aria-hidden />
+            <div className="neon-panel rounded-[22px] px-6 py-12 text-center sm:px-10">
+              <span className="relative mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-[rgba(70,200,255,0.35)] bg-[rgba(70,200,255,0.10)] text-cyan shadow-[0_0_32px_rgba(70,200,255,0.22)]">
+                <Trophy className="h-8 w-8" aria-hidden />
               </span>
-              <h3 className="mt-4 font-display text-xl font-extrabold uppercase tracking-[-0.01em] text-ink">
+              <h3 className="mt-5 font-display text-xl font-extrabold uppercase tracking-[-0.01em] text-ink">
                 Bảng đang trống
               </h3>
               <p className="mx-auto mt-2 max-w-[42ch] text-sm leading-[1.6] text-ink-2">
-                Quét avatar đầu tiên để mở bảng xếp hạng. Mỗi lượt quét sẽ tự động thêm
-                người chơi vào đúng hạng.
+                Quét avatar đầu tiên để mở bảng xếp hạng. Mỗi lượt quét sẽ tự động thêm người
+                chơi vào đường đua.
               </p>
               <Link
                 href="/scan"
-                className={buttonClasses({ variant: "primary", size: "md", className: "mt-5" })}
+                className={buttonClasses({ variant: "primary", size: "md", className: "mt-6" })}
               >
                 Chấm avatar đầu tiên
               </Link>
-            </Card>
+            </div>
           ) : (
-            <Card padding="none" className="overflow-hidden">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-line-soft px-4 py-3">
+            <div className="neon-panel overflow-hidden rounded-[22px]">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.02] px-3 py-3 sm:px-4">
+                <div className="flex items-center gap-2">
+                  <span className="neon-chip">
+                    <span className="h-1.5 w-1.5 rounded-full bg-cyan shadow-[0_0_8px_rgba(70,200,255,0.8)]" />
+                    {view.total} avatar
+                  </span>
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-muted">
+                    Trang {view.page}/{view.totalPages}
+                  </span>
+                </div>
+
                 {confirmingReset ? (
                   <div
                     role="group"
                     aria-label="Xác nhận xóa bảng xếp hạng"
-                    className="flex w-full flex-wrap items-center justify-between gap-2"
+                    className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:justify-end"
                   >
                     <span className="font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-danger">
                       Xóa bảng này và bảng live?
@@ -325,102 +481,134 @@ export default function LeaderboardSection({
                     </div>
                   </div>
                 ) : (
-                  <>
-                    <p className="font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-muted">
-                      {view.total} avatar · Trang {view.page}/{view.totalPages}
-                    </p>
-                    <button
-                      ref={resetTriggerRef}
-                      type="button"
-                      onClick={() => setConfirmingReset(true)}
-                      className={buttonClasses({ variant: "ghost", size: "sm" })}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                      Reset
-                    </button>
-                  </>
+                  <button
+                    ref={resetTriggerRef}
+                    type="button"
+                    onClick={() => setConfirmingReset(true)}
+                    aria-label="Reset bảng xếp hạng"
+                    title="Reset bảng xếp hạng"
+                    className={buttonClasses({ variant: "ghost", size: "sm" })}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                    <span className="hidden sm:inline">Reset</span>
+                  </button>
                 )}
               </div>
 
-              <ol aria-label="Bảng xếp hạng avatar" className="list-none divide-y-2 divide-line-soft">
-                {view.items.map((entry, index) => {
-                  const rank = view.start + index;
-                  const isNew = entry.id === newId;
-
-                  return (
-                    <li
-                      key={entry.id}
-                      style={
-                        isNew
-                          ? {
-                              backgroundColor: "var(--c-highlight-bg)",
-                              outline: "3px solid var(--c-highlight-line)",
-                              outlineOffset: "-3px",
-                            }
-                          : undefined
-                      }
-                      className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 sm:px-5 sm:py-4"
-                    >
-                      <span
-                        aria-label={`Hạng ${rank}`}
+              {podiumEntries.length > 0 && (
+                <div className="grid gap-2.5 p-3 sm:grid-cols-3 sm:gap-4 sm:p-5">
+                  {podiumEntries.map((entry, index) => {
+                    const rank = index + 1;
+                    return (
+                      <div
+                        key={entry.id}
                         className={cn(
-                          "grid h-8 w-8 shrink-0 place-items-center rounded-nb-sm border-2 border-ink font-display text-sm font-extrabold leading-none shadow-hard-1 sm:h-9 sm:w-9",
-                          rankTone(rank),
+                          rank === 1 && "order-1 sm:order-2",
+                          rank === 2 && "order-2 sm:order-1",
+                          rank === 3 && "order-3",
                         )}
                       >
-                        {rank}
-                      </span>
-
-                      <AvatarFrame
-                        displayName={entry.displayName}
-                        username={entry.username}
-                        imageUrl={entry.avatarUrl}
-                        sizes="48px"
-                        className="h-10 w-10 rounded-nb-sm sm:h-12 sm:w-12"
-                      />
-
-                      <div className="min-w-0">
-                        <div className="flex min-w-0 items-center gap-1.5">
-                          <p className="truncate font-display text-sm font-extrabold uppercase leading-tight tracking-[-0.01em] text-ink sm:text-base">
-                            {entry.displayName}
-                          </p>
-                          {isNew && (
-                            <span className="shrink-0 rounded-[3px] border-2 border-ink bg-lemon px-1 py-0.5 font-mono text-[9px] font-bold uppercase leading-none text-on-accent">
-                              Mới
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                          <span className="max-w-full truncate font-mono text-[10px] font-bold text-muted">
-                            @{entry.username}
-                          </span>
-                          <span
-                            className="inline-flex shrink-0 items-center rounded-[3px] border-2 border-ink px-1 py-0.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.03em] text-on-accent"
-                            style={{ backgroundColor: RARITIES[entry.tier].color }}
-                          >
-                            {entry.tier}
-                          </span>
-                          <span className="font-mono text-[10px] font-normal text-muted">
-                            {formatRelativeTime(entry.scannedAt, now)}
-                          </span>
-                        </div>
+                        <PodiumCard
+                          entry={entry}
+                          rank={rank}
+                          isNew={entry.id === newId}
+                        />
                       </div>
+                    );
+                  })}
+                </div>
+              )}
 
-                      <p
-                        aria-label={`${formatScore10(entry.score)} trên 10`}
-                        className="whitespace-nowrap text-right font-display text-xl font-extrabold leading-none tabular-nums tracking-[-0.02em] text-ink sm:text-2xl"
-                      >
-                        {formatScore10(entry.score)}
-                        <span className="ml-0.5 font-mono text-[10px] font-bold text-muted">/10</span>
-                      </p>
-                    </li>
-                  );
-                })}
-              </ol>
+              {rowEntries.length > 0 && (
+                <>
+                  <div className="flex items-center justify-between gap-2 border-t border-white/10 bg-white/[0.02] px-4 py-2">
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted">
+                      {view.page === 1 ? "Các hạng tiếp theo" : `Trang ${view.page}`}
+                    </span>
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-muted">
+                      {rowStart}–{view.end} / {view.total}
+                    </span>
+                  </div>
+
+                  <ol aria-label="Bảng xếp hạng avatar" className="list-none">
+                    {rowEntries.map((entry, index) => {
+                      const rank = rowStart + index;
+                      const isNew = entry.id === newId;
+
+                      return (
+                        <li
+                          key={entry.id}
+                          style={
+                            isNew
+                              ? {
+                                  backgroundColor: "rgba(70,200,255,0.10)",
+                                  boxShadow: "inset 3px 0 0 #46c8ff",
+                                }
+                              : undefined
+                          }
+                          className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-white/[0.06] px-3 py-3 transition-colors last:border-b-0 hover:bg-white/[0.03] sm:px-5 sm:py-4"
+                        >
+                          <span
+                            aria-label={`Hạng ${rank}`}
+                            className={cn(
+                              "grid h-8 w-8 shrink-0 place-items-center rounded-lg border font-display text-sm font-extrabold leading-none sm:h-9 sm:w-9",
+                              rankTone(rank),
+                            )}
+                          >
+                            {rank}
+                          </span>
+
+                          <AvatarFrame
+                            displayName={entry.displayName}
+                            username={entry.username}
+                            imageUrl={entry.avatarUrl}
+                            sizes="48px"
+                            className="h-10 w-10 rounded-lg sm:h-12 sm:w-12"
+                          />
+
+                          <div className="min-w-0">
+                            <div className="flex min-w-0 items-center gap-1.5">
+                              <p className="truncate font-display text-sm font-extrabold uppercase leading-tight tracking-[-0.01em] text-ink sm:text-base">
+                                {entry.displayName}
+                              </p>
+                              {isNew && (
+                                <span className="shrink-0 rounded-full border border-[rgba(70,200,255,0.4)] bg-[rgba(70,200,255,0.12)] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase leading-none text-cyan">
+                                  Mới
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                              <span className="max-w-full truncate font-mono text-[10px] font-semibold text-muted">
+                                @{entry.username}
+                              </span>
+                              <Badge tier={entry.tier} className="hidden min-[380px]:inline-flex">
+                                {entry.tier}
+                              </Badge>
+                              <span className="font-mono text-[10px] font-normal text-muted">
+                                {formatRelativeTime(entry.scannedAt, now)}
+                              </span>
+                            </div>
+                          </div>
+
+                          <p
+                            aria-label={`${formatScore10(entry.score)} trên 10`}
+                            className="neon-score whitespace-nowrap text-right font-display text-xl font-extrabold leading-none tabular-nums tracking-[-0.02em] sm:text-2xl"
+                          >
+                            {formatScore10(entry.score)}
+                            <span className="ml-0.5 font-mono text-[10px] font-bold text-muted">
+                              /10
+                            </span>
+                          </p>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </>
+              )}
 
               {view.totalPages > 1 && (
-                <div className="flex flex-wrap items-center justify-between gap-2 border-t-2 border-line-soft px-4 py-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 bg-white/[0.02] px-4 py-3">
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-muted">
                     {view.start}–{view.end} / {view.total}
                   </p>
@@ -429,16 +617,19 @@ export default function LeaderboardSection({
                       type="button"
                       disabled={view.page <= 1}
                       onClick={() => setPage(Math.max(1, view.page - 1))}
-                      className={buttonClasses({ variant: "ghost", size: "sm" })}
+                      className={buttonClasses({ variant: "secondary", size: "sm" })}
                     >
                       <ChevronLeft className="h-4 w-4" aria-hidden />
                       Trước
                     </button>
+                    <span className="min-w-[54px] text-center font-mono text-[11px] font-bold tabular-nums text-ink-2">
+                      {view.page} / {view.totalPages}
+                    </span>
                     <button
                       type="button"
                       disabled={view.page >= view.totalPages}
                       onClick={() => setPage(Math.min(view.totalPages, view.page + 1))}
-                      className={buttonClasses({ variant: "ghost", size: "sm" })}
+                      className={buttonClasses({ variant: "secondary", size: "sm" })}
                     >
                       Sau
                       <ChevronRight className="h-4 w-4" aria-hidden />
@@ -446,13 +637,13 @@ export default function LeaderboardSection({
                   </div>
                 </div>
               )}
-            </Card>
+            </div>
           )}
 
           {mounted && view.total > 0 && (
-            <p className="mt-3 font-mono text-[10px] leading-[1.6] text-muted">
-              Bảng trên máy lưu trong trình duyệt này. Reset sẽ xóa cả bảng này và bảng
-              live trên server.
+            <p className="mt-3 font-mono text-[10px] leading-[1.7] text-muted">
+              Bảng trên máy lưu trong trình duyệt này. Reset sẽ xóa cả bảng này và bảng live trên
+              server.
             </p>
           )}
         </div>

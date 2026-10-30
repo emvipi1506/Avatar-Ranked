@@ -3,10 +3,6 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
   color-scheme: dark;
 }
 
@@ -23,29 +19,18 @@
   }
 
   ::selection {
-    background: var(--c-lemon);
-    color: var(--c-on-accent);
-  }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+    background: rgba(70, 200, 255, 0.35);
+    color: #ffffff;
   }
 }
 
 /* ============================================================
-   NEO-BRUTALISM UTILITIES
-   Toàn bộ UI mới nằm trong .nb-root; raw color chỉ sống ở tokens.css.
+   NEON DARK
+   Dark giao diện cũ: nền gần đen + ambient glow + glass panel.
    ============================================================ */
 
 .nb-root {
+  position: relative;
   min-height: 100dvh;
   background-color: var(--c-bg);
   color: var(--c-ink);
@@ -53,20 +38,42 @@
   isolation: isolate;
 }
 
+/* Ambient glow cố định phía sau toàn bộ nội dung. */
+.nb-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 520px 520px at 8% 0%, rgba(70, 200, 255, 0.16), transparent 70%),
+    radial-gradient(ellipse 480px 480px at 92% 24%, rgba(168, 85, 247, 0.14), transparent 70%),
+    radial-gradient(ellipse 520px 420px at 46% 100%, rgba(255, 79, 216, 0.1), transparent 72%);
+}
+
+/* Lưới cyber mờ, chỉ hiện ở rìa trên. */
+.nb-root::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(70, 200, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(70, 200, 255, 0.055) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 0%, rgba(0, 0, 0, 0.9) 0%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, rgba(0, 0, 0, 0.9) 0%, transparent 72%);
+}
+
 .nb-root ::selection {
-  background: var(--c-lemon);
-  color: var(--c-on-accent);
+  background: rgba(70, 200, 255, 0.35);
+  color: #ffffff;
 }
 
 .nb-root :focus-visible {
-  outline: 3px solid var(--c-ink);
+  outline: 2px solid var(--c-cyan);
   outline-offset: 3px;
-}
-
-/* Trên nền accent sáng, viền focus phải tối để đủ tương phản. */
-.nb-root :is(.bg-lemon, .bg-coral, .bg-mint, .bg-violet, .bg-cyan):focus-visible,
-.nb-root :is(.bg-lemon, .bg-coral, .bg-mint, .bg-violet, .bg-cyan) :focus-visible {
-  outline-color: var(--c-on-accent);
 }
 
 .nb-container {
@@ -80,31 +87,153 @@
   padding-block: var(--section-y);
 }
 
+/* ---------- Chuyển border dày của neo-brutalism sang hairline neon ---------- */
+
+.nb-root .border-2,
+.nb-root .border-3 {
+  border-width: 1px;
+}
+
+.nb-root .border-t-2,
+.nb-root .border-t-3 {
+  border-top-width: 1px;
+}
+
+.nb-root .border-b-2,
+.nb-root .border-b-3 {
+  border-bottom-width: 1px;
+}
+
+.nb-root .border-l-2,
+.nb-root .border-l-3 {
+  border-left-width: 1px;
+}
+
+.nb-root .border-r-2,
+.nb-root .border-r-3 {
+  border-right-width: 1px;
+}
+
+.nb-root .border-y-2,
+.nb-root .border-y-3 {
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.nb-root .border-x-2,
+.nb-root .border-x-3 {
+  border-left-width: 1px;
+  border-right-width: 1px;
+}
+
+.nb-root .border-ink {
+  border-color: var(--c-line);
+}
+
+.nb-root .border-ink-2 {
+  border-color: var(--c-line-soft);
+}
+
+.nb-root .divide-y-2 > :not([hidden]) ~ :not([hidden]) {
+  border-top-width: 1px;
+}
+
 /* ---------- Patterns ---------- */
 
 .nb-checkerboard {
-  background-color: var(--c-lemon);
-  background-image: conic-gradient(
-    var(--c-surface) 25%,
-    var(--c-lemon) 0 50%,
-    var(--c-surface) 0 75%,
-    var(--c-lemon) 0
-  );
-  background-size: 32px 32px;
+  background-color: #0a1020;
+  background-image:
+    radial-gradient(circle at 50% 48%, rgba(70, 200, 255, 0.16), transparent 64%),
+    linear-gradient(rgba(70, 200, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(70, 200, 255, 0.08) 1px, transparent 1px);
+  background-size: auto, 18px 18px, 18px 18px;
 }
 
 .nb-dots {
-  background-image: radial-gradient(var(--c-ink) 1px, transparent 1px);
-  background-size: 12px 12px;
-  background-position: 0 0;
-  opacity: 0.06;
+  background-image: radial-gradient(rgba(70, 200, 255, 0.55) 1px, transparent 1px);
+  background-size: 16px 16px;
+  opacity: 0.12;
 }
 
 .nb-grid-pattern {
   background-image:
-    linear-gradient(var(--c-line-soft) 1px, transparent 1px),
-    linear-gradient(90deg, var(--c-line-soft) 1px, transparent 1px);
+    linear-gradient(rgba(70, 200, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(70, 200, 255, 0.12) 1px, transparent 1px);
   background-size: 32px 32px;
+}
+
+/* ---------- Neon utilities ---------- */
+
+.neon-title {
+  background: linear-gradient(110deg, #ffffff 0%, #9fe8ff 38%, #46c8ff 58%, #c084fc 82%, #ff8ae8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.neon-score {
+  background: linear-gradient(180deg, #ffffff 0%, #d7f4ff 42%, #46c8ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.neon-kicker {
+  color: var(--c-cyan);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.neon-panel {
+  position: relative;
+  border: 1px solid rgba(126, 166, 255, 0.16);
+  background:
+    linear-gradient(180deg, rgba(15, 22, 42, 0.9) 0%, rgba(7, 10, 20, 0.96) 100%);
+  box-shadow:
+    0 26px 70px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 60px rgba(70, 200, 255, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.neon-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(70, 200, 255, 0.8), rgba(168, 85, 247, 0.75), transparent);
+}
+
+.neon-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid rgba(70, 200, 255, 0.34);
+  background: rgba(70, 200, 255, 0.09);
+  color: var(--c-cyan);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+}
+
+.avatar-neon-bg {
+  background-color: #090f1d;
+  background-image:
+    radial-gradient(circle at 50% 45%, rgba(70, 200, 255, 0.18), transparent 66%),
+    linear-gradient(rgba(70, 200, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(70, 200, 255, 0.07) 1px, transparent 1px);
+  background-size: auto, 16px 16px, 16px 16px;
 }
 
 /* ---------- Motion ---------- */
@@ -121,7 +250,7 @@
 .nb-marquee-track {
   display: flex;
   width: max-content;
-  animation: nb-marquee 22s linear infinite;
+  animation: nb-marquee 26s linear infinite;
 }
 
 .nb-marquee:hover .nb-marquee-track,
@@ -166,9 +295,51 @@
   animation: nb-scanline 1.7s linear infinite;
 }
 
+@keyframes neon-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.neon-float {
+  animation: neon-float 6s ease-in-out infinite;
+}
+
+@keyframes neon-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(70, 200, 255, 0.45);
+  }
+  50% {
+    opacity: 0.65;
+    box-shadow: 0 0 0 6px rgba(70, 200, 255, 0);
+  }
+}
+
+.neon-pulse {
+  animation: neon-pulse 1.8s ease-in-out infinite;
+}
+
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
   .nb-marquee-track,
-  .nb-stamp-slam {
+  .nb-stamp-slam,
+  .neon-float,
+  .neon-pulse {
     animation: none !important;
   }
 
@@ -180,7 +351,8 @@
 }
 
 /* ---------- Theme toggle ----------
-   Icon được chọn bằng CSS để đúng ngay từ frame đầu, trước khi hydrate. */
+   Không còn dùng: site đã cố định dark theo giao diện cũ. Giữ selector
+   để file theme cũ không vỡ nếu được import lại. */
 
 .theme-toggle-icon-sun {
   display: none;
@@ -189,12 +361,3 @@
 .theme-toggle-icon-moon {
   display: block;
 }
-
-:root[data-theme="dark"] .theme-toggle-icon-sun {
-  display: block;
-}
-
-:root[data-theme="dark"] .theme-toggle-icon-moon {
-  display: none;
-}
-
