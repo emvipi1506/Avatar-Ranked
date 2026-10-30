@@ -13,6 +13,8 @@ export interface AvatarFrameProps {
   sizes?: string;
   priority?: boolean;
   showFallbackChip?: boolean;
+  /** Bỏ khung viền/nền neon để nhường chỗ cho khung riêng (scan viewport, reveal...). */
+  bare?: boolean;
 }
 
 const FALLBACK_AVATAR = "/samples/avatar-blocky.svg";
@@ -26,6 +28,7 @@ export default function AvatarFrame({
   sizes = "(max-width: 768px) 80vw, 360px",
   priority = false,
   showFallbackChip = false,
+  bare = false,
 }: AvatarFrameProps) {
   const [failed, setFailed] = useState(false);
   const [direct, setDirect] = useState(false);
@@ -43,7 +46,9 @@ export default function AvatarFrame({
   return (
     <div
       className={cn(
-        "avatar-neon-bg relative aspect-square overflow-hidden rounded-nb-md border border-[rgba(70,200,255,0.25)] shadow-[0_0_26px_rgba(70,200,255,0.12)]",
+        "relative aspect-square overflow-hidden",
+        !bare &&
+          "avatar-neon-bg rounded-nb-md border border-[rgba(70,200,255,0.25)] shadow-[0_0_26px_rgba(70,200,255,0.12)]",
         className,
       )}
     >
