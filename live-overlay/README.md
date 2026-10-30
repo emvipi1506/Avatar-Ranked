@@ -35,7 +35,7 @@ thao tác gì trên OBS khi có người quét mới.
 
 | Tham số | Mặc định | Ý nghĩa |
 | --- | --- | --- |
-| `api` | `https://avatar-ranked-roblox.vercel.app` | Gốc API của website. Dùng `http://localhost:3000` khi test local. |
+| `api` | `https://avatar-ranked.vercel.app` | Gốc API của website. Dùng `http://localhost:3000` khi test local. |
 | `poll` | `1000` | Kiểm tra dữ liệu mỗi bao nhiêu ms (500–30000). |
 | `rotate` | `10000` | Thời gian giữ mỗi trang (3000–120000 ms). |
 | `highlight` | `8000` | Thời gian giữ highlight entry mới (1000–60000 ms). |

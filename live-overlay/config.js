@@ -9,7 +9,7 @@
  *   ?bg=solid                    → nền tối đầy đủ (mặc định trong suốt cho OBS)
  */
 window.LIVE_OVERLAY_CONFIG = {
-  apiBase: "https://avatar-ranked-roblox.vercel.app",
+  apiBase: "https://avatar-ranked.vercel.app",
   pollMs: 1000,
   rotateMs: 10000,
   highlightMs: 8000,
