@@ -61,11 +61,11 @@ function getDefaultStorage(): LeaderboardStorage | null {
   }
 }
 
-function roundScore(value: number): number {
+export function roundLeaderboardScore(value: number): number {
   return Math.round(clampScore(value) * 100) / 100;
 }
 
-function normalizeAvatarUrl(value: string | null | undefined): string | null {
+export function normalizeAvatarUrl(value: string | null | undefined): string | null {
   if (typeof value !== "string") return null;
   return value.startsWith("https://") || value.startsWith("/") ? value : null;
 }
@@ -132,15 +132,15 @@ export function createLeaderboardEntry(
     username: user.name,
     displayName: user.displayName || user.name,
     avatarUrl: normalizeAvatarUrl(imageUrl),
-    score: roundScore(report.total),
-    aiScore: roundScore(report.aiScore),
+    score: roundLeaderboardScore(report.total),
+    aiScore: roundLeaderboardScore(report.aiScore),
     tier: report.rarity.tier,
     scannedAt: now,
     firstScannedAt: now,
   };
 }
 
-function sanitizeEntry(value: unknown): LeaderboardEntry | null {
+export function sanitizeLeaderboardEntry(value: unknown): LeaderboardEntry | null {
   if (!value || typeof value !== "object") return null;
   const raw = value as Record<string, unknown>;
 
@@ -172,8 +172,8 @@ function sanitizeEntry(value: unknown): LeaderboardEntry | null {
     avatarUrl: normalizeAvatarUrl(
       typeof raw.avatarUrl === "string" ? raw.avatarUrl : null,
     ),
-    score: roundScore(score),
-    aiScore: roundScore(aiScore),
+    score: roundLeaderboardScore(score),
+    aiScore: roundLeaderboardScore(aiScore),
     tier,
     scannedAt,
     firstScannedAt,
@@ -198,7 +198,7 @@ export function loadLeaderboard(
 
     const byId = new Map<string, LeaderboardEntry>();
     for (const item of list) {
-      const entry = sanitizeEntry(item);
+      const entry = sanitizeLeaderboardEntry(item);
       if (!entry) continue;
       const existing = byId.get(entry.id);
       if (

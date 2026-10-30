@@ -116,7 +116,8 @@
    --c-on-accent cho chữ. Bật bằng data-theme trên <html>.
    ============================================================ */
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+[data-theme="dark"] {
   color-scheme: dark;
 
   --c-bg: #0b0b0d;

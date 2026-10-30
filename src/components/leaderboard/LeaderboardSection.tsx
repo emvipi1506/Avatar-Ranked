@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Trash2, Trophy } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2, TriangleAlert, Trophy } from "lucide-react";
 import AvatarFrame from "@/components/ui/AvatarFrame";
 import Card from "@/components/ui/Card";
 import { buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { formatRelativeTime, formatScore10 } from "@/lib/format";
+import { clearLiveBoard, publishLiveScan } from "@/lib/liveClient";
 import { RARITIES } from "@/lib/rarity";
 import {
   LEADERBOARD_MAX_ENTRIES,
@@ -90,6 +91,7 @@ export default function LeaderboardSection({
   const [page, setPage] = useState(1);
   const [newId, setNewId] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
+  const [liveError, setLiveError] = useState<string | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
@@ -132,6 +134,16 @@ export default function LeaderboardSection({
 
     const result = recordLeaderboardEntry(autoEntry);
     setEntries(result.entries);
+
+    setLiveError(null);
+    void publishLiveScan(autoEntry)
+      .then(() => setLiveError(null))
+      .catch((error: unknown) => {
+        console.error("[live] Không gửi được lượt quét lên bảng live:", error);
+        setLiveError(
+          "Đã lưu vào bảng trên máy nhưng chưa gửi được lên bảng live. Kiểm tra server rồi quét lại.",
+        );
+      });
 
     if (!result.saved) {
       setNotice({
@@ -182,10 +194,14 @@ export default function LeaderboardSection({
 
   const handleReset = () => {
     clearLeaderboard();
+    void clearLiveBoard().catch((error: unknown) => {
+      console.error("[live] Không xóa được bảng live:", error);
+    });
     setEntries([]);
     setPage(1);
     setNewId(null);
     setNotice(null);
+    setLiveError(null);
     setConfirmingReset(false);
     window.setTimeout(() => headingRef.current?.focus({ preventScroll: true }), 0);
   };
@@ -247,6 +263,16 @@ export default function LeaderboardSection({
             </div>
           )}
 
+          {liveError && (
+            <div
+              role="status"
+              className="mb-4 flex items-start gap-2.5 rounded-nb-md border-3 border-ink bg-warning-bg px-4 py-3 text-warning shadow-hard-2"
+            >
+              <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              <p className="text-sm font-bold leading-[1.5]">{liveError}</p>
+            </div>
+          )}
+
           {!mounted ? (
             <LeaderboardSkeleton />
           ) : view.total === 0 ? (
@@ -278,7 +304,7 @@ export default function LeaderboardSection({
                     className="flex w-full flex-wrap items-center justify-between gap-2"
                   >
                     <span className="font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-danger">
-                      Xóa toàn bộ {view.total} avatar?
+                      Xóa bảng này và bảng live?
                     </span>
                     <div className="flex items-center gap-2">
                       <button
@@ -425,7 +451,8 @@ export default function LeaderboardSection({
 
           {mounted && view.total > 0 && (
             <p className="mt-3 font-mono text-[10px] leading-[1.6] text-muted">
-              Bảng lưu trên trình duyệt này. Reset sẽ xóa toàn bộ lịch sử xếp hạng.
+              Bảng trên máy lưu trong trình duyệt này. Reset sẽ xóa cả bảng này và bảng
+              live trên server.
             </p>
           )}
         </div>

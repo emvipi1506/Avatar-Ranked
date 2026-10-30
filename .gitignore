@@ -5,3 +5,7 @@ next-env.d.ts
 *.tsbuildinfo
 .env*.local
 *.zip
+
+# Bảng live lưu tại máy stream, không commit dữ liệu người chơi.
+server/data/live-leaderboard.json
+server/data/*.tmp
