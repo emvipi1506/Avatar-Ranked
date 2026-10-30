@@ -28,11 +28,15 @@ export default function AvatarFrame({
   showFallbackChip = false,
 }: AvatarFrameProps) {
   const [failed, setFailed] = useState(false);
+  const [direct, setDirect] = useState(false);
 
   useEffect(() => {
     setFailed(false);
+    setDirect(false);
   }, [imageUrl]);
 
+  const canUseDirect = Boolean(imageUrl && /^https?:\/\//i.test(imageUrl));
+  const useDirect = direct && canUseDirect;
   const useFallback = !imageUrl || failed;
   const src = useFallback ? FALLBACK_AVATAR : imageUrl;
 
@@ -49,14 +53,22 @@ export default function AvatarFrame({
         fill
         priority={priority}
         sizes={sizes}
-        unoptimized={useFallback}
-        onError={() => setFailed(true)}
+        unoptimized={useFallback || useDirect}
+        onError={() => {
+          // Ảnh qua optimizer của Next có thể lỗi (hết quota, upstream chậm).
+          // Thử tải thẳng từ rbxcdn trước khi rơi về placeholder.
+          if (canUseDirect && !direct) {
+            setDirect(true);
+            return;
+          }
+          setFailed(true);
+        }}
         className={cn("object-contain p-1", imageClassName)}
       />
 
       {useFallback && showFallbackChip && (
         <span className="absolute bottom-2 left-2 rounded-full border border-[rgba(255,209,102,0.35)] bg-warning-bg px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-warning">
-          Ảnh không tải được
+          {failed ? "Ảnh không tải được" : "Đang tải avatar"}
         </span>
       )}
     </div>

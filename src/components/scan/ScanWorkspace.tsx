@@ -79,6 +79,39 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
   const autoStarted = useRef(false);
   const previousInitial = useRef(initialUsername);
   const savedEntryKey = useRef<string | null>(null);
+  const thumbRetryTimer = useRef<number | null>(null);
+
+  const clearThumbRetry = useCallback(() => {
+    if (thumbRetryTimer.current !== null) {
+      window.clearTimeout(thumbRetryTimer.current);
+      thumbRetryTimer.current = null;
+    }
+  }, []);
+
+  /**
+   * Ảnh avatar có thể "Pending" vài giây phía Roblox. Thay vì hiện placeholder
+   * vĩnh viễn, thử lại vài lần ở chế độ nền rồi cập nhật khi ảnh sẵn sàng.
+   */
+  const retryThumbnail = useCallback((userId: number, runId: number) => {
+    let attempt = 0;
+    const tick = async () => {
+      thumbRetryTimer.current = null;
+      if (runId !== scanRunId.current) return;
+      attempt += 1;
+      const url = await fetchThumbnail(userId);
+      if (runId !== scanRunId.current) return;
+      if (url) {
+        setImageUrl(url);
+        return;
+      }
+      if (attempt < 2) {
+        thumbRetryTimer.current = window.setTimeout(tick, 2500);
+      }
+    };
+    thumbRetryTimer.current = window.setTimeout(tick, 2500);
+  }, []);
+
+  useEffect(() => () => clearThumbRetry(), [clearThumbRetry]);
 
   const resetReportData = useCallback(() => {
     setUser(null);
@@ -112,6 +145,13 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
     [],
   );
 
+  // Ảnh có thể về muộn hơn lúc chấm điểm; cập nhật lại entry để BXH/overlay có avatar.
+  useEffect(() => {
+    if (!user || !report || !imageUrl) return;
+    if (savedEntryKey.current?.endsWith(`:${imageUrl}`)) return;
+    saveScanResult(user, report, imageUrl);
+  }, [imageUrl, report, saveScanResult, user]);
+
   const handleSearch = useCallback(
     async (raw: string) => {
       const username = raw.trim();
@@ -123,6 +163,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
 
       const runId = ++scanRunId.current;
       skipRequested.current = false;
+      clearThumbRetry();
       setQuery(username);
       setError(null);
       resetReportData();
@@ -139,13 +180,14 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
         setImageUrl(thumbUrl);
         setPhase("found");
         replaceUrl(foundUser.name);
+        if (!thumbUrl) retryThumbnail(foundUser.id, runId);
       } catch (err) {
         if (runId !== scanRunId.current) return;
         setError(errorMessage(err));
         setPhase("error");
       }
     },
-    [resetReportData],
+    [clearThumbRetry, resetReportData, retryThumbnail],
   );
 
   useEffect(() => {
@@ -163,6 +205,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
       void handleSearch(initialUsername);
     } else {
       scanRunId.current++;
+      clearThumbRetry();
       setPhase("idle");
       setQuery("");
       setError(null);
@@ -173,7 +216,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
         80,
       );
     }
-  }, [initialUsername, handleSearch, resetReportData]);
+  }, [clearThumbRetry, initialUsername, handleSearch, resetReportData]);
 
   useEffect(() => {
     if (phase === "found") {
@@ -211,6 +254,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
 
     const runId = ++scanRunId.current;
     skipRequested.current = false;
+    clearThumbRetry();
     setError(null);
     setReport(null);
     setProfile(null);
@@ -218,6 +262,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
     setPalette(null);
     setProgress(0);
     setSlow(false);
+    if (!imageUrl) retryThumbnail(user.id, runId);
 
     try {
       setPhase("init");
@@ -283,7 +328,7 @@ export default function ScanWorkspace({ initialUsername = null }: ScanWorkspaceP
       setError(errorMessage(err));
       setPhase("found");
     }
-  }, [imageUrl, personalTier, saveScanResult, user]);
+  }, [clearThumbRetry, imageUrl, personalTier, retryThumbnail, saveScanResult, user]);
 
   const handleSkipAnimation = useCallback(() => {
     skipRequested.current = true;

@@ -140,14 +140,30 @@ interface ThumbnailApiResponse {
   data: { targetId: number; state: string; imageUrl: string | null }[];
 }
 
+const THUMBNAIL_ATTEMPTS = 4;
+
+/**
+ * Lấy ảnh avatar Roblox. Ảnh của tài khoản vừa tạo / vừa đổi avatar có thể ở
+ * trạng thái "Pending" vài giây, nên phải hỏi lại thay vì bỏ luôn.
+ *
+ * Luôn đọc mới (revalidate: 0): nếu để Next cache phản hồi "Pending" thì một
+ * lần render chậm sẽ khiến avatar trống suốt 5 phút.
+ */
 export async function getAvatarThumbnail(userId: number, size = "720x720"): Promise<string | null> {
   const url = `${THUMBNAILS_API}/v1/users/avatar?userIds=${userId}&size=${size}&format=Png&isCircular=false`;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const data = await robloxFetch<ThumbnailApiResponse>(url, { revalidate: attempt === 0 ? 300 : 0 });
-    const item = data.data[0];
-    if (item?.state === "Completed" && item.imageUrl) return item.imageUrl;
-    if (item && item.state !== "Pending") return null;
-    await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+  for (let attempt = 0; attempt < THUMBNAIL_ATTEMPTS; attempt++) {
+    try {
+      const data = await robloxFetch<ThumbnailApiResponse>(url, { revalidate: 0 });
+      const item = data.data[0];
+      if (item?.state === "Completed" && item.imageUrl) return item.imageUrl;
+      if (item && item.state !== "Pending") return null;
+    } catch (err) {
+      // Lỗi tạm thời (429/5xx) cũng đáng thử lại; hết lượt mới ném ra ngoài.
+      if (attempt === THUMBNAIL_ATTEMPTS - 1) throw err;
+    }
+    if (attempt < THUMBNAIL_ATTEMPTS - 1) {
+      await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+    }
   }
   return null;
 }
