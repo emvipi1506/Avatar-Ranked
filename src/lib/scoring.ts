@@ -22,6 +22,7 @@ import type {
   ValueBreakdown,
 } from "@/types";
 import { applyDataQualityCap, getRarityForScore, RARITIES, TIER_ORDER } from "./rarity";
+import { applySecretAccountBoost, isSecretAccount } from "./secretAccount";
 import { AVATAR_STYLES_CATALOG, AVATAR_STYLE_MAP, TOTAL_STYLES_COUNT } from "./data/avatarStyles";
 import { STYLE_GROUPS } from "./data/styleGroups";
 import {
@@ -1348,7 +1349,7 @@ export function calculateAvatarRank(
     "Tiêu chí Giá trị chỉ chiếm 10% điểm AI và chỉ ghi nhận các vật phẩm đang mở bán trên catalog Roblox có giá niêm yết chính thức; vật phẩm Limited và Off-sale không được quy đổi sang giá trị Robux.",
   ];
 
-  return {
+  const report: ScoreReport = {
     criteria: criteriaMap,
     aiScore,
     aiWeight,
@@ -1376,4 +1377,6 @@ export function calculateAvatarRank(
     limitations,
     analysisMethod: "rule-based",
   };
+
+  return isSecretAccount(profile.id) ? applySecretAccountBoost(report) : report;
 }

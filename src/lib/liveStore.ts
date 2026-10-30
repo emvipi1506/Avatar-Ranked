@@ -12,6 +12,7 @@ import {
   sanitizeLeaderboardEntry,
   type LeaderboardEntry,
 } from "@/lib/leaderboard";
+import { isSecretEntryId } from "@/lib/secretAccount";
 
 /**
  * Bảng live dùng một store chung, không dùng localStorage.
@@ -34,32 +35,6 @@ const REDIS_TOKEN =
 
 const redis =
   REDIS_URL && REDIS_TOKEN ? new Redis({ url: REDIS_URL, token: REDIS_TOKEN }) : null;
-
-/**
- * "Trùm bí mật" của web: luôn giữ hạng 1 trên bảng live.
- * Chỉ được ghép vào lúc đọc, không ghi vào file và không bị Reset xóa.
- * Đây là content bí mật, không đụng tới bảng localStorage của người xem.
- */
-const SECRET_ENTRY: LeaderboardEntry = {
-  id: "uncie_rice",
-  username: "Uncie_Rice",
-  displayName: "CRISPYPORK",
-  avatarUrl:
-    "https://tr.rbxcdn.com/30DAY-Avatar-5921A0FB63D01764281FE9082B1B1565-Png/720/720/Avatar/Png/noFilter",
-  score: 100,
-  aiScore: 100,
-  tier: "MYTHICAL",
-  scannedAt: 0,
-  firstScannedAt: 0,
-};
-
-/** Ghép entry bí mật vào danh sách đọc từ file, loại bản trùng nếu có. */
-function withSecretEntry(entries: readonly LeaderboardEntry[]): LeaderboardEntry[] {
-  return rankLeaderboard([
-    ...entries.filter((entry) => entry.id !== SECRET_ENTRY.id),
-    SECRET_ENTRY,
-  ]).slice(0, LIVE_MAX_ENTRIES);
-}
 
 interface StoreFile {
   version: number;
@@ -91,7 +66,7 @@ function sanitizeStore(value: unknown): StoreFile {
   const byId = new Map<string, LeaderboardEntry>();
   for (const item of list) {
     const entry = sanitizeLeaderboardEntry(item);
-    if (!entry) continue;
+    if (!entry || isSecretEntryId(entry.id)) continue;
     const existing = byId.get(entry.id);
     if (
       !existing ||
@@ -147,12 +122,24 @@ async function writeStore(store: StoreFile): Promise<void> {
 
 export async function getLiveSnapshot(): Promise<LiveBoardSnapshot> {
   const store = await readStore();
-  return { entries: withSecretEntry(store.entries), updatedAt: store.updatedAt };
+  return { entries: store.entries, updatedAt: store.updatedAt };
 }
 
 export async function recordLiveEntry(next: LeaderboardEntry): Promise<LiveRecordResult> {
   return enqueue(async () => {
     const current = await readStore();
+
+    // Tài khoản chủ web không bao giờ lên bảng công khai, kể cả khi có người quét.
+    if (isSecretEntryId(next.id)) {
+      return {
+        entries: current.entries,
+        rank: null,
+        isNew: false,
+        changed: false,
+        updatedAt: current.updatedAt,
+      };
+    }
+
     const now = Date.now();
     const merged = mergeLiveEntry(current.entries, next, now);
 

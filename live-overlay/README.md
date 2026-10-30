@@ -56,7 +56,7 @@ http://localhost:4173/?api=http://localhost:3000&align=right&bg=solid
 3. Server lưu bảng live (Upstash Redis trên production, file JSON khi chạy local).
 4. Overlay gọi `GET /api/live/board` mỗi giây và cập nhật ngay khi có entry mới.
 
-Entry bí mật `CRISPYPORK` được server chèn vào danh sách trả về, overlay chỉ hiển thị.
+Entry của tài khoản chủ web (`UncIe_Rice`) luôn hiện MYTHICAL khi quét nhưng bị server loại khỏi bảng live, nên overlay không bao giờ hiển thị tên này.
 
 ## Lưu ý production
 
