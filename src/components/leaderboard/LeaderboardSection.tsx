@@ -18,6 +18,7 @@ import { cn } from "@/lib/cn";
 import { formatRelativeTime, formatScore10 } from "@/lib/format";
 import { clearLiveBoard, publishLiveScan } from "@/lib/liveClient";
 import { RARITIES } from "@/lib/rarity";
+import { isSecretEntryId } from "@/lib/secretAccount";
 import {
   LEADERBOARD_MAX_ENTRIES,
   LEADERBOARD_STORAGE_KEY,
@@ -266,6 +267,16 @@ export default function LeaderboardSection({
 
   useEffect(() => {
     if (!autoEntry) return;
+
+    // Tài khoản chủ web được giữ riêng tư: không ghi lên bảng máy hay bảng live.
+    if (isSecretEntryId(autoEntry.id)) {
+      setEntries(loadLeaderboard());
+      setNotice({
+        text: "Tài khoản này được giữ riêng tư và không ghi lên bảng xếp hạng.",
+        tone: "success",
+      });
+      return;
+    }
 
     const key = `${autoEntry.id}:${autoEntry.score}:${autoEntry.aiScore}:${autoEntry.tier}`;
     if (recordedKey.current === key) return;

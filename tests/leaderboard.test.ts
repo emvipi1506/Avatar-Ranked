@@ -163,6 +163,19 @@ describe("Leaderboard storage", () => {
     expect(loaded[0].score).toBe(80);
   });
 
+  it("ẩn tài khoản chủ web khỏi dữ liệu đã lưu", () => {
+    const storage = createStorage();
+    saveLeaderboard(
+      [
+        makeEntry({ id: "uncie_rice", username: "UncIe_Rice", score: 100 }),
+        makeEntry({ id: "alice", username: "Alice", score: 70 }),
+      ],
+      storage,
+    );
+
+    expect(loadLeaderboard(storage).map((entry) => entry.id)).toEqual(["alice"]);
+  });
+
   it("clearLeaderboard xóa sạch dữ liệu", () => {
     const storage = createStorage();
     saveLeaderboard([makeEntry()], storage);
@@ -218,6 +231,21 @@ describe("recordLeaderboardEntry", () => {
     expect(third.entries[0].username).toBe("ALICE");
     expect(third.entries[0].displayName).toBe("Alice Mới");
     expect(third.entries[0].firstScannedAt).toBe(1_000);
+  });
+
+  it("không ghi tài khoản chủ web lên bảng máy", () => {
+    const storage = createStorage();
+    recordLeaderboardEntry(makeEntry({ id: "alice", score: 70 }), storage);
+
+    const result = recordLeaderboardEntry(
+      makeEntry({ id: "uncie_rice", username: "UncIe_Rice", score: 100, tier: "MYTHICAL" }),
+      storage,
+    );
+
+    expect(result.rank).toBeNull();
+    expect(result.isNew).toBe(false);
+    expect(result.entries.map((entry) => entry.id)).toEqual(["alice"]);
+    expect(loadLeaderboard(storage).map((entry) => entry.id)).toEqual(["alice"]);
   });
 
   it("giới hạn số entry lưu trữ", () => {

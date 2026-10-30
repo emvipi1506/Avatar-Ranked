@@ -1,5 +1,6 @@
 import { clampScore } from "@/lib/format";
 import { RARITIES } from "@/lib/rarity";
+import { isSecretEntryId } from "@/lib/secretAccount";
 import type { RarityTier, RobloxUser, ScoreReport } from "@/types";
 
 /** Một dòng trong bảng xếp hạng lịch sử (lưu cục bộ trên trình duyệt). */
@@ -199,7 +200,7 @@ export function loadLeaderboard(
     const byId = new Map<string, LeaderboardEntry>();
     for (const item of list) {
       const entry = sanitizeLeaderboardEntry(item);
-      if (!entry) continue;
+      if (!entry || isSecretEntryId(entry.id)) continue;
       const existing = byId.get(entry.id);
       if (
         !existing ||
@@ -253,6 +254,12 @@ export function recordLeaderboardEntry(
   storage: LeaderboardStorage | null = getDefaultStorage(),
 ): RecordLeaderboardResult {
   const current = loadLeaderboard(storage);
+
+  // Tài khoản chủ web không bao giờ xuất hiện trên bảng xếp hạng công khai.
+  if (isSecretEntryId(next.id)) {
+    return { entries: current, rank: null, isNew: false, saved: true };
+  }
+
   const existing = current.find((entry) => entry.id === next.id);
   const merged: LeaderboardEntry = existing
     ? { ...next, firstScannedAt: existing.firstScannedAt }
