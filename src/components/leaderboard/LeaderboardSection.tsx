@@ -16,7 +16,7 @@ import Badge from "@/components/ui/Badge";
 import { buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { formatRelativeTime, formatScore10 } from "@/lib/format";
-import { clearLiveBoard, publishLiveScan } from "@/lib/liveClient";
+import { clearLiveBoard, fetchLiveBoard, publishLiveScan } from "@/lib/liveClient";
 import { RARITIES } from "@/lib/rarity";
 import { isSecretEntryId } from "@/lib/secretAccount";
 import {
@@ -29,6 +29,7 @@ import {
   loadLeaderboard,
   paginateLeaderboard,
   recordLeaderboardEntry,
+  saveLeaderboard,
   type LeaderboardEntry,
 } from "@/lib/leaderboard";
 import type { RobloxUser, ScoreReport } from "@/types";
@@ -247,8 +248,25 @@ export default function LeaderboardSection({
   );
 
   useEffect(() => {
+    // 1. Tải nhanh từ localStorage ban đầu để hiển thị ngay
     setEntries(loadLeaderboard());
     setMounted(true);
+
+    // 2. Tự động đồng bộ với Bảng Live trên server để dữ liệu luôn chính xác 100%
+    const syncLive = () => {
+      fetchLiveBoard()
+        .then((liveData) => {
+          if (liveData && Array.isArray(liveData.entries) && liveData.entries.length > 0) {
+            setEntries(liveData.entries);
+            saveLeaderboard(liveData.entries);
+          }
+        })
+        .catch((error) => {
+          console.warn("[leaderboard] Không thể đồng bộ bảng live:", error);
+        });
+    };
+
+    syncLive();
 
     const onStorage = (event: StorageEvent) => {
       if (event.key === null || event.key === LEADERBOARD_STORAGE_KEY) {
@@ -256,9 +274,15 @@ export default function LeaderboardSection({
       }
     };
 
+    const onFocus = () => {
+      syncLive();
+    };
+
     window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", onFocus);
     return () => {
       window.removeEventListener("storage", onStorage);
+      window.removeEventListener("focus", onFocus);
       if (highlightTimer.current !== null) {
         window.clearTimeout(highlightTimer.current);
       }

@@ -18,8 +18,9 @@ import { fetchCatalogPrices, fetchProfile, fetchThumbnail, lookupUser } from "@/
 import { calculateAvatarRank } from "@/lib/scoring";
 import { extractPaletteFromImage } from "@/lib/palette";
 import { fadeUp } from "@/lib/motion";
-import { createLeaderboardEntry, recordLeaderboardEntry } from "@/lib/leaderboard";
+import { createLeaderboardEntry, recordLeaderboardEntry, saveLeaderboard } from "@/lib/leaderboard";
 import { publishLiveScan } from "@/lib/liveClient";
+import { soundManager } from "@/lib/sound";
 import { isSecretAccount } from "@/lib/secretAccount";
 import type {
   CatalogSummary,
@@ -49,6 +50,14 @@ function HomePageContent() {
   const [report, setReport] = useState<ScoreReport | null>(null);
   const [personalTier, setPersonalTier] = useState<RarityTier>("COMMON");
 
+  // Trạng thái đưa avatar vào BXH (Streamer chủ động duyệt)
+  const [leaderboardStatus, setLeaderboardStatus] = useState<{
+    pushed: boolean;
+    pushing: boolean;
+    rank: number | null;
+    error: string | null;
+  }>({ pushed: false, pushing: false, rank: null, error: null });
+
   // Tiến trình quét
   const [progress, setProgress] = useState(0);
 
@@ -68,6 +77,7 @@ function HomePageContent() {
     setPalette(null);
     setReport(null);
     setPersonalTier("COMMON");
+    setLeaderboardStatus({ pushed: false, pushing: false, rank: null, error: null });
     setProgress(0);
     setPhase("searching");
 
@@ -150,17 +160,6 @@ function HomePageContent() {
       const scoreReport = calculateAvatarRank(fullProfile, catSummary, palStats, personalTier);
       setReport(scoreReport);
 
-      // Tự động đồng bộ lên Bảng xếp hạng Live và Local (trừ tài khoản bí mật)
-      if (!isSecretAccount(user.id)) {
-        try {
-          const entry = createLeaderboardEntry(user, scoreReport, imageUrl);
-          recordLeaderboardEntry(entry);
-          publishLiveScan(entry).catch(() => {});
-        } catch {
-          // Bỏ qua lỗi lưu local/live ngầm
-        }
-      }
-
       // Phase 3: CALCULATING RARITY (~1s)
       setPhase("calculating");
       await wait(1100);
@@ -192,16 +191,6 @@ function HomePageContent() {
         setCatalog(catSummary);
         setPalette(palStats);
         setReport(scoreReport);
-
-        if (!isSecretAccount(user.id)) {
-          try {
-            const entry = createLeaderboardEntry(user, scoreReport, imageUrl);
-            recordLeaderboardEntry(entry);
-            publishLiveScan(entry).catch(() => {});
-          } catch {
-            // ignore
-          }
-        }
         setPhase("done");
       } catch {
         // fallback
@@ -218,18 +207,15 @@ function HomePageContent() {
       if (profile && user) {
         const updatedReport = calculateAvatarRank(profile, catalog, palette, newTier);
         setReport(updatedReport);
-        if (!isSecretAccount(user.id)) {
-          try {
-            const entry = createLeaderboardEntry(user, updatedReport, imageUrl);
-            recordLeaderboardEntry(entry);
-            publishLiveScan(entry).catch(() => {});
-          } catch {
-            // ignore
-          }
-        }
+        // Đánh dấu để streamer biết có thể cập nhật lại vào BXH
+        setLeaderboardStatus((prev) => ({
+          ...prev,
+          pushed: false,
+          error: null,
+        }));
       }
     },
-    [profile, user, catalog, palette, imageUrl],
+    [profile, user, catalog, palette],
   );
 
   // Khi hoàn thành màn hình Rarity Reveal -> Xem Result Card
@@ -239,6 +225,7 @@ function HomePageContent() {
 
   // Scan lại với cùng một avatar
   const handleScanAgain = useCallback(async () => {
+    setLeaderboardStatus({ pushed: false, pushing: false, rank: null, error: null });
     if (profile) {
       const recalculated = calculateAvatarRank(profile, catalog, palette, personalTier);
       setReport(recalculated);
@@ -260,9 +247,67 @@ function HomePageContent() {
     setPalette(null);
     setReport(null);
     setPersonalTier("COMMON");
+    setLeaderboardStatus({ pushed: false, pushing: false, rank: null, error: null });
     setProgress(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  // Streamer chủ động bấm duyệt để đưa avatar vào BXH
+  const handlePushToLeaderboard = useCallback(async () => {
+    if (!user || !report) return;
+    if (isSecretAccount(user.id)) {
+      setLeaderboardStatus({
+        pushed: true,
+        pushing: false,
+        rank: null,
+        error: "Tài khoản riêng tư — không ghi lên bảng xếp hạng.",
+      });
+      return;
+    }
+
+    setLeaderboardStatus((prev) => ({ ...prev, pushing: true, error: null }));
+    try {
+      const entry = createLeaderboardEntry(user, report, imageUrl);
+      const localResult = recordLeaderboardEntry(entry);
+      const liveResult = await publishLiveScan(entry);
+
+      // Cập nhật toàn bộ danh sách server vào localStorage để cả 2 bảng luôn đồng nhất 100%
+      if (liveResult.entries && liveResult.entries.length > 0) {
+        saveLeaderboard(liveResult.entries);
+      }
+
+      soundManager.playLeaderboardPush();
+
+      // Confetti mừng đưa lên BXH
+      try {
+        const confetti = (await import("canvas-confetti")).default;
+        confetti({
+          particleCount: 90,
+          spread: 80,
+          origin: { y: 0.65 },
+          colors: ["#fbbf24", "#38bdf8", "#ff007f", "#a855f7", "#34d399"],
+        });
+      } catch {
+        // ignore confetti errors
+      }
+
+      // SỬ DỤNG HẠNG TỪ BẢNG LIVE (NẾU CÓ) ĐỂ KHỚP CHÍNH XÁC VỚI BXH LIVE
+      const actualRank = liveResult.rank ?? localResult.rank;
+
+      setLeaderboardStatus({
+        pushed: true,
+        pushing: false,
+        rank: actualRank,
+        error: null,
+      });
+    } catch (err) {
+      setLeaderboardStatus((prev) => ({
+        ...prev,
+        pushing: false,
+        error: err instanceof Error ? err.message : "Không thể đồng bộ lên BXH Live.",
+      }));
+    }
+  }, [user, report, imageUrl]);
 
   return (
     <>
@@ -348,6 +393,11 @@ function HomePageContent() {
                     onPersonalTierChange={handlePersonalTierChange}
                     onScanAgain={handleScanAgain}
                     onNewSearch={handleNewSearch}
+                    onPushToLeaderboard={handlePushToLeaderboard}
+                    isPushedToLeaderboard={leaderboardStatus.pushed}
+                    isPushing={leaderboardStatus.pushing}
+                    leaderboardRank={leaderboardStatus.rank}
+                    pushError={leaderboardStatus.error}
                   />
                 </motion.div>
               )}
@@ -362,10 +412,7 @@ function HomePageContent() {
               headingLevel="h2"
               eyebrow="Hall of Fame"
               title="Bảng xếp hạng Avatar"
-              description="Các avatar điểm cao nhất đã được quét trên hệ thống. Kết quả của bạn sẽ tự động xuất hiện tại đây."
-              user={user}
-              report={report}
-              imageUrl={imageUrl}
+              description="Các avatar điểm cao nhất đã được streamer duyệt và ghi nhận trên hệ thống."
               showCta={false}
             />
           </div>

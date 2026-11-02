@@ -45,3 +45,23 @@ export async function clearLiveBoard(): Promise<boolean> {
   });
   return response.ok;
 }
+
+export interface LiveBoardResponse {
+  version?: number;
+  updatedAt: number;
+  entries: LeaderboardEntry[];
+  total: number;
+}
+
+/** Tải dữ liệu bảng live thời gian thực từ server. */
+export async function fetchLiveBoard(): Promise<LiveBoardResponse> {
+  const response = await fetch(LIVE_API, {
+    method: "GET",
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await errorFromResponse(response));
+  }
+  return (await response.json()) as LiveBoardResponse;
+}
+

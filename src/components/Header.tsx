@@ -54,6 +54,19 @@ export default function Header() {
               <Trophy className="h-4 w-4 text-amber-400" />
               <span>BXH</span>
             </Link>
+            <Link
+              id="nav-live-stream"
+              href="/live"
+              target="_blank"
+              className="flex items-center gap-1.5 rounded-lg border border-rose-500/40 bg-rose-500/10 px-2.5 py-1.5 font-bold text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)] transition hover:bg-rose-500/20 hover:text-rose-200 sm:px-3 sm:py-2"
+              title="Mở màn hình chiếu BXH Fullscreen dành riêng cho Stream / OBS"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+              </span>
+              <span>MÀN HÌNH LIVE</span>
+            </Link>
             <a
               id="nav-how-it-works"
               href="/#how-it-works"

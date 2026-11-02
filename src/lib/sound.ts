@@ -295,6 +295,55 @@ class SoundManager {
       }
     }
   }
+
+  // --- Âm thanh streamer đưa avatar vào BXH ---
+  public playLeaderboardPush() {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+      gain.gain.setValueAtTime(0.12, now + idx * 0.07);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + idx * 0.07);
+      osc.stop(now + idx * 0.07 + 0.4);
+    });
+  }
+
+  // --- Âm thanh Fanfare ăn mừng trên màn hình Live stream ---
+  public playFanfare() {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    // Tinh tinh tinh tòooo
+    const notes = [
+      { freq: 440, time: 0, dur: 0.12 },
+      { freq: 554.37, time: 0.12, dur: 0.12 },
+      { freq: 659.25, time: 0.24, dur: 0.12 },
+      { freq: 880, time: 0.36, dur: 0.6 },
+    ];
+    notes.forEach((n) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(n.freq, now + n.time);
+      gain.gain.setValueAtTime(0.15, now + n.time);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + n.time + n.dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + n.time);
+      osc.stop(now + n.time + n.dur);
+    });
+  }
 }
 
 export const soundManager = new SoundManager();

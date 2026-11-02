@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   RotateCcw,
@@ -43,6 +44,11 @@ interface ResultCardProps {
   onPersonalTierChange: (tier: RarityTier) => void;
   onScanAgain: () => void;
   onNewSearch: () => void;
+  onPushToLeaderboard?: () => Promise<void>;
+  isPushedToLeaderboard?: boolean;
+  isPushing?: boolean;
+  leaderboardRank?: number | null;
+  pushError?: string | null;
 }
 
 export default function ResultCard({
@@ -54,6 +60,11 @@ export default function ResultCard({
   onPersonalTierChange,
   onScanAgain,
   onNewSearch,
+  onPushToLeaderboard,
+  isPushedToLeaderboard = false,
+  isPushing = false,
+  leaderboardRank = null,
+  pushError = null,
 }: ResultCardProps) {
   const {
     rarity: systemRarity,
@@ -776,6 +787,81 @@ ${cosplayResult?.characterName ? `🎭 Cosplay: ${cosplayResult.characterName} (
         </div>
       </motion.div>
 
+      {/* KHU VỰC STREAMER: ĐƯA VÀO BXH LIVE */}
+      {onPushToLeaderboard && (
+        <div className="mt-8 overflow-hidden rounded-2xl border border-cyan-500/40 bg-gradient-to-br from-[#0c1427] via-[#101935] to-[#1a1033] p-5 shadow-[0_0_30px_rgba(70,200,255,0.18)]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#46C8FF] via-[#A855F7] to-[#FF007F] p-[1.5px] shadow-lg shadow-cyan-500/20">
+                <div className="flex h-full w-full items-center justify-center rounded-[14px] bg-[#080A12]">
+                  <Trophy className="h-7 w-7 text-amber-400 animate-pulse" />
+                </div>
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/20 px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-cyan-300 border border-cyan-500/30">
+                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
+                    Dành cho Streamer
+                  </span>
+                  {isPushedToLeaderboard && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[11px] font-bold text-emerald-400 border border-emerald-500/40">
+                      <Check className="h-3 w-3" /> ĐÃ LÊN BXH LIVE
+                    </span>
+                  )}
+                </div>
+                <h4 className="mt-1 text-base font-extrabold text-white">
+                  {isPushedToLeaderboard
+                    ? `Đã cập nhật @${user.name} lên BXH${leaderboardRank ? ` (Hạng #${leaderboardRank})` : ""}!`
+                    : `Cập nhật @${user.name} vào Bảng Xếp Hạng Live?`}
+                </h4>
+                <p className="text-xs text-slate-300">
+                  {isPushedToLeaderboard
+                    ? "Màn hình chiếu cho viewer đã nhận dữ liệu mới. Bạn có thể bấm cập nhật lại nếu đổi gu cá nhân."
+                    : "Chỉ khi bạn bấm duyệt, kết quả này mới được chiếu lên màn hình BXH cho người xem stream."}
+                </p>
+                {pushError && (
+                  <p className="mt-1 text-xs text-rose-400 font-medium">
+                    ⚠️ {pushError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <button
+              id="btn-streamer-push-leaderboard"
+              type="button"
+              onClick={() => {
+                soundManager.playClick();
+                void onPushToLeaderboard();
+              }}
+              disabled={isPushing}
+              className={`relative flex shrink-0 items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-xl transition-all duration-200 active:scale-95 disabled:opacity-60 ${
+                isPushedToLeaderboard
+                  ? "border border-amber-400/40 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 hover:bg-amber-500/30 shadow-[0_0_20px_rgba(251,191,36,0.2)]"
+                  : "bg-gradient-to-r from-[#46C8FF] via-[#A855F7] to-[#FF007F] hover:shadow-[0_0_25px_rgba(70,200,255,0.4)] hover:scale-105"
+              }`}
+            >
+              {isPushing ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span>ĐANG ĐẨY LÊN LIVE...</span>
+                </>
+              ) : isPushedToLeaderboard ? (
+                <>
+                  <Sparkles className="h-4 w-4 text-amber-400" />
+                  <span>CẬP NHẬT LẠI VÀO BXH</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 text-yellow-300 animate-spin" />
+                  <span>⭐ ĐƯA VÀO BXH LIVE</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ACTION BUTTONS GRID */}
       <div className="mt-8 border-t border-white/10 pt-6">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -842,6 +928,19 @@ ${cosplayResult?.characterName ? `🎭 Cosplay: ${cosplayResult.characterName} (
             <Trophy className="h-3.5 w-3.5 text-amber-400" />
             <span>Xem trên BXH ↓</span>
           </a>
+
+          <Link
+            id="link-open-live-board"
+            href="/live"
+            target="_blank"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-xs font-bold text-rose-300 transition hover:bg-rose-500/20 hover:text-rose-200"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+            </span>
+            <span>Màn Hình Chiếu Live ↗</span>
+          </Link>
 
           <button
             id="btn-new-search"
